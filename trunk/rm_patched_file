@@ -1,0 +1,7 @@
+rm -f OpenSim/Framework/IMoneyModule.cs
+rm -f OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
+rm -f OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
+rm -f OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
+rm -f OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
+
+rm -f OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs
