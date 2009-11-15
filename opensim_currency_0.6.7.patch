@@ -1,6 +1,6 @@
 diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/IMoneyModule.cs
---- opensim-/OpenSim/Framework/IMoneyModule.cs	2009-09-23 01:47:53.000000000 +0900
-+++ opensim/OpenSim/Framework/IMoneyModule.cs	2009-09-23 01:49:49.000000000 +0900
+--- opensim-/OpenSim/Framework/IMoneyModule.cs	2009-11-11 00:38:25.000000000 +0900
++++ opensim/OpenSim/Framework/IMoneyModule.cs	2009-11-11 00:39:02.000000000 +0900
 @@ -29,7 +29,12 @@
  
  namespace OpenSim.Framework
@@ -24,9 +24,9 @@ diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/I
  
      public struct EconomyData
 diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
---- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-09-23 01:47:53.000000000 +0900
-+++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-09-23 01:49:49.000000000 +0900
-@@ -1591,6 +1591,12 @@
+--- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-11-11 00:38:25.000000000 +0900
++++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-11-11 00:39:02.000000000 +0900
+@@ -1595,6 +1595,12 @@
                  {
                      //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
                      //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
@@ -39,7 +39,7 @@ diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensi
                  }
  
                  m_httpListener2.RequestReceived += OnRequest;
-@@ -1606,7 +1612,7 @@
+@@ -1610,7 +1616,7 @@
                  //{
                  //    context = m_httpListener.GetContext();
                  //    ThreadPool.QueueUserWorkItem(new WaitCallback(HandleRequest), context);
@@ -49,8 +49,8 @@ diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensi
              catch (Exception e)
              {
 diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
---- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-09-23 01:47:53.000000000 +0900
-+++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-09-23 01:49:49.000000000 +0900
+--- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-11-11 00:38:25.000000000 +0900
++++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-11-11 00:39:02.000000000 +0900
 @@ -107,6 +107,7 @@
          #region IMoneyModule Members
  
@@ -87,8 +87,8 @@ diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyM
                  PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
                  PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
 diff -Nur opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs opensim/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
---- opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-09-23 01:47:53.000000000 +0900
-+++ opensim/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-09-23 01:49:49.000000000 +0900
+--- opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-11-11 00:38:25.000000000 +0900
++++ opensim/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-11-11 00:39:02.000000000 +0900
 @@ -107,25 +107,46 @@
  
              IMoneyModule money =
@@ -168,8 +168,8 @@ diff -Nur opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs open
  
          // TODO: Replace placeholders below
 diff -Nur opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
---- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-09-23 01:47:53.000000000 +0900
-+++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-09-23 01:49:49.000000000 +0900
+--- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-11-11 00:38:25.000000000 +0900
++++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-11-11 00:39:02.000000000 +0900
 @@ -67,6 +67,7 @@
              if (money != null)
              {

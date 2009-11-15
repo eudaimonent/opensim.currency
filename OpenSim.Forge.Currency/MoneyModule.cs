@@ -388,7 +388,7 @@ public BaseHttpServer HttpServer;
         {
             ILandObject obj = avatar.Scene.LandChannel.GetLandObject(avatar.AbsolutePosition.X, avatar.AbsolutePosition.Y);
             //if ((obj.landData.Flags & (uint)Parcel.ParcelFlags.AllowDamage) != 0)  for r10084
-            if ((obj.LandData.Flags & (uint)RegionFlags.AllowDamage) != 0)
+            if ((obj.landData.Flags & (uint)RegionFlags.AllowDamage) != 0)
             {
                 avatar.Invulnerable = false;
             }
