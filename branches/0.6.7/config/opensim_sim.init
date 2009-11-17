@@ -1,0 +1,84 @@
+#!/bin/bash
+#
+# OpenSim Server (gridmode)
+#
+#
+
+OSDIR=/usr/local/opensim
+MONO=/usr/local/bin/mono
+SCRNID=opensim_sim
+
+CHKTM=30
+
+PRGFL=/etc/init.d/opensim_sim
+PIDFL=/var/run/opensim_sim_shell.pid
+
+
+start() {
+	echo "OpenSim SIM Start."
+	cd $OSDIR/bin
+	screen -dmS opensim_sim $MONO $OSDIR/bin/OpenSim.exe
+}       
+
+
+
+stop() {
+	screen -S $SCRNID -p 0 -X stuff $'quit\n' 1> /dev/null 2>&1
+	echo "OpenSim SIM Stoped."
+}
+
+
+
+kill_loop() {
+	PID=`cat $PIDFL 2> /dev/null`
+	if [ "$PID" != "" ]; then
+		kill -9 $PID 2> /dev/null
+		rm -f $PIDFL
+	fi
+}
+
+
+
+loop_check() {
+	kill_loop
+	echo $$ >| $PIDFL
+
+	while [ "" = "" ]; do
+		sleep $CHKTM
+		CHECK=`ps ax|grep SCREEN |grep $SCRNID`
+		if [ "$CHECK" = "" ]; then
+			start
+		fi
+	done
+}
+
+
+
+case "$1" in
+  start)
+	start
+	/bin/bash $PRGFL check &
+	;;
+  stop)
+	kill_loop
+	sleep 3
+	stop
+	;;
+  restart|reload)
+	kill_loop
+	sleep 3
+	stop
+	sleep  20
+    start
+	/bin/bash $PRGFL check &
+	;;
+  check)
+	loop_check
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
