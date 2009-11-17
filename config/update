@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CRNCYDIR=opensim.currency
+
+./runprebuild.sh && nant clean && nant
+
+(cd $CRNCYDIR/OpenSim.Data.MySQL.MySQLMoneyDataWrapper && rm -f OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll && nant && cp OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../../bin)
+(cd $CRNCYDIR/OpenSim.Grid.MoneyServer/ && rm  -f OpenSim.Grid.MoneyServer.exe && nant && cp OpenSim.Grid.MoneyServer.exe ../../bin)
+(cd $CRNCYDIR/OpenSim.Forge.Currency/ && rm -f OpenSim.Forge.Currency.dll && nant && cp OpenSim.Forge.Currency.dll ../../bin)
