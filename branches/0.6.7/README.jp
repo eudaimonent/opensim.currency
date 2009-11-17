@@ -27,7 +27,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり，このシステムについては
  # tar xzfv opensim.currency-0.6.7.tar.gz 
  # patch -p1 < opensim.currency-0.6.7/opensim_currency_0.6.7.patch
  # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency
+ # cd opensim.currency-0.6.7
  # ./build.sh
 
 
