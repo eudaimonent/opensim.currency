@@ -1,0 +1,66 @@
+
+ Money Server for OpenSim 0.6.7
+                                                           by Fumi.Iseki and NSL '09 11/17
+
+
+0. Outline
+
+  This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
+As for this, some bug fixes are done. And this can be operated by OpenSim 0.6.7. 
+  But, WEB Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
+version!! Please use this at your own risk!!
+
+
+1. Install
+
+ # cd opensim-0.6.7-release
+ # tar xzfv opensim.currency_0.6.7.tar.gz 
+ # patch -p1 < opensim.currency/opensim_currency_0.6.7.patch
+ # ./runprebuild.sh && nant clean && nant
+ # cd opensim.currency
+ # ./build.sh
+
+
+2. Setting
+
+2-1. Money Server
+
+ # cd opensim-0.6.7-release
+ # vi bin/MoneyServer.ini 
+
+    Plese set hostname, database, username and password of MySQL at [MySql] section.
+
+
+2-2. Region Server
+
+ # cd opensim-0.6.7-release
+ # vi bin/OpenSim.ini 
+
+ [Economy]
+   SellEnabled = "true"
+   CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
+   EconomyModule  = DTLMoneyModule
+
+
+Attention) 
+  Not use 127.0.0.1 for UserServer's IP address at OpenSim.ini. This IP Address is used for 
+identification of user on Money Server.
+
+
+3. Execution
+
+3-1. Money Server
+
+ # cd opensim-0.6.7-release
+ # cd bin
+ # mono OpenSim.Grid.MoneyServer.exe
+
+
+3-2. Region Server
+
+ # cd opensim-0.6.7-release
+ # cd bin
+ # mono OpenSim.exe
+
+
+
