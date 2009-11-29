@@ -1,6 +1,6 @@
-cp -f ../../../opensim/OpenSim/Framework/IMoneyModule.cs opensim-/OpenSim/Framework/IMoneyModule.cs
-cp -f ../../../opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
-#cp -f ../../../opensim/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
-cp -f ../../../opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
-cp -f ../../../opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
+cp -f ../../OpenSim/Framework/IMoneyModule.cs opensim-/OpenSim/Framework/IMoneyModule.cs
+cp -f ../../OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
+#cp -f ../../OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs opensim-/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
+cp -f ../../OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
+cp -f ../../OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
 
