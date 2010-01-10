@@ -1,17 +1,17 @@
 #!/bin/bash
 #
 #
-cd opensim.currency;
-svn update
-cd ..
+#cd opensim.currency;
+#svn update
+#cd ..
 
-./opensim.currency/rm_patched_file 
-if [ -d .svn ]; then
-	./opensim.currency/svn_update_original_file
-fi
-if [ -d .git ]; then
-	./opensim.currency/git_update_original_file
-fi
-
-echo
+#./opensim.currency/rm_patched_file 
+#if [ -d .svn ]; then
+#	./opensim.currency/svn_update_original_file
+#fi
+#if [ -d .git ]; then
+#	./opensim.currency/git_update_original_file
+#fi
+#
+#echo
 patch -p1 < opensim.currency/opensim_currency_latest.patch 
