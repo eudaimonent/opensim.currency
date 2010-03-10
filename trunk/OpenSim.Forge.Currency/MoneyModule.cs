@@ -38,8 +38,9 @@ using OpenMetaverse;
 
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
-using OpenSim.Framework.Communications.Cache;
-using OpenSim.Framework.Servers.HttpServer;
+//using OpenSim.Framework.Communications.Cache;
+using OpenSim.Services.Interfaces;
+using OpenSim.Services.UserAccountService;
 
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
@@ -86,7 +87,7 @@ namespace OpenSim.Forge.Currency
         public event ObjectPaid OnObjectPaid;
         public event PostObjectPaid OnPostObjectPaid;
 
-public BaseHttpServer HttpServer;
+        public BaseHttpServer HttpServer;
 
         #endregion
 
@@ -214,11 +215,17 @@ public BaseHttpServer HttpServer;
             }
             if (scene != null)
             {
-                CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(toID);
-                if (profile != null && profile.UserProfile != null)
+                UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
+                if (account != null)
                 {
-                    avatarName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
+                    avatarName = account.FirstName + " " + account.LastName;
                 }
+
+                //CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(toID);
+                //if (profile != null && profile.UserProfile != null)
+                //{
+                //    avatarName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
+                //}
             }
 
             string description = String.Format("Object {0} pays {1}", objName, avatarName);
@@ -805,11 +812,17 @@ public BaseHttpServer HttpServer;
                 {
                     if (scene != null)
                     {
-                        CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
-                        if (profile != null && profile.UserProfile != null)
+                        UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, client.AgentId);
+                        if (account != null)
                         {
-                            userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
+                            userName = account.FirstName + " " + account.LastName;
                         }
+
+                        //CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
+                        //if (profile != null && profile.UserProfile != null)
+                        //{
+                        //    userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
+                        //}
                     }
                 }
 
