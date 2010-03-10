@@ -37,6 +37,8 @@
 				<include name="${referdir}/OpenSim.Framework.Servers.HttpServer.dll" />
 				<include name="${referdir}/OpenSim.Framework.Communications.dll" />
 				<include name="${referdir}/OpenSim.Framework.Statistics.dll" />
+				<include name="${referdir}/OpenSim.Services.Interfaces.dll" />
+				<include name="${referdir}/OpenSim.Services.UserAccountService.dll" />
 			</references>
 		</csc>
 	</target>
