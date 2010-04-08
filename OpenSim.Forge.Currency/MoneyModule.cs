@@ -106,6 +106,12 @@ namespace OpenSim.Forge.Currency
                 // Refer to the [Startup] secion and check if current is grid mode or standalone.
                 IConfig networkConfig = m_config.Configs["Network"];
                 m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
+
+				if (m_userServIP=="") {
+                	IConfig networkConfig = m_config.Configs["Network"];
+                	m_userServIP = Util.GetHostFromURL(networkConfig.GetString("UserServerURL")).ToString();
+				}
+
                 IConfig economyConfig = m_config.Configs["Economy"];
                 m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
                 // Check if the DTLMoneyModule is configured to load.
