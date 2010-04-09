@@ -1,9 +1,7 @@
 #!/bin/bash
 #
 #
-cd opensim.currency;
-svn update
-cd ..
+(cd opensim.currency && svn update)
 
 #./opensim.currency/rm_patched_file 
 #if [ -d .svn ]; then
