@@ -8,14 +8,14 @@ OPNSIMPATH=./bin
 (cd OpenSim.Grid.MoneyServer/ && nant && mv *.exe ../$OPNSIMPATH)
 
 
-if [ ! -f $CONFIGPATH/MoneyServer.ini ]; then
+if [ ! -f $OPNSIMPATH/MoneyServer.ini ]; then
 	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH
 fi
 
-if [ ! -f $CONFIGPATH/OpenSim.Grid.MoneyServer.exe.config ]; then
+if [ ! -f $OPNSIMPATH/OpenSim.Grid.MoneyServer.exe.config ]; then
 	cp $CONFIGPATH/OpenSim.Grid.MoneyServer.exe.config $OPNSIMPATH
 fi
 
-if [ ! -f $CONFIGPATH/SineWaveCert.pfx ]; then
+if [ ! -f $OPNSIMPATH/SineWaveCert.pfx ]; then
 	cp $CONFIGPATH/SineWaveCert.pfx $OPNSIMPATH
 fi
