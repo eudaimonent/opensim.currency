@@ -2,7 +2,7 @@
 <project name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" default="build">
 	<echo message="Project Directory is ${project::get-base-directory()}" />
 	<property name="basename" value="OpenSim.Data.MySQL.MySQLMoneyDataWrapper"/>
-	<property name="referdir" value="../../bin"/>
+	<property name="referdir" value="../bin"/>
 
 	<target name="build">
 		<csc target="library" output="${basename}.dll" warnaserror="False">
