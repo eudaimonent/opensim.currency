@@ -2,7 +2,7 @@
 <project name="OpenSim.Forge.Currency" default="build">
 	<echo message="Project Directory is ${project::get-base-directory()}" />
 	<property name="basename" value="OpenSim.Forge.Currency"/>
-	<property name="referdir" value="../../bin"/>
+	<property name="referdir" value="../bin"/>
 
 	<target name="build">
 		<csc target="library" output="${basename}.dll" warnaserror="False">
