@@ -32,7 +32,7 @@ using log4net;
 using Nwc.XmlRpc;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
-//using OpenSim.Grid.Framework;
+using OpenSim.Grid.Framework;
 using System.Reflection;
 using System.Collections;
 using System.Net;
