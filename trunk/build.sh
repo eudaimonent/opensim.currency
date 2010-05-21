@@ -3,9 +3,9 @@
 CONFIGPATH=./config
 OPNSIMPATH=./bin
 
-(cd OpenSim.Data.MySQL.MySQLMoneyDataWrapper/ && nant && cp *.dll ../$OPNSIMPATH)
-(cd OpenSim.Forge.Currency/ && nant && cp *.dll ../$OPNSIMPATH)
-(cd OpenSim.Grid.MoneyServer/ && nant && cp *.exe ../$OPNSIMPATH)
+(cd OpenSim.Data.MySQL.MySQLMoneyDataWrapper/ && nant && mv *.dll ../$OPNSIMPATH)
+(cd OpenSim.Forge.Currency/ && nant && mv *.dll ../$OPNSIMPATH)
+(cd OpenSim.Grid.MoneyServer/ && nant && mv *.exe ../$OPNSIMPATH)
 
 
 if [ ! -f $CONFIGPATH/MoneyServer.ini ]; then
