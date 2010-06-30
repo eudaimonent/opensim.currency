@@ -1,6 +1,6 @@
 diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/IMoneyModule.cs
---- opensim-/OpenSim/Framework/IMoneyModule.cs	2009-12-14 17:35:54.000000000 +0900
-+++ opensim/OpenSim/Framework/IMoneyModule.cs	2009-12-14 17:36:52.000000000 +0900
+--- opensim-/OpenSim/Framework/IMoneyModule.cs	2009-12-26 14:24:42.000000000 +0900
++++ opensim/OpenSim/Framework/IMoneyModule.cs	2009-12-26 14:25:37.000000000 +0900
 @@ -29,7 +29,12 @@
  
  namespace OpenSim.Framework
@@ -24,9 +24,9 @@ diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/I
  
      public struct EconomyData
 diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
---- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-12-14 17:35:54.000000000 +0900
-+++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-12-14 17:36:52.000000000 +0900
-@@ -1595,6 +1595,12 @@
+--- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-12-26 14:24:42.000000000 +0900
++++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-12-26 14:25:37.000000000 +0900
+@@ -1618,6 +1618,12 @@
                  {
                      //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
                      //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
@@ -34,14 +34,14 @@ diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensi
 +					         new System.Security.Cryptography.X509Certificates.X509Certificate2("SineWaveCert.pfx", "123");
 +					m_httpListener2 = CoolHTTPListener.Create(IPAddress.Any, (int)m_port, cert);
 +					m_httpListener2.ExceptionThrown += httpServerException;
-+					m_httpListener2.LogWriter = httpserverlog;
++					//m_httpListener2.LogWriter = httpserverlog;
 +					//m_httpListener2.DisconnectHandler = httpServerDisconnectMonitor; 
                  }
  
                  m_httpListener2.RequestReceived += OnRequest;
 diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
---- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-12-14 17:35:54.000000000 +0900
-+++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-12-14 17:36:52.000000000 +0900
+--- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-12-26 14:24:42.000000000 +0900
++++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2009-12-26 14:25:37.000000000 +0900
 @@ -107,6 +107,7 @@
          #region IMoneyModule Members
  
@@ -78,8 +78,8 @@ diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyM
                  PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
                  PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
 diff -Nur opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
---- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-12-14 17:35:54.000000000 +0900
-+++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-12-14 17:36:52.000000000 +0900
+--- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-12-26 14:24:42.000000000 +0900
++++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-12-26 14:25:37.000000000 +0900
 @@ -67,6 +67,7 @@
              if (money != null)
              {

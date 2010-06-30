@@ -38,9 +38,8 @@ using OpenMetaverse;
 
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
-//using OpenSim.Framework.Communications.Cache;
-using OpenSim.Services.Interfaces;
-using OpenSim.Services.UserAccountService;
+using OpenSim.Framework.Communications.Cache;
+using OpenSim.Framework.Servers.HttpServer;
 
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
@@ -87,7 +86,7 @@ namespace OpenSim.Forge.Currency
         public event ObjectPaid OnObjectPaid;
         public event PostObjectPaid OnPostObjectPaid;
 
-        public BaseHttpServer HttpServer;
+public BaseHttpServer HttpServer;
 
         #endregion
 
@@ -105,15 +104,8 @@ namespace OpenSim.Forge.Currency
                 m_config = source;
                 // Refer to the [Startup] secion and check if current is grid mode or standalone.
                 IConfig networkConfig = m_config.Configs["Network"];
-                m_userServIP = "";
- 				if (networkConfig.Contains("user_server_url")) {
-                	m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
-				}
-
+                m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
                 IConfig economyConfig = m_config.Configs["Economy"];
-				if (m_userServIP=="") {
-                	m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
-				}
                 m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
                 // Check if the DTLMoneyModule is configured to load.
                 if (economyConfig.GetString("EconomyModule").ToString() != "DTLMoneyModule")
@@ -222,17 +214,11 @@ namespace OpenSim.Forge.Currency
             }
             if (scene != null)
             {
-                UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
-                if (account != null)
+                CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(toID);
+                if (profile != null && profile.UserProfile != null)
                 {
-                    avatarName = account.FirstName + " " + account.LastName;
+                    avatarName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
                 }
-
-                //CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(toID);
-                //if (profile != null && profile.UserProfile != null)
-                //{
-                //    avatarName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
-                //}
             }
 
             string description = String.Format("Object {0} pays {1}", objName, avatarName);
@@ -819,17 +805,11 @@ namespace OpenSim.Forge.Currency
                 {
                     if (scene != null)
                     {
-                        UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, client.AgentId);
-                        if (account != null)
+                        CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
+                        if (profile != null && profile.UserProfile != null)
                         {
-                            userName = account.FirstName + " " + account.LastName;
+                            userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
                         }
-
-                        //CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
-                        //if (profile != null && profile.UserProfile != null)
-                        //{
-                        //    userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
-                        //}
                     }
                 }
 

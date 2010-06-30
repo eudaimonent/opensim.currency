@@ -28,7 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-//using OpenSim.Grid.Framework;
+using OpenSim.Grid.Framework;
 using OpenSim.Framework;
 using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
