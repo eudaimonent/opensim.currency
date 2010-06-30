@@ -1,7 +1,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Money Server for OpenSim 0.6.7 for Linux/Unix
+//  Money Server for OpenSim 0.6.x for Linux/Unix
 //                                                        by Fumi.Iseki and NSL '09 11/17
 //                                                        http://www.nsl.tuis.ac.jp
 
@@ -10,7 +10,7 @@
 0. Outline
 
  This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
- As for this, some bug fixes are done. And this can be operated by OpenSim 0.6.7. 
+ As for this, some bug fixes are done. And this can be operated by OpenSim 0.6.x. 
  But, WEB Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
  version!! Please use this at your own risk!!
 
@@ -18,11 +18,11 @@
 
 1. Install
 
- # cd opensim-0.6.7-release
- # tar xzfv opensim.currency-0.6.7.tar.gz 
- # patch -p1 < opensim.currency-0.6.7/opensim_currency_0.6.7.patch
+ # cd opensim-0.6.x-release
+ # tar xzfv opensim.currency-0.6.x.tar.gz 
+ # patch -p1 < opensim.currency-0.6.x/opensim_currency_0.6.x.patch
  # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-0.6.7
+ # cd opensim.currency-0.6.x
  # ./build.sh
 
 
@@ -31,7 +31,7 @@
 
 2-1. Money Server
 
- # cd opensim-0.6.7-release
+ # cd opensim-0.6.x-release
  # vi bin/MoneyServer.ini 
 
     Plese set hostname, database, username and password of MySQL at [MySql] section.
@@ -39,7 +39,7 @@
 
 2-2. Region Server
 
- # cd opensim-0.6.7-release
+ # cd opensim-0.6.x-release
  # vi bin/OpenSim.ini 
 
  [Economy]
@@ -58,14 +58,14 @@ Attention)
 
 3-1. Money Server
 
- # cd opensim-0.6.7-release
+ # cd opensim-0.6.x-release
  # cd bin
  # mono OpenSim.Grid.MoneyServer.exe
 
 
 3-2. Region Server
 
- # cd opensim-0.6.7-release
+ # cd opensim-0.6.x-release
  # cd bin
  # mono OpenSim.exe
 
