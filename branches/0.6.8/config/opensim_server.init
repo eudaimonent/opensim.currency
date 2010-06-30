@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# OpenSim Server (gridmode)
+#
+#
+
+OSDIR=/usr/local/opensim_server
+MONO=/usr/local/bin/mono
+
+
+start() {
+    cd $OSDIR/bin
+    echo "OpenSim User Server Start."
+    screen -dmS opensim_user    $MONO $OSDIR/bin/OpenSim.Grid.UserServer.exe
+
+    #sleep 10
+    #echo "OpenSim Grid Server Start."
+    #screen -dmS opensim_grid $MONO $OSDIR/bin/OpenSim.Grid.GridServer.exe
+
+    sleep 10
+    echo "OpenSim R.O.B.U.S.T. Server Start."
+    screen -dmS opensim_robust  $MONO $OSDIR/bin/OpenSim.Server.exe
+
+    sleep 10
+    echo "OpenSim Messaging Server Start."
+    screen -dmS opensim_message $MONO $OSDIR/bin/OpenSim.Grid.MessagingServer.exe
+
+    if [ -f $OSDIR/bin/OpenSim.Grid.MoneyServer.exe ]; then
+        sleep 10
+        echo "OpenSim Money Server Start."
+        screen -dmS opensim_bank $MONO $OSDIR/bin/OpenSim.Grid.MoneyServer.exe
+    fi
+}
+
+
+stop() {
+    if [ -f $OSDIR/bin/OpenSim.Grid.MoneyServer.exe ]; then
+        screen -S opensim_bank -p 0 -X stuff $'quit\n'
+        echo "OpenSim Money Server Stoped."
+        sleep 5
+    fi
+
+    screen -S opensim_message -p 0 -X stuff $'quit\n'
+    echo "OpenSim Messaging Server Stoped."
+    sleep 5
+
+    screen -S opensim_robust  -p 0 -X stuff $'quit\n'
+    echo "OpenSim R.O.B.U.S.T. Server Stoped."
+    sleep 5
+
+    #screen -S opensim_grid -p 0 -X stuff $'quit\n'
+    #echo "OpenSim Grid Server Stoped."
+    #sleep 5
+
+    screen -S opensim_user    -p 0 -X stuff $'quit\n'
+    echo "OpenSim User Server Stoped."
+}
+
+
+restart() {
+    stop
+    sleep 10
+    start
+}
+
+
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload)
+    restart
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?
+
