@@ -1,8 +1,0 @@
-git checkout -- OpenSim/Framework/IMoneyModule.cs
-git checkout -- OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
-git checkout -- OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
-git checkout -- OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
-
-git checkout -- OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
-
-git pull
