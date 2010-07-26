@@ -248,13 +248,15 @@ namespace OpenSim.Forge.Currency
         }
 
 
-        public void ApplyUploadCharge(UUID agentID)
+        //public void ApplyUploadCharge(UUID agentID)
+		public void ApplyUploadCharge(UUID agentID, int amount, string text)
         {
             // Empty!
         }
 
 
-        public bool UploadCovered(IClientAPI client)
+        //public bool UploadCovered(IClientAPI client)
+		public bool UploadCovered(IClientAPI client, int amount)
         {
             return true;
         }
@@ -284,10 +286,25 @@ namespace OpenSim.Forge.Currency
         }
 
 
+		/*
         public EconomyData GetEconomyData()
         {
             return new EconomyData();
         }
+		*/
+		
+
+        public int UploadCharge
+        {
+            get { return 0; }
+        }
+
+
+        public int GroupCreationCharge
+        {
+            get { return 0; }
+        }
+
 
         #endregion
 
