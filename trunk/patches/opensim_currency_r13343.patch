@@ -1,7 +1,7 @@
 diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/IMoneyModule.cs
---- opensim-/OpenSim/Framework/IMoneyModule.cs	2010-07-21 13:34:55.000000000 +0900
-+++ opensim/OpenSim/Framework/IMoneyModule.cs	2010-07-21 13:35:25.000000000 +0900
-@@ -29,7 +29,12 @@
+--- opensim-/OpenSim/Framework/IMoneyModule.cs	2010-07-26 17:07:50.000000000 +0900
++++ opensim/OpenSim/Framework/IMoneyModule.cs	2010-07-26 18:24:02.000000000 +0900
+@@ -29,13 +29,19 @@
  
  namespace OpenSim.Framework
  {
@@ -15,7 +15,15 @@ diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/I
      public interface IMoneyModule
      {
          bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID,
-@@ -45,5 +50,6 @@
+                 int amount);
+ 
+-        int GetBalance(UUID agentID);
++        //int GetBalance(UUID agentID);
++		int GetBalance(IClientAPI client);
+         bool UploadCovered(IClientAPI client, int amount);
+         bool AmountCovered(IClientAPI client, int amount);
+         void ApplyCharge(UUID agentID, int amount, string text);
+@@ -45,5 +51,6 @@
          int GroupCreationCharge { get; }
  
          event ObjectPaid OnObjectPaid;
@@ -23,8 +31,8 @@ diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/I
      }
  }
 diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
---- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-07-21 13:34:55.000000000 +0900
-+++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-07-21 13:35:25.000000000 +0900
+--- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-07-26 17:07:50.000000000 +0900
++++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-07-26 18:24:02.000000000 +0900
 @@ -1607,6 +1607,12 @@
                  {
                      //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
@@ -39,8 +47,8 @@ diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensi
  
                  m_httpListener2.RequestReceived += OnRequest;
 diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
---- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-07-21 13:34:55.000000000 +0900
-+++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-07-21 13:38:58.000000000 +0900
+--- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-07-26 17:07:50.000000000 +0900
++++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-07-26 18:24:02.000000000 +0900
 @@ -107,6 +107,7 @@
          #region IMoneyModule Members
  
@@ -74,9 +82,19 @@ diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyM
                  PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
                  PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
                  PricePublicObjectDecay = startupConfig.GetInt("PricePublicObjectDecay", 4);
+@@ -773,7 +786,8 @@
+             //m_log.Info("[FRIEND]: " + avatar.Name + " status:" + (!avatar.IsChildAgent).ToString());
+         }
+ 
+-        public int GetBalance(UUID agentID)
++        //public int GetBalance(UUID agentID)
++		public int GetBalance(IClientAPI client)
+         {
+             return 0;
+         }
 diff -Nur opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
---- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2010-07-21 13:34:55.000000000 +0900
-+++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2010-07-21 13:35:25.000000000 +0900
+--- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2010-07-26 17:07:50.000000000 +0900
++++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2010-07-26 18:24:02.000000000 +0900
 @@ -73,6 +73,7 @@
              if (money != null)
              {
