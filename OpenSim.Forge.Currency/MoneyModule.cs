@@ -225,6 +225,7 @@ namespace OpenSim.Forge.Currency
                     break;
                 }
             }
+
             if (scene != null)
             {
                 UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
