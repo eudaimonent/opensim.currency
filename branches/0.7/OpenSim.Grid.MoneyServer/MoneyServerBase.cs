@@ -40,6 +40,7 @@ using System.Timers;
 using Nini.Config;
 using System.IO;
 
+
 namespace OpenSim.Grid.MoneyServer
 {
     class MoneyServerBase : BaseOpenSimServer,IMoneyServiceCore
@@ -66,12 +67,15 @@ namespace OpenSim.Grid.MoneyServer
 
         IConfig m_config;
 
+
         public MoneyServerBase()
         {
             //m_console = new ConsoleBase("Money");
-			m_console = new LocalConsole("Money");
+            m_console = new LocalConsole("Money");
             MainConsole.Instance = m_console;
         }
+
+
         public void Work()
         {
             //m_console.Notice("Enter help for a list of commands\n");
@@ -87,6 +91,7 @@ namespace OpenSim.Grid.MoneyServer
                 m_console.Prompt();
             }
         }
+
 
         /// <summary>
         /// Check the transactions table,set expired transaction state to failed
@@ -111,6 +116,7 @@ namespace OpenSim.Grid.MoneyServer
 
             //TODO : Add some console commands here
         }
+
 
         #region Obsolete method for ini parsing.
         [Obsolete("Now we put all the configs into MoneyServer.ini,please use ReadIniConfig instead")]
@@ -137,8 +143,11 @@ namespace OpenSim.Grid.MoneyServer
         {
             MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
 
-            IConfig db_config = moneyConfig.m_config.Configs["MySql"];
+            IConfig s_config = moneyConfig.m_config.Configs["Startup"];
+            string PIDFile = s_config.GetString("PIDFile", "");
+            if (PIDFile != "") { CreatePIDFile(PIDFile); }
 
+            IConfig db_config = moneyConfig.m_config.Configs["MySql"];
             string hostname = db_config.GetString("hostname","localhost");
             string database = db_config.GetString("database", "OpenSim");
             string username = db_config.GetString("username", "root");
@@ -147,12 +156,29 @@ namespace OpenSim.Grid.MoneyServer
             string port = db_config.GetString("port", "3306");
             MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
             connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-                username + ";Password=" + password + ";Pooling=" + pooling + ";";
+                                           username + ";Password=" + password + ";Pooling=" + pooling + ";";
 
             m_config = moneyConfig.m_config.Configs["MoneyServer"];
             DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+        }
 
 
+        // by skidz
+        protected void CreatePIDFile(string path)
+        {
+            try
+            {
+                string pidstring = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+                FileStream fs = File.Create(path);
+                System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+                Byte[] buf = enc.GetBytes(pidstring);
+                fs.Write(buf, 0, buf.Length);
+                fs.Close();
+                m_pidFile = path;
+            }
+            catch (Exception)
+            {
+            }
         }
 
 
@@ -166,20 +192,24 @@ namespace OpenSim.Grid.MoneyServer
             m_moneyXmlRpcModule.PostInitialise();
         }
 
+
         public BaseHttpServer GetHttpServer()
         {
             return m_httpServer;
         }
+
 
         public Dictionary<string, string> GetSessionDic()
         {
             return m_sessionDic;
         }
 
+
         public Dictionary<string, string> GetSecureSessionDic()
         {
             return m_secureSessionDic;
         }
+
 
         public Dictionary<string, string> GetWebSessionDic()
         {
