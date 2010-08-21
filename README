@@ -1,7 +1,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Money Server for OpenSim 0.6.x for Linux/Unix
+//  Money Server for OpenSim 0.7.x for Linux/Unix
 //                                                        by Fumi.Iseki and NSL '09 11/17
 //                                                        http://www.nsl.tuis.ac.jp
 
@@ -46,7 +46,7 @@
    SellEnabled = "true"
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
    EconomyModule  = DTLMoneyModule
-   UserServer = "http://(MoneyServer's Name or IP):8003"
+   UserServer = "http://(MoneyServer's Name or IP):8003/"
 
 
 Attention) 
