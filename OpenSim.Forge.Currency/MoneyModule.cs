@@ -812,7 +812,7 @@ namespace OpenSim.Forge.Currency
 
 
         /// <summary>   
-        /// Force Transfer the money from one user to another. Need to notify money server to update.   
+        /// Force transfer the money from one user to another. Need to notify money server to update.   
         /// </summary>   
         /// <param name="amount">   
         /// The amount of money.   
@@ -830,7 +830,7 @@ namespace OpenSim.Forge.Currency
 
 			if (sender==receiver) return true;
 
-            #region Force Send transaction request to money server and parse the resultes.
+            #region Force send transaction request to money server and parse the resultes.
 
             if (!string.IsNullOrEmpty(m_moneyServURL))
             {
