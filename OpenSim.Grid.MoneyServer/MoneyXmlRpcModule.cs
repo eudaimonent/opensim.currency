@@ -48,17 +48,15 @@ namespace OpenSim.Grid.MoneyServer
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private int m_defaultBalance = 0;
-
 		private string m_simServURI = string.Empty;
+		//private string m_confirmURI = string.Empty;
 
-		private string m_confirmURI = string.Empty;
+		private bool m_forceTransfer = false;
 
 		const int MONEYMODULE_REQUEST_TIMEOUT = 30 * 1000;//30 seconds
-
 		private long TicksToEpoch = new DateTime(1970, 1, 1).Ticks;
 
 		private IMoneyDBService m_moneyDBService;
-
 		private IMoneyServiceCore m_moneyCore;
 
 		protected IConfig m_config;
@@ -69,9 +67,7 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_opensimVersion;
 
 		private Dictionary<string, string> m_sessionDic;
-
 		private Dictionary<string, string> m_secureSessionDic;
-
 		private Dictionary<string, string> m_webSessionDic;
 
 		protected BaseHttpServer m_httpServer;
@@ -90,7 +86,9 @@ namespace OpenSim.Grid.MoneyServer
 			m_config = config;
 
 			m_defaultBalance = m_config.GetInt("DefaultBalance", 0);
-			m_confirmURI = m_config.GetString("ConfirmURL", "https://SampleServer.com/confirm.aspx");
+			//m_confirmURI = m_config.GetString("ConfirmURL", "https://SampleServer.com/confirm.aspx");
+            string ftrans	 = m_config.GetString("enableForceTransfer", "false");
+            if (ftrans.ToLower()=="true") m_forceTransfer = true;
 
 			//m_config = config;
 			m_sessionDic = m_moneyCore.GetSessionDic();
@@ -111,6 +109,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer = m_moneyCore.GetHttpServer();
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
 			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
+			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);
 			m_httpServer.AddXmlRPCHandler("GetBalance", handleSimulatorUserBalanceRequest);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
 			m_httpServer.AddXmlRPCHandler("ConfirmTransfer", handleConfirmTransfer);
@@ -386,6 +385,152 @@ namespace OpenSim.Grid.MoneyServer
 			responseData["message"] = "Session check failure,please re-login later!";
 			return response;
 		}
+
+
+
+		//
+		// added by Fumi.Iseki
+		//
+		/// <summary>
+		/// handle incoming force transaction. no check senderSessionID and senderSecureSessionID
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public XmlRpcResponse handleForceTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			Hashtable requestData = (Hashtable)request.Params[0];
+			XmlRpcResponse response = new XmlRpcResponse();
+			Hashtable responseData = new Hashtable();
+			response.Value = responseData;
+
+			string senderID = string.Empty;
+			string receiverID = string.Empty;
+			//string senderSessionID = string.Empty;
+			//string senderSecureSessionID = string.Empty;
+			int amount = 0;
+			string localID = string.Empty;
+			string regionHandle = string.Empty;
+			int transactionType = 0;
+			string description = string.Empty;
+			string senderUserServIP = string.Empty;
+			string receiverUserServIP = string.Empty;
+
+			string fromID = string.Empty;
+			string toID = string.Empty;
+			UUID transactionUUID = UUID.Random();
+
+
+			//
+			if (!m_forceTransfer)
+			{
+				m_log.Error("[Money] Not allowed force transfer of Money. Set enableForceTransfer at [MoneyServer] to true");
+				responseData["success"] = false;
+				responseData["message"] = "not allowed force transfer of Money!";
+				return response;
+			}
+
+
+			if (requestData.ContainsKey("senderID"))
+				senderID = (string)requestData["senderID"];
+
+			if (requestData.ContainsKey("receiverID"))
+				receiverID = (string)requestData["receiverID"];
+
+			//if (requestData.ContainsKey("senderSessionID"))
+			//	senderSessionID = (string)requestData["senderSessionID"];
+
+			//if (requestData.ContainsKey("senderSecureSessionID"))
+			//	senderSecureSessionID = (string)requestData["senderSecureSessionID"];
+
+			if (requestData.ContainsKey("amount"))
+				amount = (Int32)requestData["amount"];
+
+			if (requestData.ContainsKey("localID"))
+				localID = (string)requestData["localID"];
+
+			if (requestData.ContainsKey("regionHandle"))
+				regionHandle = (string)requestData["regionHandle"];
+
+			if (requestData.ContainsKey("transactionType"))
+				transactionType = (Int32)requestData["transactionType"];
+
+			if (requestData.ContainsKey("description"))
+				description = (string)requestData["description"];
+
+			if (requestData.ContainsKey("senderUserServIP"))
+				senderUserServIP = (string)requestData["senderUserServIP"];
+
+			if (requestData.ContainsKey("receiverUserServIP"))
+				receiverUserServIP = (string)requestData["receiverUserServIP"];
+
+
+			fromID = senderID + "@" + senderUserServIP;
+			toID = receiverID + "@" + receiverUserServIP;
+
+			//if (m_sessionDic.ContainsKey(fromID) && m_secureSessionDic.ContainsKey(fromID))
+			//{
+				m_log.InfoFormat("[Money] Force transfering money from {0} to {1}", fromID, toID);
+				int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
+				try
+				{
+					TransactionData transaction = new TransactionData();
+					transaction.TransUUID = transactionUUID;
+					transaction.Sender = fromID;
+					transaction.Receiver = toID;
+					transaction.Amount = amount;
+					transaction.ObjectUUID = localID;
+					transaction.RegionHandle = regionHandle;
+					transaction.Type = transactionType;
+					transaction.Time = time;
+					transaction.SecureCode = UUID.Random().ToString();
+					transaction.Status = (int)Status.PENDING_STATUS;
+					transaction.Description = "Newly added on " + DateTime.Now.ToString();
+
+					UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
+					if (rcvr == null) 
+					{
+						m_log.ErrorFormat("[Money DB] Force receive User is not yet in DB:{0}", toID);
+						responseData["success"] = false;
+						return response;
+					}
+
+					bool result = m_moneyDBService.addTransaction(transaction);
+					if (result) 
+					{
+						UserInfo user = m_moneyDBService.FetchUserInfo(fromID);
+						if (user != null) 
+						{
+							if (amount!=0) {
+								responseData["success"] = handleNoConfirmTransfer(transactionUUID);
+							}
+							else {
+								responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
+							}
+							return response;
+						}
+					}
+					else // add transaction failed
+					{
+						m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed",fromID);
+					}
+
+					responseData["success"] = false;
+					return response;
+				}
+				catch (Exception e)
+				{
+					m_log.Error("[Money DB] Exception occurred while adding force transaction " + e.ToString());
+					responseData["success"] = false;
+					return response;
+				}
+			//}
+
+			m_log.Error("[Money] Session authentication failure for force sender: " + fromID);
+			responseData["success"] = false;
+			responseData["message"] = "Session check failure,please re-login later!";
+			return response;
+		}
+
 
 
 		//
