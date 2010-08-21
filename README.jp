@@ -1,8 +1,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  OpenSim x.y.z用 Money Servefor Linux/Unix
-//                                                        by Fumi.Iseki and NSL '09 11/17
+//  OpenSim 0.7.x用 Money Servefor Linux/Unix
+//                                                        by Fumi.Iseki and NSL '10 8/21
 //                                                        http://www.nsl.tuis.ac.jp
 
 
@@ -10,7 +10,7 @@
 0. はじめに
 
 　これは DTL Currency Processing Project (http://forge.opensimulator.org/gf/project/currency/) 
-から WEB Monitor を取り外して，いくつかのバグフィックスとx.y.zで動作するようにパッチを充てた物
+から WEB Monitor を取り外して，いくつかのバグフィックスと 0.7.xで動作するようにパッチを充てた物
 です．WEB Monitor を取り外したのは，我々のターゲットが主にLinuxであるのに対して，これが ASP.NET
 で作動しており，Linux上で動作させるのが困難だったためです．
 
@@ -23,11 +23,11 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 1. インストール
 
- # cd opensim-x.y.z-release
- # tar xzfv opensim.currency-x.y.z.tar.gz 
- # patch -p1 < opensim.currency-x.y.z/opensim_currency_x.y.z.patch
+ # cd opensim-0.7.x-source
+ # tar xzfv opensim.currency-0.7.x.tar.gz 
+ # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
  # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-x.y.z
+ # cd opensim.currency-0.7.x
  # ./build.sh
 
 
@@ -37,18 +37,20 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 2-1. Money Server
   bin/MoneyServer.ini の [MySql] に MySQLサーバにアクセスするための情報を追加する
 
- # cd opensim-x.y.z-release
+ # cd opensim-0.7.x-source
  # vi bin/MoneyServer.ini 
 
-    [MySql] の hostname, database, username, password を設定する．
-    OpenSim のMySQLの設定と同じものを指定すれば良い．
+  1. [MySql]セクションの hostname, database, username, password を設定する．
+     OpenSim のMySQLの設定と同じものを指定すれば良い．
+  2. 支払い者がログインしていない状態でも，llGiveMoney()を正常に動かす場合は
+     [MoneyServer]セクションの enableForceTransfer を trueにする．
 
 
 2-2. Region Server
   bin/OpenSim.ini に MoneyServerに接続するための設定を行う．Money Serverには HTTPS
 を使用して接続を行う．この際に使用するポート番号は 8008である．
 
- # cd opensim-x.y.z-release
+ # cd opensim-0.7.x-source
  # vi bin/OpenSim.ini 
 
  [Economy]
@@ -56,7 +58,6 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
    EconomyModule  = DTLMoneyModule
    UserServer = "http://(MoneyServer's Name or IP):8003"
-
 
  注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
@@ -67,7 +68,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 3-1. Money Server
 
- # cd opensim-x.y.z-release
+ # cd opensim-0.7.x-source
  # cd bin
  # mono OpenSim.Grid.MoneyServer.exe
 
@@ -75,7 +76,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 3-2. Region Server
   Region Server は通常と同様に起動する．
 
- # cd opensim-x.y.z-release
+ # cd opensim-0.7.x-source
  # cd bin
  # mono OpenSim.exe
 
