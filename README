@@ -1,0 +1,104 @@
+
+////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  Money Server for OpenSim 0.7.x for Linux/Unix
+//                                                        by Fumi.Iseki and NSL '10 8/21
+//                                                        http://www.nsl.tuis.ac.jp
+
+
+
+0. Outline
+
+ This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
+ As for this, some bug fixes are done. And this can be operated by OpenSim 0.7.x. 
+ But, WEB Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
+ version!! Please use this at your own risk!!
+
+
+
+1. Install
+
+ # cd opensim-0.7.x-source
+ # tar xzfv opensim.currency-0.7.x.tar.gz 
+ # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
+ # ./runprebuild.sh && nant clean && nant
+ # cd opensim.currency-0.7.x
+ # ./build.sh
+
+
+
+2. Setting
+
+2-1. Money Server
+
+ # cd opensim-0.7.x-source
+ # vi bin/MoneyServer.ini 
+
+  - Plese set hostname, database, username and password of MySQL at [MySql] section.
+  - If you want to normally use llGiveMoney() function even when payer doesn't login to Opensim,
+	you must set "true" to enableForceTransfer in MoneyServer.ini.
+
+
+2-2. Region Server
+
+ # cd opensim-0.7.x-source
+ # vi bin/OpenSim.ini 
+
+ [Economy]
+   SellEnabled = "true"
+   CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
+   EconomyModule  = DTLMoneyModule
+   UserServer = "http://(MoneyServer's Name or IP):8003/"
+
+ Attention) 
+   Not use 127.0.0.1 or localhost for UserServer's address. This address is used for 
+   identification of user on Money Server.
+
+
+
+3. Execution
+
+3-1. Money Server
+
+ # cd opensim-0.7.x-source
+ # cd bin
+ # mono OpenSim.Grid.MoneyServer.exe
+
+
+3-2. Region Server
+
+ # cd opensim-0.7.x-source
+ # cd bin
+ # mono OpenSim.exe
+
+
+
+4. License.
+
+ This software conforms to the license of DTL Currency Processing.
+ Please see also http://forge.opensimulator.org/gf/project/currency/
+
+
+
+5. Attention.
+
+ This is unofficial software. Please do not inquire to OpenSim development team or DTL Currency Processing 
+ development team about this software. 
+
+
+
+6. Exemption from responsibility.
+
+ This software is not guaranteed at all. The author doesn't assume the responsibility for the
+ problem that occurs along with use, remodeling, and the re-distribution of this software at all.
+ Please use everything by the self-responsibility.
+
+
+
+7. Address of thanks.
+
+ This Money Server is modified version of DTL Currency Processing.
+ Please see also http://forge.opensimulator.org/gf/project/currency/
+
+ Thank you very much!!
+
