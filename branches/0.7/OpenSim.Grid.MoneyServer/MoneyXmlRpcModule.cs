@@ -32,13 +32,13 @@ using log4net;
 using Nwc.XmlRpc;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
-//using OpenSim.Grid.Framework;
 using System.Reflection;
 using System.Collections;
 using System.Net;
 using OpenMetaverse;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using Nini.Config;
+//using OpenSim.Grid.Framework;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -144,23 +144,12 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("clientUUID"))
-				clientUUID = (string)requestData["clientUUID"];
-
-			if (requestData.ContainsKey("clientSessionID"))
-				clientSessionID = (string)requestData["clientSessionID"];
-
-			if (requestData.ContainsKey("clientSecureSessionID"))
-				clientSecureSessionID = (string)requestData["clientSecureSessionID"];
-
-			if (requestData.ContainsKey("userServIP"))
-				userServerIP = (string)requestData["userServIP"];
-
-			if (requestData.ContainsKey("openSimServIP"))
-				simIP = (string)requestData["openSimServIP"];
-
-			if (requestData.ContainsKey("userName"))
-				avatarName = (string)requestData["userName"];
+			if (requestData.ContainsKey("clientUUID")) 			  clientUUID = (string)requestData["clientUUID"];
+			if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
+			if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
+			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
+			if (requestData.ContainsKey("openSimServIP")) 		  simIP = (string)requestData["openSimServIP"];
+			if (requestData.ContainsKey("userName")) 			  avatarName = (string)requestData["userName"];
 
 			userID = clientUUID + "@" + userServerIP;
 
@@ -173,6 +162,7 @@ namespace OpenSim.Grid.MoneyServer
 				}
 				else m_sessionDic[userID] = clientSessionID;
 			}
+
 			lock (m_secureSessionDic)
 			{
 				if (!m_secureSessionDic.ContainsKey(userID))
@@ -256,10 +246,10 @@ namespace OpenSim.Grid.MoneyServer
 			string receiverID = string.Empty;
 			string senderSessionID = string.Empty;
 			string senderSecureSessionID = string.Empty;
-			int amount = 0;
+			int    amount = 0;
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
-			int transactionType = 0;
+			int    transactionType = 0;
 			string description = string.Empty;
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
@@ -269,38 +259,17 @@ namespace OpenSim.Grid.MoneyServer
 			UUID transactionUUID = UUID.Random();
 
 
-			if (requestData.ContainsKey("senderID"))
-				senderID = (string)requestData["senderID"];
-
-			if (requestData.ContainsKey("receiverID"))
-				receiverID = (string)requestData["receiverID"];
-
-			if (requestData.ContainsKey("senderSessionID"))
-				senderSessionID = (string)requestData["senderSessionID"];
-
-			if (requestData.ContainsKey("senderSecureSessionID"))
-				senderSecureSessionID = (string)requestData["senderSecureSessionID"];
-
-			if (requestData.ContainsKey("amount"))
-				amount = (Int32)requestData["amount"];
-
-			if (requestData.ContainsKey("localID"))
-				localID = (string)requestData["localID"];
-
-			if (requestData.ContainsKey("regionHandle"))
-				regionHandle = (string)requestData["regionHandle"];
-
-			if (requestData.ContainsKey("transactionType"))
-				transactionType = (Int32)requestData["transactionType"];
-
-			if (requestData.ContainsKey("description"))
-				description = (string)requestData["description"];
-
-			if (requestData.ContainsKey("senderUserServIP"))
-				senderUserServIP = (string)requestData["senderUserServIP"];
-
-			if (requestData.ContainsKey("receiverUserServIP"))
-				receiverUserServIP = (string)requestData["receiverUserServIP"];
+			if (requestData.ContainsKey("senderID")) 			  senderID = (string)requestData["senderID"];
+			if (requestData.ContainsKey("receiverID")) 			  receiverID = (string)requestData["receiverID"];
+			if (requestData.ContainsKey("senderSessionID")) 	  senderSessionID = (string)requestData["senderSessionID"];
+			if (requestData.ContainsKey("senderSecureSessionID")) senderSecureSessionID = (string)requestData["senderSecureSessionID"];
+			if (requestData.ContainsKey("amount")) 				  amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("localID")) 			  localID = (string)requestData["localID"];
+			if (requestData.ContainsKey("regionHandle")) 		  regionHandle = (string)requestData["regionHandle"];
+			if (requestData.ContainsKey("transactionType")) 	  transactionType = (Int32)requestData["transactionType"];
+			if (requestData.ContainsKey("description")) 		  description = (string)requestData["description"];
+			if (requestData.ContainsKey("senderUserServIP")) 	  senderUserServIP = (string)requestData["senderUserServIP"];
+			if (requestData.ContainsKey("receiverUserServIP"))	  receiverUserServIP = (string)requestData["receiverUserServIP"];
 
 
 			fromID = senderID + "@" + senderUserServIP;
@@ -341,7 +310,7 @@ namespace OpenSim.Grid.MoneyServer
 							UserInfo user = m_moneyDBService.FetchUserInfo(fromID);
 							if (user != null) 
 							{
-							/*  deleted (more code) by Fumi.Iseki
+								/* deleted (more code) by Fumi.Iseki
 								Hashtable resultTable = genericCurrencyXMLRPCRequest(confirmTable, "SendConfirmLink", user.SimIP);
 								if (resultTable != null && resultTable.ContainsKey("success"))
 								{
@@ -353,10 +322,12 @@ namespace OpenSim.Grid.MoneyServer
 									}
 								} */
 
-								if (amount!=0) {
+								if (amount!=0)
+								{
 									responseData["success"] = handleNoConfirmTransfer(transactionUUID);
 								}
-								else {
+								else 
+								{
 									responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
 								}
 								return response;
@@ -380,6 +351,7 @@ namespace OpenSim.Grid.MoneyServer
 				}
 
 			}
+
 			m_log.Error("[Money] Session authentication failure for sender: " + fromID);
 			responseData["success"] = false;
 			responseData["message"] = "Session check failure,please re-login later!";
@@ -407,10 +379,10 @@ namespace OpenSim.Grid.MoneyServer
 			string receiverID = string.Empty;
 			//string senderSessionID = string.Empty;
 			//string senderSecureSessionID = string.Empty;
-			int amount = 0;
+			int    amount = 0;
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
-			int transactionType = 0;
+			int    transactionType = 0;
 			string description = string.Empty;
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
@@ -429,106 +401,79 @@ namespace OpenSim.Grid.MoneyServer
 				return response;
 			}
 
-
-			if (requestData.ContainsKey("senderID"))
-				senderID = (string)requestData["senderID"];
-
-			if (requestData.ContainsKey("receiverID"))
-				receiverID = (string)requestData["receiverID"];
-
-			//if (requestData.ContainsKey("senderSessionID"))
-			//	senderSessionID = (string)requestData["senderSessionID"];
-
-			//if (requestData.ContainsKey("senderSecureSessionID"))
-			//	senderSecureSessionID = (string)requestData["senderSecureSessionID"];
-
-			if (requestData.ContainsKey("amount"))
-				amount = (Int32)requestData["amount"];
-
-			if (requestData.ContainsKey("localID"))
-				localID = (string)requestData["localID"];
-
-			if (requestData.ContainsKey("regionHandle"))
-				regionHandle = (string)requestData["regionHandle"];
-
-			if (requestData.ContainsKey("transactionType"))
-				transactionType = (Int32)requestData["transactionType"];
-
-			if (requestData.ContainsKey("description"))
-				description = (string)requestData["description"];
-
-			if (requestData.ContainsKey("senderUserServIP"))
-				senderUserServIP = (string)requestData["senderUserServIP"];
-
-			if (requestData.ContainsKey("receiverUserServIP"))
-				receiverUserServIP = (string)requestData["receiverUserServIP"];
+			if (requestData.ContainsKey("senderID")) 		   senderID = (string)requestData["senderID"];
+			if (requestData.ContainsKey("receiverID")) 		   receiverID = (string)requestData["receiverID"];
+			if (requestData.ContainsKey("amount")) 			   amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("localID")) 		   localID = (string)requestData["localID"];
+			if (requestData.ContainsKey("regionHandle")) 	   regionHandle = (string)requestData["regionHandle"];
+			if (requestData.ContainsKey("transactionType"))    transactionType = (Int32)requestData["transactionType"];
+			if (requestData.ContainsKey("description")) 	   description = (string)requestData["description"];
+			if (requestData.ContainsKey("senderUserServIP"))   senderUserServIP = (string)requestData["senderUserServIP"];
+			if (requestData.ContainsKey("receiverUserServIP")) receiverUserServIP = (string)requestData["receiverUserServIP"];
+			//if (requestData.ContainsKey("senderSessionID")) senderSessionID = (string)requestData["senderSessionID"];
+			//if (requestData.ContainsKey("senderSecureSessionID"))	senderSecureSessionID = (string)requestData["senderSecureSessionID"];
 
 
 			fromID = senderID + "@" + senderUserServIP;
 			toID = receiverID + "@" + receiverUserServIP;
 
-			//if (m_sessionDic.ContainsKey(fromID) && m_secureSessionDic.ContainsKey(fromID))
-			//{
-				m_log.InfoFormat("[Money] Force transfering money from {0} to {1}", fromID, toID);
-				int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
-				try
-				{
-					TransactionData transaction = new TransactionData();
-					transaction.TransUUID = transactionUUID;
-					transaction.Sender = fromID;
-					transaction.Receiver = toID;
-					transaction.Amount = amount;
-					transaction.ObjectUUID = localID;
-					transaction.RegionHandle = regionHandle;
-					transaction.Type = transactionType;
-					transaction.Time = time;
-					transaction.SecureCode = UUID.Random().ToString();
-					transaction.Status = (int)Status.PENDING_STATUS;
-					transaction.Description = "Newly added on " + DateTime.Now.ToString();
+			m_log.InfoFormat("[Money] Force transfering money from {0} to {1}", fromID, toID);
+			int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
 
-					UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
-					if (rcvr == null) 
+			try
+			{
+				TransactionData transaction = new TransactionData();
+				transaction.TransUUID = transactionUUID;
+				transaction.Sender = fromID;
+				transaction.Receiver = toID;
+				transaction.Amount = amount;
+				transaction.ObjectUUID = localID;
+				transaction.RegionHandle = regionHandle;
+				transaction.Type = transactionType;
+				transaction.Time = time;
+				transaction.SecureCode = UUID.Random().ToString();
+				transaction.Status = (int)Status.PENDING_STATUS;
+				transaction.Description = "Newly added on " + DateTime.Now.ToString();
+
+				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
+				if (rcvr == null) 
+				{
+					m_log.ErrorFormat("[Money DB] Force receive User is not yet in DB:{0}", toID);
+					responseData["success"] = false;
+					return response;
+				}
+
+				bool result = m_moneyDBService.addTransaction(transaction);
+				if (result) 
+				{
+					UserInfo user = m_moneyDBService.FetchUserInfo(fromID);
+					if (user != null) 
 					{
-						m_log.ErrorFormat("[Money DB] Force receive User is not yet in DB:{0}", toID);
-						responseData["success"] = false;
+						if (amount!=0) 
+						{
+							responseData["success"] = handleNoConfirmTransfer(transactionUUID);
+						}
+						else 
+						{
+							responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
+						}
 						return response;
 					}
-
-					bool result = m_moneyDBService.addTransaction(transaction);
-					if (result) 
-					{
-						UserInfo user = m_moneyDBService.FetchUserInfo(fromID);
-						if (user != null) 
-						{
-							if (amount!=0) {
-								responseData["success"] = handleNoConfirmTransfer(transactionUUID);
-							}
-							else {
-								responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
-							}
-							return response;
-						}
-					}
-					else // add transaction failed
-					{
-						m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed",fromID);
-					}
-
-					responseData["success"] = false;
-					return response;
 				}
-				catch (Exception e)
+				else // add transaction failed
 				{
-					m_log.Error("[Money DB] Exception occurred while adding force transaction " + e.ToString());
-					responseData["success"] = false;
-					return response;
+					m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed",fromID);
 				}
-			//}
 
-			m_log.Error("[Money] Session authentication failure for force sender: " + fromID);
-			responseData["success"] = false;
-			responseData["message"] = "Session check failure,please re-login later!";
-			return response;
+				responseData["success"] = false;
+				return response;
+			}
+			catch (Exception e)
+			{
+				m_log.Error("[Money DB] Exception occurred while adding force transaction " + e.ToString());
+				responseData["success"] = false;
+				return response;
+			}
 		}
 
 
@@ -649,14 +594,10 @@ namespace OpenSim.Grid.MoneyServer
 			string userID = string.Empty;
 			int balance;
 
-			if (requestData.ContainsKey("clientUUID"))
-				clientUUID = (string)requestData["clientUUID"];
-			if (requestData.ContainsKey("clientSessionID"))
-				clientSessionID = (string)requestData["clientSessionID"];
-			if (requestData.ContainsKey("clientSecureSessionID"))
-				clientSecureSessionID = (string)requestData["clientSecureSessionID"];
-			if (requestData.ContainsKey("userServIP"))
-				userServerIP = (string)requestData["userServIP"];
+			if (requestData.ContainsKey("clientUUID")) 			  clientUUID = (string)requestData["clientUUID"];
+			if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
+			if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
+			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
 
 			userID = clientUUID + "@" + userServerIP;
 
@@ -722,21 +663,14 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("clientUUID"))
-				clientUUID = (string)requestData["clientUUID"];
-
-			if (requestData.ContainsKey("clientSessionID"))
-				clientSessionID = (string)requestData["clientSessionID"];
-
-			if (requestData.ContainsKey("clientSecureSessionID"))
-				clientSecureSessionID = (string)requestData["clientSecureSessionID"];
-
-			if (requestData.ContainsKey("userServIP"))
-				userServerIP = (string)requestData["userServIP"];
+			if (requestData.ContainsKey("clientUUID")) 			  clientUUID = (string)requestData["clientUUID"];
+			if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
+			if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
+			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
 
 			userID = clientUUID + "@" + userServerIP;
-
 			m_log.InfoFormat("[Money] User {0} is logging off", userID);
+
 			try
 			{
 				lock (m_sessionDic)
@@ -787,13 +721,13 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("secureCode"))
-				secureCode = (string)requestData["secureCode"];
+			if (requestData.ContainsKey("secureCode")) secureCode = (string)requestData["secureCode"];
 			if (requestData.ContainsKey("transactionID"))
 			{
 				transactionID = (string)requestData["transactionID"];
 				UUID.TryParse(transactionID,out transactionUUID);
 			}
+
 			if (string.IsNullOrEmpty(secureCode) || string.IsNullOrEmpty(transactionID))
 			{
 				responseData["success"] = false;
@@ -916,14 +850,11 @@ namespace OpenSim.Grid.MoneyServer
 			try
 			{
 				XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.Send(uri,
-													MONEYMODULE_REQUEST_TIMEOUT);
+				moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{
-				m_log.ErrorFormat(
-					"[MONEY]: Unable to connect to OpenSim Server {0}.  Exception {1}",
-					uri, ex.ToString());
+				m_log.ErrorFormat("[MONEY]: Unable to connect to OpenSim Server {0}.  Exception {1}", uri, ex.ToString());
 
 				Hashtable ErrorHash = new Hashtable();
 				ErrorHash["success"] = false;
@@ -970,10 +901,8 @@ namespace OpenSim.Grid.MoneyServer
 				requestTable["clientSecureSessionID"] = clientSecureSessionID;
 				requestTable["Balance"] = m_moneyDBService.getBalance(userID);
 				UserInfo user = m_moneyDBService.FetchUserInfo(userID);
-				if (user != null)
-				{
-					genericCurrencyXMLRPCRequest(requestTable, "UpdateBalance", user.SimIP);
-				}
+
+				if (user != null) genericCurrencyXMLRPCRequest(requestTable, "UpdateBalance", user.SimIP);
 			}
 		}
 
@@ -991,8 +920,7 @@ namespace OpenSim.Grid.MoneyServer
 				if(m_moneyDBService.giveMoney(transaction.TransUUID,transaction.Sender,transaction.Amount))
 				{
 					m_log.InfoFormat("Roll back transaction{0} successfully", transaction.TransUUID.ToString());
-					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS,
-						"The buyer failed to get the object,roll back the transaction");
+					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS, "The buyer failed to get the object,roll back the transaction");
 					UpdateBalance(transaction.Sender);
 					UpdateBalance(transaction.Receiver);
 					return true;
@@ -1038,8 +966,7 @@ namespace OpenSim.Grid.MoneyServer
 				if (m_moneyDBService.ValidateTransfer(secureCode, transactionUUID))
 				{
 					m_log.InfoFormat("User:{0} has canceled the transaction:{1}", user.Avatar, transactionID);
-					m_moneyDBService.updateTransactionStatus(transactionUUID, (int)Status.FAILED_STATUS,
-						"User canceled the transaction on " + DateTime.Now.ToString());
+					m_moneyDBService.updateTransactionStatus(transactionUUID, (int)Status.FAILED_STATUS, "User canceled the transaction on "+DateTime.Now.ToString());
 					responseData["success"] = true;
 				}
 			}
@@ -1108,14 +1035,10 @@ namespace OpenSim.Grid.MoneyServer
 			string userID = string.Empty;
 			string webSessionID = string.Empty;
 
-
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("userID"))
-				userID = (string)requestData["userID"];
-
-			if (requestData.ContainsKey("sessionID"))
-				webSessionID = (string)requestData["sessionID"];
+			if (requestData.ContainsKey("userID")) 	  userID = (string)requestData["userID"];
+			if (requestData.ContainsKey("sessionID")) webSessionID = (string)requestData["sessionID"];
 
 			if (string.IsNullOrEmpty(userID) || string.IsNullOrEmpty(webSessionID))
 			{
@@ -1151,11 +1074,8 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("userID"))
-				userID = (string)requestData["userID"];
-
-			if (requestData.ContainsKey("sessionID"))
-				webSessionID = (string)requestData["sessionID"];
+			if (requestData.ContainsKey("userID"))	  userID = (string)requestData["userID"];
+			if (requestData.ContainsKey("sessionID")) webSessionID = (string)requestData["sessionID"];
 
 			if (string.IsNullOrEmpty(userID) || string.IsNullOrEmpty(webSessionID))
 			{
@@ -1334,8 +1254,7 @@ namespace OpenSim.Grid.MoneyServer
 						else
 						{
 							responseData["success"] = false;
-							responseData["errorMessage"] = string.Format("Unable to fetch transaction data with the index {0}",
-								lastIndex + 1);
+							responseData["errorMessage"] = string.Format("Unable to fetch transaction data with the index {0}", lastIndex + 1);
 						}
 						return response;
 					}
@@ -1376,17 +1295,10 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 
-			if (requestData.ContainsKey("userID"))
-				userID = (string)requestData["userID"];
-
-			if (requestData.ContainsKey("sessionID"))
-				webSessionID = (string)requestData["sessionID"];
-
-			if (requestData.ContainsKey("startTime"))
-				startTime = (int)requestData["startTime"];
-
-			if (requestData.ContainsKey("endTime"))
-				endTime = (int)requestData["endTime"];
+			if (requestData.ContainsKey("userID"))	  userID = (string)requestData["userID"];
+			if (requestData.ContainsKey("sessionID")) webSessionID = (string)requestData["sessionID"];
+			if (requestData.ContainsKey("startTime")) startTime = (int)requestData["startTime"];
+			if (requestData.ContainsKey("endTime"))   endTime = (int)requestData["endTime"];
 
 			if (m_webSessionDic.ContainsKey(userID))
 			{
