@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -48,21 +48,16 @@ namespace OpenSim.Grid.MoneyServer
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private string connectionString = string.Empty;
-
         private uint m_moneyServerPort = 8008;
 
         private int DEAD_TIME;
-
         private int MAX_DB_CONNECTION;
 
         private MoneyXmlRpcModule m_moneyXmlRpcModule;
-
         private MoneyDBService m_moneyDBService;
 
         private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
-
         private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
-
         private Dictionary<string, string> m_webSessionDic = new Dictionary<string, string>();
 
         IConfig m_config;
@@ -131,10 +126,10 @@ namespace OpenSim.Grid.MoneyServer
             string database = MySqlMoneyConfig.ParseFileReadValue("database");
             string username = MySqlMoneyConfig.ParseFileReadValue("username");
             string password = MySqlMoneyConfig.ParseFileReadValue("password");
-            string pooling = MySqlMoneyConfig.ParseFileReadValue("pooling");
-            string port = MySqlMoneyConfig.ParseFileReadValue("port");
+            string pooling 	= MySqlMoneyConfig.ParseFileReadValue("pooling");
+            string port 	= MySqlMoneyConfig.ParseFileReadValue("port");
             connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-                username + ";Password=" + password + ";Pooling=" + pooling + ";";
+                						   username + ";Password=" + password + ";Pooling=" + pooling + ";";
         }
         #endregion 
 
@@ -145,15 +140,15 @@ namespace OpenSim.Grid.MoneyServer
 
             IConfig s_config = moneyConfig.m_config.Configs["Startup"];
             string PIDFile = s_config.GetString("PIDFile", "");
-            if (PIDFile != "") { CreatePIDFile(PIDFile); }
+            if (PIDFile!="") CreatePIDFile(PIDFile);
 
             IConfig db_config = moneyConfig.m_config.Configs["MySql"];
-            string hostname = db_config.GetString("hostname","localhost");
+            string hostname = db_config.GetString("hostname", "localhost");
             string database = db_config.GetString("database", "OpenSim");
             string username = db_config.GetString("username", "root");
             string password = db_config.GetString("password", "password");
-            string pooling = db_config.GetString("pooling", "false");
-            string port = db_config.GetString("port", "3306");
+            string pooling 	= db_config.GetString("pooling",  "false");
+            string port 	= db_config.GetString("port", 	  "3306");
             MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
             connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
                                            username + ";Password=" + password + ";Pooling=" + pooling + ";";
@@ -163,7 +158,7 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-        // by skidz
+        // added by skidz
         protected void CreatePIDFile(string path)
         {
             try

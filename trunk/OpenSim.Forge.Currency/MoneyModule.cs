@@ -209,6 +209,7 @@ namespace OpenSim.Forge.Currency
         {
             string objName = string.Empty;
             string avatarName = string.Empty;
+
             SceneObjectPart sceneObj = FindPrim(objectID);
             if (sceneObj != null)
             {
@@ -242,7 +243,16 @@ namespace OpenSim.Forge.Currency
             }
 
             string description = String.Format("Object {0} pays {1}", objName, avatarName);
-            bool ret = TransferMoney(fromID, toID, amount, 2, 0, 0, description);
+
+            bool ret;
+            if (LocateClientObject(fromID)!=null)
+            {
+                ret = TransferMoney(fromID, toID, amount, 2, 0, 0, description);
+            }
+            else
+            {
+                ret = ForceTransferMoney(fromID, toID, amount, 2, 0, 0, description);
+            }
 
             return ret;
         }
@@ -738,11 +748,12 @@ namespace OpenSim.Forge.Currency
             int senderBalance = -1;
             int receiverBalance = -1;
 
+			if (sender==receiver) return true;
+
             // Handle the illegal transaction.   
             if (senderClient == null) // receiverClient could be null.
             {
-                m_log.ErrorFormat("[MONEY]: Client {0} not found",
-                                  ((senderClient == null) ? sender : receiver).ToString());
+                m_log.ErrorFormat("[MONEY]: Client {0} not found", ((senderClient == null) ? sender : receiver).ToString());
                 return false;
             }
 
@@ -785,6 +796,90 @@ namespace OpenSim.Forge.Currency
                 else
                 {
                     m_log.ErrorFormat("[MONEY]: Can not send money server transaction request from client [{0}].", sender.ToString(), receiver.ToString());
+                    ret = false;
+                }
+            }
+            else // If the money server is not available, save the balance into local.
+            {
+                if (m_moneyServer.ContainsKey(sender))
+                {
+                    if (!m_moneyServer.ContainsKey(receiver))
+                    {
+                        m_moneyServer.Add(receiver, MONEYMODULE_INITIAL_BALANCE);
+                    }
+                    m_moneyServer[sender] -= amount;
+                    m_moneyServer[receiver] += amount;
+
+                    senderBalance = m_moneyServer[sender];
+                    receiverBalance = m_moneyServer[receiver];
+
+                    ret = true;
+                }
+                else
+                {
+                    ret = false;
+                }
+            }
+
+            #endregion
+
+            return ret;
+        }
+
+
+
+        /// <summary>   
+        /// Force transfer the money from one user to another. Need to notify money server to update.   
+        /// </summary>   
+        /// <param name="amount">   
+        /// The amount of money.   
+        /// </param>   
+        /// <returns>   
+        /// return true, if successfully.   
+        /// </returns>   
+        private bool ForceTransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, uint localID, ulong regionHandle, string description)
+        {
+            bool ret = false;
+            //IClientAPI senderClient = LocateClientObject(sender);
+            //IClientAPI receiverClient = LocateClientObject(receiver);
+            int senderBalance = -1;
+            int receiverBalance = -1;
+
+			if (sender==receiver) return true;
+
+            #region Force send transaction request to money server and parse the resultes.
+
+            if (!string.IsNullOrEmpty(m_moneyServURL))
+            {
+                // Fill parameters for money transfer XML-RPC.   
+                Hashtable paramTable = new Hashtable();
+                paramTable["senderUserServIP"] = m_userServIP;
+                paramTable["senderID"] = sender.ToString();
+                paramTable["receiverUserServIP"] = m_userServIP;
+                paramTable["receiverID"] = receiver.ToString();
+                //paramTable["senderSessionID"] = senderClient.SessionId.ToString();
+                //paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
+                paramTable["transactionType"] = transactiontype;
+                paramTable["localID"] = localID.ToString();
+                paramTable["regionHandle"] = regionHandle.ToString();
+                paramTable["amount"] = amount;
+                paramTable["description"] = description;
+
+                // Generate the request for transfer.   
+                Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "ForceTransferMoney");
+
+                // Handle the return values from Money Server.  
+                if (resultTable != null && resultTable.Contains("success"))
+                {
+                    if ((bool)resultTable["success"] == true)
+                    {
+                        m_log.DebugFormat("[MONEY]: Money force transfer from client [{0}] to client [{1}] is done.", sender.ToString(), receiver.ToString());
+                        ret = true;
+                    }
+                }
+                else
+                {
+                    m_log.ErrorFormat("[MONEY]: Can not force send money server transaction request from client [{0}].", sender.ToString(), receiver.ToString());
                     ret = false;
                 }
             }
