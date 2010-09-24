@@ -10,6 +10,8 @@ OPNSIMPATH=./bin
 
 if [ ! -f $OPNSIMPATH/MoneyServer.ini ]; then
 	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH
+else
+	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH/MoneyServer.ini.example
 fi
 
 if [ ! -f $OPNSIMPATH/OpenSim.Grid.MoneyServer.exe.config ]; then
