@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONFIGPATH=./config
-OPNSIMPATH=./bin
+OPNSIMPATH=../bin
 
 (cd OpenSim.Data.MySQL.MySQLMoneyDataWrapper/ && nant && cp *.dll ../$OPNSIMPATH)
 (cd OpenSim.Forge.Currency/ && nant && cp *.dll ../$OPNSIMPATH)
