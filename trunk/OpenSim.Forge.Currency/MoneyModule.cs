@@ -1298,7 +1298,7 @@ namespace OpenSim.Forge.Currency
                     IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
                     if (mod!=null)
                     {
-                        if (mod.BuyObject(remoteClient, categoryID, localID, saleType))
+                        if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
                         {
                             TransferMoney(remoteClient.AgentId, sceneObj.OwnerID, salePrice, 5000, 0, 0, "Object Buy");
                         }
