@@ -3,6 +3,10 @@
 CONFIGPATH=./config
 OPNSIMPATH=../bin
 
+echo "=========================="
+echo "NSL_CURRENCY"
+echo "=========================="
+
 rm -f OpenSim.Data.MySQL.MySQLMoneyDataWrapper/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
 rm -f OpenSim.Forge.Currency/OpenSim.Forge.Currency.dll
 rm -f OpenSim.Grid.MoneyServer/OpenSim.Grid.MoneyServer.exe
