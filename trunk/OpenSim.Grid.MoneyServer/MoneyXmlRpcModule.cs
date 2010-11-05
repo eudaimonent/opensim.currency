@@ -151,6 +151,13 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("openSimServIP")) 		  simIP = (string)requestData["openSimServIP"];
 			if (requestData.ContainsKey("userName")) 			  avatarName = (string)requestData["userName"];
 
+			if (avatarName=="") {
+				responseData["success"] = false;
+				responseData["description"] = "Avatar Name is empty";
+				responseData["clientBalance"] = 0;
+				return response;
+			}
+
 			userID = clientUUID + "@" + userServerIP;
 
 			//Update the session and secure session dictionary
