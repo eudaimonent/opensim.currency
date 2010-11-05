@@ -4,14 +4,14 @@
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the OpenSim Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
+ *	 * Redistributions of source code must retain the above copyright
+ *	   notice, this list of conditions and the following disclaimer.
+ *	 * Redistributions in binary form must reproduce the above copyright
+ *	   notice, this list of conditions and the following disclaimer in the
+ *	   documentation and/or other materials provided with the distribution.
+ *	 * Neither the name of the OpenSim Project nor the
+ *	   names of its contributors may be used to endorse or promote products
+ *	   derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -43,200 +43,200 @@ using System.IO;
 
 namespace OpenSim.Grid.MoneyServer
 {
-    class MoneyServerBase : BaseOpenSimServer,IMoneyServiceCore
-    {
-        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+	class MoneyServerBase : BaseOpenSimServer,IMoneyServiceCore
+	{
+		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private string connectionString = string.Empty;
-        private uint m_moneyServerPort = 8008;
+		private string connectionString = string.Empty;
+		private uint m_moneyServerPort = 8008;
 
-        private int DEAD_TIME;
-        private int MAX_DB_CONNECTION;
+		private int DEAD_TIME;
+		private int MAX_DB_CONNECTION;
 
-        private MoneyXmlRpcModule m_moneyXmlRpcModule;
-        private MoneyDBService m_moneyDBService;
+		private MoneyXmlRpcModule m_moneyXmlRpcModule;
+		private MoneyDBService m_moneyDBService;
 
-        private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
-        private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
-        private Dictionary<string, string> m_webSessionDic = new Dictionary<string, string>();
+		private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
+		private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
+		private Dictionary<string, string> m_webSessionDic = new Dictionary<string, string>();
 
-        IConfig m_config;
-
-
-        public MoneyServerBase()
-        {
-            //m_console = new ConsoleBase("Money");
-            m_console = new LocalConsole("Money");
-            MainConsole.Instance = m_console;
-        }
+		IConfig m_config;
 
 
-        public void Work()
-        {
-            //m_console.Notice("Enter help for a list of commands\n");
-
-            //The timer checks the transactions table every 60 seconds
-            Timer checkTimer = new Timer();
-            checkTimer.Interval = 60*1000;
-            checkTimer.Enabled = true;
-            checkTimer.Elapsed += new ElapsedEventHandler(CheckTransaction);
-            checkTimer.Start();
-            while (true)
-            {
-                m_console.Prompt();
-            }
-        }
+		public MoneyServerBase()
+		{
+			//m_console = new ConsoleBase("Money");
+			m_console = new LocalConsole("Money");
+			MainConsole.Instance = m_console;
+		}
 
 
-        /// <summary>
-        /// Check the transactions table,set expired transaction state to failed
-        /// </summary>
-        private void CheckTransaction(object sender, ElapsedEventArgs e)
-        {
-            long ticksToEpoch = new DateTime(1970, 1, 1).Ticks;
-            int unixEpochTime =(int) ((DateTime.Now.Ticks - ticksToEpoch )/10000000);
-            int deadTime = unixEpochTime - DEAD_TIME;
-            m_moneyDBService.SetTransExpired(deadTime);
-        }
+		public void Work()
+		{
+			//m_console.Notice("Enter help for a list of commands\n");
+
+			//The timer checks the transactions table every 60 seconds
+			Timer checkTimer = new Timer();
+			checkTimer.Interval = 60*1000;
+			checkTimer.Enabled = true;
+			checkTimer.Elapsed += new ElapsedEventHandler(CheckTransaction);
+			checkTimer.Start();
+			while (true)
+			{
+				m_console.Prompt();
+			}
+		}
 
 
-        protected override void StartupSpecific()
-        {
-            m_log.Info("[Money]: Starting HTTP process");
-            ReadIniConfig();
-            m_httpServer = new BaseHttpServer(m_moneyServerPort,true);
-            SetupMoneyServices();
-            m_httpServer.Start();
-            base.StartupSpecific();
-
-            //TODO : Add some console commands here
-        }
-
-
-        #region Obsolete method for ini parsing.
-        [Obsolete("Now we put all the configs into MoneyServer.ini,please use ReadIniConfig instead")]
-        /// <summary>
-        /// Read configuration from mysql_connection.ini
-        /// </summary>
-        protected void ReadConfig()
-        {
-            m_log.Info("[MySQL] Reading mysql_connection.ini");
-            IniFile MySqlMoneyConfig = new IniFile("mysql_connection.ini");
-            string hostname = MySqlMoneyConfig.ParseFileReadValue("hostname");
-            string database = MySqlMoneyConfig.ParseFileReadValue("database");
-            string username = MySqlMoneyConfig.ParseFileReadValue("username");
-            string password = MySqlMoneyConfig.ParseFileReadValue("password");
-            string pooling 	= MySqlMoneyConfig.ParseFileReadValue("pooling");
-            string port 	= MySqlMoneyConfig.ParseFileReadValue("port");
-            connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-                						   username + ";Password=" + password + ";Pooling=" + pooling + ";";
-        }
-        #endregion 
+		/// <summary>
+		/// Check the transactions table,set expired transaction state to failed
+		/// </summary>
+		private void CheckTransaction(object sender, ElapsedEventArgs e)
+		{
+			long ticksToEpoch = new DateTime(1970, 1, 1).Ticks;
+			int unixEpochTime =(int) ((DateTime.Now.Ticks - ticksToEpoch )/10000000);
+			int deadTime = unixEpochTime - DEAD_TIME;
+			m_moneyDBService.SetTransExpired(deadTime);
+		}
 
 
-        protected void ReadIniConfig()
-        {
-            MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
+		protected override void StartupSpecific()
+		{
+			m_log.Info("[Money]: Starting HTTP process");
+			ReadIniConfig();
+			m_httpServer = new BaseHttpServer(m_moneyServerPort,true);
+			SetupMoneyServices();
+			m_httpServer.Start();
+			base.StartupSpecific();
 
-            IConfig s_config = moneyConfig.m_config.Configs["Startup"];
-            string PIDFile = s_config.GetString("PIDFile", "");
-            if (PIDFile!="") CreatePIDFile(PIDFile);
-
-            IConfig db_config = moneyConfig.m_config.Configs["MySql"];
-            string hostname = db_config.GetString("hostname", "localhost");
-            string database = db_config.GetString("database", "OpenSim");
-            string username = db_config.GetString("username", "root");
-            string password = db_config.GetString("password", "password");
-            string pooling 	= db_config.GetString("pooling",  "false");
-            string port 	= db_config.GetString("port", 	  "3306");
-            MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
-            connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-                                           username + ";Password=" + password + ";Pooling=" + pooling + ";";
-
-            m_config = moneyConfig.m_config.Configs["MoneyServer"];
-            DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
-        }
+			//TODO : Add some console commands here
+		}
 
 
-        // added by skidz
-        protected void CreatePIDFile(string path)
-        {
-            try
-            {
-                string pidstring = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
-                FileStream fs = File.Create(path);
-                System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
-                Byte[] buf = enc.GetBytes(pidstring);
-                fs.Write(buf, 0, buf.Length);
-                fs.Close();
-                m_pidFile = path;
-            }
-            catch (Exception)
-            {
-            }
-        }
+		#region Obsolete method for ini parsing.
+		[Obsolete("Now we put all the configs into MoneyServer.ini,please use ReadIniConfig instead")]
+		/// <summary>
+		/// Read configuration from mysql_connection.ini
+		/// </summary>
+		protected void ReadConfig()
+		{
+			m_log.Info("[MySQL] Reading mysql_connection.ini");
+			IniFile MySqlMoneyConfig = new IniFile("mysql_connection.ini");
+			string hostname = MySqlMoneyConfig.ParseFileReadValue("hostname");
+			string database = MySqlMoneyConfig.ParseFileReadValue("database");
+			string username = MySqlMoneyConfig.ParseFileReadValue("username");
+			string password = MySqlMoneyConfig.ParseFileReadValue("password");
+			string pooling 	= MySqlMoneyConfig.ParseFileReadValue("pooling");
+			string port 	= MySqlMoneyConfig.ParseFileReadValue("port");
+			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
+										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
+		}
+		#endregion 
 
 
-        protected virtual void SetupMoneyServices()
-        {
-            m_log.Info("[DATA]: Connecting to Money Storage Server");
-            m_moneyDBService = new MoneyDBService();
-            m_moneyDBService.Initialise(connectionString,MAX_DB_CONNECTION);
-            m_moneyXmlRpcModule = new MoneyXmlRpcModule();
-            m_moneyXmlRpcModule.Initialise(m_version,m_config, m_moneyDBService, this);
-            m_moneyXmlRpcModule.PostInitialise();
-        }
+		protected void ReadIniConfig()
+		{
+			MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
+
+			IConfig s_config = moneyConfig.m_config.Configs["Startup"];
+			string PIDFile = s_config.GetString("PIDFile", "");
+			if (PIDFile!="") CreatePIDFile(PIDFile);
+
+			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
+			string hostname = db_config.GetString("hostname", "localhost");
+			string database = db_config.GetString("database", "OpenSim");
+			string username = db_config.GetString("username", "root");
+			string password = db_config.GetString("password", "password");
+			string pooling 	= db_config.GetString("pooling",  "false");
+			string port 	= db_config.GetString("port", 	  "3306");
+			MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
+			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
+										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
+
+			m_config = moneyConfig.m_config.Configs["MoneyServer"];
+			DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+		}
 
 
-        public BaseHttpServer GetHttpServer()
-        {
-            return m_httpServer;
-        }
+		// added by skidz
+		protected void CreatePIDFile(string path)
+		{
+			try
+			{
+				string pidstring = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+				FileStream fs = File.Create(path);
+				System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+				Byte[] buf = enc.GetBytes(pidstring);
+				fs.Write(buf, 0, buf.Length);
+				fs.Close();
+				m_pidFile = path;
+			}
+			catch (Exception)
+			{
+			}
+		}
 
 
-        public Dictionary<string, string> GetSessionDic()
-        {
-            return m_sessionDic;
-        }
+		protected virtual void SetupMoneyServices()
+		{
+			m_log.Info("[DATA]: Connecting to Money Storage Server");
+			m_moneyDBService = new MoneyDBService();
+			m_moneyDBService.Initialise(connectionString,MAX_DB_CONNECTION);
+			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
+			m_moneyXmlRpcModule.Initialise(m_version,m_config, m_moneyDBService, this);
+			m_moneyXmlRpcModule.PostInitialise();
+		}
 
 
-        public Dictionary<string, string> GetSecureSessionDic()
-        {
-            return m_secureSessionDic;
-        }
+		public BaseHttpServer GetHttpServer()
+		{
+			return m_httpServer;
+		}
 
 
-        public Dictionary<string, string> GetWebSessionDic()
-        {
-            return m_webSessionDic;
-        }
-
-    }
+		public Dictionary<string, string> GetSessionDic()
+		{
+			return m_sessionDic;
+		}
 
 
+		public Dictionary<string, string> GetSecureSessionDic()
+		{
+			return m_secureSessionDic;
+		}
 
-    class MoneyServerConfigSource
-    {
-        public IniConfigSource m_config;
 
-        public MoneyServerConfigSource()
-        {
-            string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
-            if (File.Exists(configPath))
-            {
-                m_config = new IniConfigSource(configPath);
-            }
-            else
-            {
-                //TODO: create default configuration.
-                //m_config = DefaultConfig();
-            }
-        }
+		public Dictionary<string, string> GetWebSessionDic()
+		{
+			return m_webSessionDic;
+		}
 
-        public void Save(string path)
-        {
-            m_config.Save(path);
-        }
+	}
 
-    }
+
+
+	class MoneyServerConfigSource
+	{
+		public IniConfigSource m_config;
+
+		public MoneyServerConfigSource()
+		{
+			string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
+			if (File.Exists(configPath))
+			{
+				m_config = new IniConfigSource(configPath);
+			}
+			else
+			{
+				//TODO: create default configuration.
+				//m_config = DefaultConfig();
+			}
+		}
+
+		public void Save(string path)
+		{
+			m_config.Save(path);
+		}
+
+	}
 }
