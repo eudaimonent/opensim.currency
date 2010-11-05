@@ -153,7 +153,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			if (avatarName=="") {
 				responseData["success"] = false;
-				responseData["description"] = "Avatar Name is empty";
+				//responseData["description"] = "Avatar Name is empty";
 				responseData["clientBalance"] = 0;
 				return response;
 			}
