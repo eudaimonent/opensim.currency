@@ -470,7 +470,7 @@ namespace OpenSim.Grid.MoneyServer
 				}
 				else // add transaction failed
 				{
-					m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed",fromID);
+					m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed", fromID);
 				}
 
 				responseData["success"] = false;
@@ -533,6 +533,7 @@ namespace OpenSim.Grid.MoneyServer
 							requestTable["amount"] = transaction.Amount;
 							requestTable["localID"] = transaction.ObjectUUID;
 							requestTable["regionHandle"] = transaction.RegionHandle;
+
 							UserInfo user = m_moneyDBService.FetchUserInfo(transaction.Sender);
 							if (user != null)
 							{
@@ -565,6 +566,8 @@ namespace OpenSim.Grid.MoneyServer
 							//responseData["success"] = false;
 							return false;
 						}
+
+
 						//responseData["success"] = true;
 						return true;
 					}

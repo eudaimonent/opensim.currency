@@ -748,7 +748,7 @@ namespace OpenSim.Forge.Currency
             int senderBalance = -1;
             int receiverBalance = -1;
 
-			if (sender==receiver) return true;
+			//if (sender==receiver) return true;
 
             // Handle the illegal transaction.   
             if (senderClient == null) // receiverClient could be null.
@@ -845,7 +845,7 @@ namespace OpenSim.Forge.Currency
             int senderBalance = -1;
             int receiverBalance = -1;
 
-			if (sender==receiver) return true;
+			//if (sender==receiver) return true;
 
             #region Force send transaction request to money server and parse the resultes.
 
