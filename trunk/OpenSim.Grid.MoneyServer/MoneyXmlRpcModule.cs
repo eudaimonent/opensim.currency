@@ -1064,7 +1064,6 @@ namespace OpenSim.Grid.MoneyServer
 			m_log.InfoFormat("[WEB] User: {0} has logged in from web", userID);
 			responseData["success"] = true;
 			return response;
-
 		}
 
 
@@ -1084,7 +1083,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (string.IsNullOrEmpty(userID) || string.IsNullOrEmpty(webSessionID))
 			{
 				responseData["success"] = false;
-				responseData["errorMessage"] = "userID or sessionID can`t be empty,log out failed!";
+				responseData["errorMessage"] = "userID or sessionID can`t be empty, log out failed!";
 				return response;
 			}
 
