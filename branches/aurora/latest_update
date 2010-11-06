@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+#
+(cd aurora.currency && svn update)
+
+#./opensim.currency/rm_patched_file 
+#if [ -d .svn ]; then
+#	./opensim.currency/svn_update_original_file
+#fi
+#if [ -d .git ]; then
+#	./opensim.currency/git_update_original_file
+#fi
+#
+#echo
+patch -p1 < aurora.currency/aurora_currency_latest.patch 
