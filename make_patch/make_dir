@@ -1,11 +1,13 @@
-mkdir -p opensim/OpenSim/Framework
-mkdir -p opensim/OpenSim/Framework/Servers/HttpServer
-mkdir -p opensim/OpenSim/Region/ScriptEngine/DotNetEngine
-mkdir -p opensim/OpenSim/Region/ScriptEngine/XEngine
-mkdir -p opensim/OpenSim/Region/OptionalModules/World/MoneyModule
+mkdir -p aurora/OpenSim/Framework
+mkdir -p aurora/OpenSim/Framework/Servers/HttpServer
+mkdir -p aurora/OpenSim/Region/ScriptEngine/DotNetEngine
+mkdir -p aurora/OpenSim/Region/ScriptEngine/XEngine
+mkdir -p aurora/OpenSim/Region/OptionalModules/World/MoneyModule
+mkdir -p aurora/Aurora/AuroraDotNetEngine
 
-mkdir -p opensim-/OpenSim/Framework
-mkdir -p opensim-/OpenSim/Framework/Servers/HttpServer
-mkdir -p opensim-/OpenSim/Region/ScriptEngine/DotNetEngine
-mkdir -p opensim-/OpenSim/Region/ScriptEngine/XEngine
-mkdir -p opensim-/OpenSim/Region/OptionalModules/World/MoneyModule
+mkdir -p aurora-/OpenSim/Framework
+mkdir -p aurora-/OpenSim/Framework/Servers/HttpServer
+mkdir -p aurora-/OpenSim/Region/ScriptEngine/DotNetEngine
+mkdir -p aurora-/OpenSim/Region/ScriptEngine/XEngine
+mkdir -p aurora-/OpenSim/Region/OptionalModules/World/MoneyModule
+mkdir -p aurora-/Aurora/AuroraDotNetEngine

@@ -66,8 +66,13 @@ namespace OpenSim.Grid.MoneyServer
 		public MoneyServerBase()
 		{
 			//m_console = new ConsoleBase("Money");
-			m_console = new LocalConsole("Money");
+			//m_console = new LocalConsole("Money");
+			m_console = new LocalConsole();
+            m_console.DefaultPrompt = "Money";
 			MainConsole.Instance = m_console;
+
+			//OpenSim.Framework.Console.MainConsole.Instance = new LocalConsole();
+            //OpenSim.Framework.Console.MainConsole.Instance.DefaultPrompt = "Money";
 		}
 
 
@@ -224,7 +229,8 @@ namespace OpenSim.Grid.MoneyServer
 			string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
 			if (File.Exists(configPath))
 			{
-				m_config = new IniConfigSource(configPath);
+				//m_config = new IniConfigSource(configPath);
+				m_config = new IniConfigSource(configPath, Nini.Ini.IniFileType.AuroraStyle);
 			}
 			else
 			{

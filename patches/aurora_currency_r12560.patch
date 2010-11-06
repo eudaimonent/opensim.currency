@@ -1,0 +1,251 @@
+diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/AuroraDotNetEngine/EventManager.cs
+--- aurora-/Aurora/AuroraDotNetEngine/EventManager.cs	2010-11-06 17:41:24.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2010-11-06 21:25:54.000000000 +0900
+@@ -121,27 +121,59 @@
+ 
+             IMoneyModule money =
+                     Scene.RequestModuleInterface<IMoneyModule>();
+-            if (money != null)
++            if (money != null) {
+                 money.OnObjectPaid+=HandleObjectPaid;
++                money.OnPostObjectPaid += HandlePostObjectPaid;
++            }
+         }
+ 
+-        private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        //private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        private bool HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+         {
++            bool ret = false;
+             SceneObjectPart part = m_scriptEngine.findPrim(objectID);
+ 
+-            if (part == null)
+-                return;
++            //if (part == null)
++            //    return;
++
++            //m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++            //if (part.ParentGroup != null)
++            //    part = part.ParentGroup.RootPart;
++
++            //if (part != null)
++            //{
++            //    money(part.LocalId, agentID, amount);
++            //}
++            if (part != null) 
++            {
++                m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++                if (part.ParentGroup != null) part = part.ParentGroup.RootPart;
++                if (part != null)
++                {
++                    ret = money(part.LocalId, agentID, amount);
++                }
++            }
++            return ret;
++        }
++
+ 
+-            m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-            if (part.ParentGroup != null)
+-                part = part.ParentGroup.RootPart;
++        private bool HandlePostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount)
++        {
++            bool ret = true;
+ 
+-            if (part != null)
++            foreach (Scene scene in m_Scenes)
+             {
+-                money(part.LocalId, agentID, amount);
++                if (scene.RegionInfo.RegionHandle == regionHandle)
++                {
++                    ret = money(localID, agentID, amount);
++                    break;
++                }
+             }
++
++            return ret;
+         }
+ 
++
+         public void changed(SceneObjectPart part, uint change)
+         {
+             ScriptData[] datas = ScriptEngine.ScriptProtection.GetScripts(part.UUID);
+@@ -286,18 +318,19 @@
+             CoalescedTouchEvents[part.LocalId] = det;
+         }
+ 
+-        public void money(uint localID, UUID agentID, int amount)
++        //public void money(uint localID, UUID agentID, int amount)
++        public bool money(uint localID, UUID agentID, int amount)
+         {
++            bool ret = false;
++
+             SceneObjectPart part = m_scriptEngine.findPrim(localID);
+-            if (part == null)
+-                return;
++            if (part == null) return ret;
+             ScriptData[] datas = ScriptEngine.ScriptProtection.GetScripts(part.UUID);
+ 
+             if (datas == null || datas.Length == 0)
+             {
+                 datas = ScriptEngine.ScriptProtection.GetScripts(part.ParentGroup.RootPart.UUID);
+-                if (datas == null || datas.Length == 0)
+-                    return;
++                if (datas == null || datas.Length == 0) return ret;
+             }
+             string functionName = "money";
+             object[] param = new object[] {
+@@ -306,9 +339,13 @@
+ 
+             foreach (ScriptData ID in datas)
+             {
+-                if (CheckIfEventShouldFire(ID, functionName, param))
++                if (CheckIfEventShouldFire(ID, functionName, param)) {
+                     m_scriptEngine.AddToScriptQueue(ID, functionName, new DetectParams[0], ID.VersionID, EventPriority.FirstStart, param);
++                    ret = true;
++                }
+             }
++
++            return ret;
+         }
+ 
+         public void collision_start(SceneObjectPart part, ColliderArgs col)
+diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMoneyModule.cs
+--- aurora-/OpenSim/Framework/IMoneyModule.cs	2010-11-06 17:41:24.000000000 +0900
++++ aurora/OpenSim/Framework/IMoneyModule.cs	2010-11-06 21:25:54.000000000 +0900
+@@ -29,13 +29,19 @@
+ 
+ namespace OpenSim.Framework
+ {
+-    public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    //public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    // For legacy money module. Fumi.Iseki
++    public delegate bool ObjectPaid(UUID objectID, UUID agentID, int amount);
++    // For DTL money module.
++    public delegate bool PostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount);
++
+     public interface IMoneyModule
+     {
+         bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID,
+                 int amount);
+ 
+-        int GetBalance(UUID agentID);
++        //int GetBalance(UUID agentID);
++        int GetBalance(IClientAPI client);
+         bool UploadCovered(IClientAPI client, int amount);
+         bool AmountCovered(IClientAPI client, int amount);
+         void ApplyCharge(UUID agentID, int amount, string text);
+@@ -45,5 +51,6 @@
+         int GroupCreationCharge { get; }
+ 
+         event ObjectPaid OnObjectPaid;
++        event PostObjectPaid OnPostObjectPaid;
+     }
+ }
+diff -Nur aurora-/OpenSim/Framework/Servers/BaseOpenSimServer.cs aurora/OpenSim/Framework/Servers/BaseOpenSimServer.cs
+--- aurora-/OpenSim/Framework/Servers/BaseOpenSimServer.cs	2010-11-06 21:27:09.000000000 +0900
++++ aurora/OpenSim/Framework/Servers/BaseOpenSimServer.cs	2010-11-06 21:26:31.000000000 +0900
+@@ -231,6 +231,7 @@
+         /// <summary>
+         /// Get a report about the registered threads in this server.
+         /// </summary>
++/*
+         protected string GetThreadsReport()
+         {
+             StringBuilder sb = new StringBuilder();
+@@ -263,6 +264,34 @@
+ 
+             return sb.ToString();
+         }
++*/
++
++        protected string GetThreadsReport()
++        {
++            StringBuilder sb = new StringBuilder();
++            Watchdog.ThreadWatchdogInfo[] threads = Watchdog.GetThreads();
++
++            sb.Append(threads.Length + " threads are being tracked:" + Environment.NewLine);
++            foreach (Watchdog.ThreadWatchdogInfo twi in threads)
++            {
++                Thread t = twi.Thread;
++               
++                sb.Append(
++                    "ID: " + t.ManagedThreadId + ", Name: " + t.Name + ", TimeRunning: "
++                    + "Pri: " + t.Priority + ", State: " + t.ThreadState);
++                sb.Append(Environment.NewLine);
++            }
++
++            int workers = 0, ports = 0, maxWorkers = 0, maxPorts = 0;
++            ThreadPool.GetAvailableThreads(out workers, out ports);
++            ThreadPool.GetMaxThreads(out maxWorkers, out maxPorts);
++
++            sb.Append(Environment.NewLine + "*** ThreadPool threads ***"  + Environment.NewLine);
++            sb.Append("workers: " + (maxWorkers - workers) + " (" + maxWorkers + "); ports: " + (maxPorts - ports) + " (" + maxPorts + ")" + Environment.NewLine);
++
++            return sb.ToString();
++        }
++
+ 
+         /// <summary>
+         /// Return a report about the uptime of this server
+diff -Nur aurora-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs aurora/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
+--- aurora-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-11-06 17:41:24.000000000 +0900
++++ aurora/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2010-11-06 22:16:51.000000000 +0900
+@@ -1623,6 +1623,11 @@
+                 {
+                     //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
+                     //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
++                    System.Security.Cryptography.X509Certificates.X509Certificate2 cert =
++                             new System.Security.Cryptography.X509Certificates.X509Certificate2("SineWaveCert.pfx", "123");
++                    m_httpListener2 = CoolHTTPListener.Create(IPAddress.Any, (int)m_port, cert);
++                    m_httpListener2.ExceptionThrown += httpServerException;
++                    m_httpListener2.LogWriter = httpserverlog;
+                 }
+ 
+                 m_httpListener2.RequestReceived += OnRequest;
+diff -Nur aurora-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs aurora/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
+--- aurora-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-11-06 17:41:24.000000000 +0900
++++ aurora/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2010-11-06 21:25:54.000000000 +0900
+@@ -104,6 +104,7 @@
+ #pragma warning disable 67
+ 
+         public event ObjectPaid OnObjectPaid;
++        public event PostObjectPaid OnPostObjectPaid;
+ 
+ #pragma warning restore 67
+ 
+@@ -256,11 +257,23 @@
+         {
+             if (config == "Startup" && startupConfig != null)
+             {
+-                m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                //m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
+             }
+ 
+             if (config == "Economy" && startupConfig != null)
+             {
++                // Check if the SampleMoneyModule is enabled.
++                m_enabled = (startupConfig.GetString("EconomyModule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                if (m_enabled)
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is enabled.");
++                }
++                else
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is disabled. And the economy module [{0}] is being loaded for currency.",
++                                     startupConfig.GetString("EconomyModule"));
++                }
++
+                 PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
+                 PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
+                 PricePublicObjectDecay = startupConfig.GetInt("PricePublicObjectDecay", 4);
+@@ -791,7 +804,8 @@
+             //m_log.Info("[FRIEND]: " + avatar.Name + " status:" + (!avatar.IsChildAgent).ToString());
+         }
+ 
+-        public int GetBalance(UUID agentID)
++        //public int GetBalance(UUID agentID)
++        public int GetBalance(IClientAPI client)
+         {
+             return 0;
+         }

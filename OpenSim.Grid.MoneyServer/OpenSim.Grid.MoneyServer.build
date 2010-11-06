@@ -14,6 +14,7 @@
 				<include name="IMoneyDBService.cs" />
 				<include name="IMoneyServiceCore.cs" />
 				<include name="Program.cs" />
+				<include name="../../OpenSim/Framework/Servers/BaseOpenSimServer.cs"/>
 			</sources>
 			<references>
 				<include name="System.dll" />
@@ -21,6 +22,7 @@
 				<include name="System.Xml.dll" />
 				<include name="System.Xml.Linq.dll" />
 				<include name="System.Data.dll" />
+
 				<include name="${referdir}/log4net.dll" />
 				<include name="${referdir}/Nini.dll" />
 				<include name="${referdir}/XMLRPC.dll" />
@@ -31,7 +33,9 @@
 				<include name="${referdir}/MySql.Data.dll" />
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
+				<include name="${referdir}/OpenMetaverse.StructuredData.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
+				<include name="${referdir}/OpenSim.Region.Physics.Manager.dll" />
 				<include name="${referdir}/OpenSim.Server.Base.dll" />
 				<include name="${referdir}/OpenSim.Grid.Framework.dll" />
 				<include name="${referdir}/OpenSim.Data.dll" />
