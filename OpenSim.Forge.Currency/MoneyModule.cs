@@ -163,7 +163,7 @@ namespace OpenSim.Forge.Currency
 
             }
 
-             scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
+            scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
             //scene.EventManager.OnNewClient += OnNewClient;
             scene.EventManager.OnMoneyTransfer += MoneyTransferAction;
             scene.EventManager.OnClientClosed += ClientClosed;
