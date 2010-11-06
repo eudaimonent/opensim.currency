@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #
-(cd aurora.currency && svn update)
+(cd opensim.currency.aurora && svn update)
 
 #./opensim.currency/rm_patched_file 
 #if [ -d .svn ]; then
@@ -12,4 +12,4 @@
 #fi
 #
 #echo
-patch -p1 < aurora.currency/aurora_currency_latest.patch 
+patch -p1 < opensim.currency.aurora/aurora_currency_latest.patch 
