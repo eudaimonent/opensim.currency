@@ -413,7 +413,7 @@ namespace OpenSim.Grid.MoneyServer
 			//
 			if (!m_forceTransfer)
 			{
-				m_log.Error("[Money RPC] Not allowed force transfer of Money. Set enableForceTransfer at [MoneyServer] to true");
+				m_log.Error("[Money RPC] Not allowed force transfer of Money. Set enableForceTransfer at [MoneyServer] to true in MoneyServer.ini");
 				responseData["success"] = false;
 				responseData["message"] = "not allowed force transfer of Money!";
 				return response;
@@ -533,7 +533,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			if (m_bankerAvatar!=UUID.Zero.ToString() && m_bankerAvatar!=bankerID)
 			{
-				m_log.Error("[Money RPC] Not allowed add money to avatar!! Set BankerAvatar at [MoneyServer] in Money.ini");
+				m_log.Error("[Money RPC] Not allowed add money to avatar!! Set BankerAvatar at [MoneyServer] in MoneyServer.ini");
 				responseData["message"] = "not allowed add money to avatar!";
 				return response;
 			}
