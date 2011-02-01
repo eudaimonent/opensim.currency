@@ -140,7 +140,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			IConfig s_config = moneyConfig.m_config.Configs["Startup"];
 			string PIDFile = s_config.GetString("PIDFile", "");
-			if (PIDFile!="") CreatePIDFile(PIDFile);
+			if (PIDFile!="") Create_PIDFile(PIDFile);
 
 			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
 			string hostname = db_config.GetString("hostname", "localhost");
@@ -159,7 +159,7 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		// added by skidz
-		protected void CreatePIDFile(string path)
+		protected void Create_PIDFile(string path)
 		{
 			try
 			{
