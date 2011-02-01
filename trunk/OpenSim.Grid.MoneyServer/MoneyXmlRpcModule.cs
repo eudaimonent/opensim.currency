@@ -258,7 +258,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
-			Hashtable responseData = new Hashtable();
+			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
 			string senderID = string.Empty;
@@ -392,7 +392,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
-			Hashtable responseData = new Hashtable();
+			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
 			string senderID = string.Empty;
@@ -505,7 +505,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
-			Hashtable responseData = new Hashtable();
+			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
 			string senderID = UUID.Zero.ToString();
