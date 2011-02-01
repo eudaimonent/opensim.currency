@@ -110,7 +110,6 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
 			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
 			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);
-			m_httpServer.AddXmlRPCHandler("BankerTransferMoney", handleBankerTransaction);
 			m_httpServer.AddXmlRPCHandler("GetBalance", handleSimulatorUserBalanceRequest);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
 			m_httpServer.AddXmlRPCHandler("ConfirmTransfer", handleConfirmTransfer);
@@ -121,6 +120,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("WebGetBalance", handleWebGetBalance);
 			m_httpServer.AddXmlRPCHandler("WebGetTransaction", handleWebGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
+			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);			// added by Fumi.Iseki
 		}
 
 
@@ -335,7 +335,7 @@ namespace OpenSim.Grid.MoneyServer
 
 								if (amount!=0)
 								{
-									responseData["success"] = handleNoConfirmTransfer(transactionUUID);
+									responseData["success"] = noConfirmTransfer(transactionUUID);
 								}
 								else
 								{
@@ -462,7 +462,7 @@ namespace OpenSim.Grid.MoneyServer
 					{
 						if (amount!=0)
 						{
-							responseData["success"] = handleNoConfirmTransfer(transactionUUID);
+							responseData["success"] = noConfirmTransfer(transactionUUID);
 						}
 						else
 						{
@@ -498,56 +498,54 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
-		public XmlRpcResponse handleBankerTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
+		public XmlRpcResponse handleAddBankerMoney(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
 			response.Value = responseData;
 
-			string senderID = string.Empty;
-			string receiverID = string.Empty;
-			//string senderSessionID = string.Empty;
-			//string senderSecureSessionID = string.Empty;
+			string senderID = UUID.Zero.ToString();
+			string bankerID = string.Empty;
+
 			int	amount = 0;
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
 			int	transactionType = 0;
 			string description = string.Empty;
-			string senderUserServIP = string.Empty;
-			string receiverUserServIP = string.Empty;
+			//string senderUserServIP = string.Empty;
+			string bankerUserServIP = string.Empty;
 
 			string fromID = string.Empty;
 			string toID = string.Empty;
 			UUID transactionUUID = UUID.Random();
 
-			m_log.InfoFormat("[Money] in handleForceTransaction");
+			responseData["success"] = false;
+
+			m_log.InfoFormat("[Money] in handleAddBankerMoney");
 			//
 			if (!m_forceTransfer)
 			{
-				m_log.Error("[Money] Not allowed force transfer of Money. Set enableForceTransfer at [MoneyServer] to true");
-				responseData["success"] = false;
-				responseData["message"] = "not allowed force transfer of Money!";
+				m_log.Error("[Money] Not allowed add Money to Banker. Set enableForceTransfer at [MoneyServer] to true");
+				responseData["message"] = "not allowed add Money to Banker!";
 				return response;
 			}
 
-			if (requestData.ContainsKey("senderID")) 			senderID = (string)requestData["senderID"];
-			if (requestData.ContainsKey("receiverID")) 			receiverID = (string)requestData["receiverID"];
+			//if (requestData.ContainsKey("senderID")) 			senderID = (string)requestData["senderID"];
+			if (requestData.ContainsKey("bankerID")) 			bankerID = (string)requestData["bankerID"];
 			if (requestData.ContainsKey("amount")) 				amount = (Int32)requestData["amount"];
-			if (requestData.ContainsKey("localID")) 			localID = (string)requestData["localID"];
-			if (requestData.ContainsKey("regionHandle")) 		regionHandle = (string)requestData["regionHandle"];
+			//if (requestData.ContainsKey("localID")) 			localID = (string)requestData["localID"];
+			//if (requestData.ContainsKey("regionHandle")) 		regionHandle = (string)requestData["regionHandle"];
 			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
-			if (requestData.ContainsKey("senderUserServIP")) 	senderUserServIP = (string)requestData["senderUserServIP"];
-			if (requestData.ContainsKey("receiverUserServIP"))	receiverUserServIP = (string)requestData["receiverUserServIP"];
-			//if (requestData.ContainsKey("senderSessionID")) 	senderSessionID = (string)requestData["senderSessionID"];
-			//if (requestData.ContainsKey("senderSecureSessionID")) senderSecureSessionID = (string)requestData["senderSecureSessionID"];
+			//if (requestData.ContainsKey("senderUserServIP")) 	senderUserServIP = (string)requestData["senderUserServIP"];
+			if (requestData.ContainsKey("bankerUserServIP"))	bankerUserServIP = (string)requestData["bankerUserServIP"];
 
 
-			fromID = senderID + "@" + senderUserServIP;
-			toID = receiverID + "@" + receiverUserServIP;
+			fromID = senderID;
+			toID   = bankerID + "@" + bankerUserServIP;
 
-			m_log.InfoFormat("[Money] Force transfering money from {0} to {1}", fromID, toID);
+			m_log.InfoFormat("[Money] Add money to Banker {0}", toID);
 			int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
 
 			try
@@ -563,45 +561,49 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
-				transaction.Description = "Newly added on " + DateTime.Now.ToString();
+				transaction.Description = "Banker added on " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
 				if (rcvr == null) 
 				{
 					m_log.ErrorFormat("[Money DB] Force receive User is not yet in DB:{0}", toID);
-					responseData["success"] = false;
 					return response;
 				}
 
 				bool result = m_moneyDBService.addTransaction(transaction);
 				if (result) 
 				{
-					UserInfo user = m_moneyDBService.FetchUserInfo(fromID);
-					if (user != null) 
+					if (amount!=0)
 					{
-						if (amount!=0)
+						if (m_moneyDBService.DoTransfer(transactionUUID))
 						{
-							responseData["success"] = handleNoConfirmTransfer(transactionUUID);
+							transaction = m_moneyDBService.FetchTransaction(transactionUUID);
+							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
+							{
+								m_log.InfoFormat("[Money] Payment finished successfully,now update balance:{0} ", transactionUUID.ToString());
+								//UpdateBalance(transaction.Sender);
+								UpdateBalance(transaction.Receiver);
+
+								responseData["success"] = true;
+							}
 						}
-						else
-						{
-							responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
-						}
-						return response;
 					}
+					else
+					{
+						responseData["success"] = true;			// No messages for L$0 object. by Fumi.Iseki
+					}
+					return response;
 				}
 				else // add transaction failed
 				{
 					m_log.ErrorFormat("[Money DB] Add force transaction for user:{0} failed", fromID);
 				}
 
-				responseData["success"] = false;
 				return response;
 			}
 			catch (Exception e)
 			{
 				m_log.Error("[Money DB] Exception occurred while adding force transaction " + e.ToString());
-				responseData["success"] = false;
 				return response;
 			}
 		}
@@ -613,11 +615,11 @@ namespace OpenSim.Grid.MoneyServer
 		//  added by Fumi.Iseki
 		//
 		/// <summary>
-		/// Continue with the transaction.
+		/// Continue transaction with no confirm.
 		/// </summary>
 		/// <param name="transactionUUID"></param>
 		/// <returns></returns>
-		public bool  handleNoConfirmTransfer(UUID transactionUUID)
+		public bool  noConfirmTransfer(UUID transactionUUID)
 		{
 			m_log.InfoFormat("[Money] User has accepted the transaction,now continue with the transaction");
 
