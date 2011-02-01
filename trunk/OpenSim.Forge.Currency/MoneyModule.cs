@@ -761,6 +761,7 @@ m_log.ErrorFormat("[MONEY]: start 4444444444444444444444444444444444444444444444
 								int amount = (int)requestParam["amount"];
 m_log.ErrorFormat("[MONEY]: start 55555555555555555555555555555555555555555555555555555555555555555555i amount = {0}", amount);
 								ret = AddBankerMoney(bankerID, amount, 0, "Send to Banker");
+m_log.ErrorFormat("[MONEY]: start 666666666666666666666666666666666666666666666666666666666666666666666 amount = {0}", amount);
 							}
 						}
 					}
@@ -987,7 +988,7 @@ m_log.ErrorFormat("[MONEY]: start 5555555555555555555555555555555555555555555555
 m_log.ErrorFormat("[MONEY]: start ========================================================================");
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
-m_log.ErrorFormat("[MONEY]: start @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+m_log.ErrorFormat("[MONEY]: start ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 				// Handle the return values from Money Server.  
 				if (resultTable != null && resultTable.Contains("success"))
