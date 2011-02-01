@@ -87,7 +87,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_moneyCore = moneyCore;
 			m_config = config;
 
-			m_defaultBalance = m_config.GetInt("DefaultBalance", 0);
+			m_defaultBalance = m_config.GetInt("DefaultBalance", 1000);
 			//m_confirmURI = m_config.GetString("ConfirmURL", "https://SampleServer.com/confirm.aspx");
 
 			string ftrans	 = m_config.GetString("enableForceTransfer", "false");
