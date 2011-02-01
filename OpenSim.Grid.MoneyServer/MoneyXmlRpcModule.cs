@@ -48,7 +48,7 @@ namespace OpenSim.Grid.MoneyServer
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private int m_defaultBalance = 0;
-		private string m_simServURI = string.Empty;
+		//private string m_simServURI = string.Empty;
 		//private string m_confirmURI = string.Empty;
 
 		private bool   m_forceTransfer = false;
@@ -269,7 +269,7 @@ namespace OpenSim.Grid.MoneyServer
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
 			int	transactionType = 0;
-			string description = string.Empty;
+			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
 
@@ -314,7 +314,7 @@ namespace OpenSim.Grid.MoneyServer
 						transaction.Time = time;
 						transaction.SecureCode = UUID.Random().ToString();
 						transaction.Status = (int)Status.PENDING_STATUS;
-						transaction.Description = "Newly added on " + DateTime.Now.ToString();
+						transaction.Description = description + " " + DateTime.Now.ToString();
 
 						UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
 						if (rcvr == null) 
@@ -401,7 +401,7 @@ namespace OpenSim.Grid.MoneyServer
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
 			int	transactionType = 0;
-			string description = string.Empty;
+			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
 
@@ -448,7 +448,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
-				transaction.Description = "Newly added on " + DateTime.Now.ToString();
+				transaction.Description = description + " " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
 				if (rcvr == null) 
@@ -513,7 +513,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			int	amount = 0;
 			int	transactionType = 0;
-			string description = string.Empty;
+			string description  = "Add Money to Avatar on";
 			string bankerUserServIP = string.Empty;
 
 			string fmID = string.Empty;
@@ -531,7 +531,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
 			if (requestData.ContainsKey("bankerUserServIP"))	bankerUserServIP = (string)requestData["bankerUserServIP"];
 
-			if (m_bankerAvatar!=UUID.Zero.ToString() and m_bankerAvatar!=bankerID)
+			if (m_bankerAvatar!=UUID.Zero.ToString() && m_bankerAvatar!=bankerID)
 			{
 				m_log.Error("[Money RPC] Not allowed add money to avatar!! Set BankerAvatar at [MoneyServer] in Money.ini");
 				responseData["message"] = "not allowed add money to avatar!";
@@ -557,7 +557,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
-				transaction.Description = "Add Money to Avatar on " + DateTime.Now.ToString();
+				transaction.Description = description + " " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
 				if (rcvr==null) 
@@ -788,8 +788,8 @@ namespace OpenSim.Grid.MoneyServer
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
 			string clientUUID = string.Empty;
-			string clientSessionID = string.Empty;
-			string clientSecureSessionID = string.Empty;
+			//string clientSessionID = string.Empty;
+			//string clientSecureSessionID = string.Empty;
 			string userServerIP = string.Empty;
 			string userID = string.Empty;
 
@@ -797,8 +797,8 @@ namespace OpenSim.Grid.MoneyServer
 
 			response.Value = responseData;
 			if (requestData.ContainsKey("clientUUID")) 			  clientUUID = (string)requestData["clientUUID"];
-			if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
-			if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
+			//if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
+			//if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
 			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
 
 			userID = clientUUID + "@" + userServerIP;
@@ -1124,6 +1124,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		public XmlRpcResponse handleGetTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			m_log.InfoFormat("[Money RPC] in handleGetTransaction");
@@ -1143,7 +1144,8 @@ namespace OpenSim.Grid.MoneyServer
 				UUID.TryParse(transactionID, out transactionUUID);
 			}
 
-			if(string.IsNullOrEmpty(transactionID))
+			//if (string.IsNullOrEmpty(transactionID))
+			if (string.IsNullOrEmpty(secureCode) || string.IsNullOrEmpty(transactionID))
 			{
 				responseData["success"] = false;
 				responseData["description"] = "TransactionID can`t be empty";
