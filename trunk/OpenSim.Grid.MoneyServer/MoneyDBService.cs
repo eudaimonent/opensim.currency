@@ -370,11 +370,11 @@ namespace OpenSim.Grid.MoneyServer
                             return true;
                         else // give money to receiver failed.
                         {
-                            m_log.ErrorFormat("[Money] Give money to receiver {0} failed", transaction.Receiver);
+                            m_log.ErrorFormat("[Money DB] Give money to receiver {0} failed", transaction.Receiver);
                             //Return money to sender
                             if (giveMoney(transactionUUID, transaction.Sender, transaction.Amount))
                             {
-                                m_log.ErrorFormat("[Money] give money to receiver {0} failed but return it to sender {1} successfully",
+                                m_log.ErrorFormat("[Money DB] give money to receiver {0} failed but return it to sender {1} successfully",
                                     transaction.Receiver,
                                     transaction.Sender);
                                 updateTransactionStatus(transactionUUID,
@@ -390,17 +390,17 @@ namespace OpenSim.Grid.MoneyServer
                     }
                     else // withdraw money failed
                     {
-                        m_log.ErrorFormat("[Money] Withdraw money from sender {0} failed", transaction.Sender);
+                        m_log.ErrorFormat("[Money DB] Withdraw money from sender {0} failed", transaction.Sender);
                     }
                 }
                 else // not enough balance to finish the transaction
                 {
-                    m_log.ErrorFormat("[Money] Not enough balance for user: {0} to apply the transaction.", transaction.Sender);
+                    m_log.ErrorFormat("[Money DB] Not enough balance for user: {0} to apply the transaction.", transaction.Sender);
                 }
             }
             else // Can not fetch the transaction or it has expired
             {
-                m_log.ErrorFormat("[Money] The transaction:{0} has expired", transactionUUID.ToString());
+                m_log.ErrorFormat("[Money DB] The transaction:{0} has expired", transactionUUID.ToString());
             }
             return false;
         }
@@ -408,7 +408,7 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		// by Fumi.Iseki
-        public bool DoAdd(UUID transactionUUID)
+        public bool DoAddMoney(UUID transactionUUID)
         {
             TransactionData transaction = new TransactionData();
             transaction = FetchTransaction(transactionUUID);
@@ -424,13 +424,13 @@ namespace OpenSim.Grid.MoneyServer
                 if (giveMoney(transactionUUID, transaction.Receiver, transaction.Amount)) return true;
                 else // give money to receiver failed.
                 {
-                    m_log.ErrorFormat("[Money] Give money to receiver {0} failed", transaction.Receiver);
-                    updateTransactionStatus(transactionUUID, (int)Status.FAILED_STATUS, "give money to receiver failed");
+                    m_log.ErrorFormat("[Money DB] Add money to receiver {0} failed", transaction.Receiver);
+                    updateTransactionStatus(transactionUUID, (int)Status.FAILED_STATUS, "add money to receiver failed");
 				}
             }
             else // Can not fetch the transaction or it has expired
             {
-                m_log.ErrorFormat("[Money] The transaction:{0} has expired", transactionUUID.ToString());
+                m_log.ErrorFormat("[Money DB] The transaction:{0} has expired", transactionUUID.ToString());
             }
             return false;
         }
@@ -444,13 +444,13 @@ namespace OpenSim.Grid.MoneyServer
             {
                 if (dbm.Manager.fetchUserInfo(user.UserID) != null)
                 {
-                    m_log.InfoFormat("[MYSQL] Found user \"{0}\",now update information", user.Avatar);
+                    m_log.InfoFormat("[Money DB] Found user \"{0}\",now update information", user.Avatar);
                     if (m_moneyManager.updateUserInfo(user))
                         return true;
                 }
                 else if (dbm.Manager.addUserInfo(user))
                 {
-                    m_log.InfoFormat("[MYSQL] Unable to find user \"{0}\", add it to DB successfully", user.Avatar);
+                    m_log.InfoFormat("[Money DB] Unable to find user \"{0}\", add it to DB successfully", user.Avatar);
                     return true;
                 }
                 return false;
