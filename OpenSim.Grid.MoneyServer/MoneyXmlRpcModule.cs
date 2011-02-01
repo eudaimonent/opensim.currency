@@ -524,12 +524,14 @@ namespace OpenSim.Grid.MoneyServer
 
 			m_log.InfoFormat("[Money] in handleAddBankerMoney");
 			//
+			/*
 			if (!m_forceTransfer)
 			{
 				m_log.Error("[Money] Not allowed add Money to Banker. Set enableForceTransfer at [MoneyServer] to true");
 				responseData["message"] = "not allowed add Money to Banker!";
 				return response;
 			}
+			*/
 
 			//if (requestData.ContainsKey("senderID")) 			senderID = (string)requestData["senderID"];
 			if (requestData.ContainsKey("bankerID")) 			bankerID = (string)requestData["bankerID"];
