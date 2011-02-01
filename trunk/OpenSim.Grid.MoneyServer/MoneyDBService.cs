@@ -46,15 +46,21 @@ namespace OpenSim.Grid.MoneyServer
         protected Dictionary<int, MySQLSuperManager> m_dbconnections = new Dictionary<int, MySQLSuperManager>();
         private int m_maxConnections;
         public int m_lastConnect = 0;
+
+
+
         public MoneyDBService(string connect)
         {
             m_connect = connect;
             Initialise(m_connect,10);
         }
 
+
+
         public MoneyDBService()
         {
         }
+
 
 
         public void Initialise(string connectionString,int maxDBConnections)
@@ -78,6 +84,7 @@ namespace OpenSim.Grid.MoneyServer
                 throw new Exception("Failed to initialise MySql database");
             }
         }
+
 
 
         private MySQLSuperManager GetLockedConnection()
@@ -109,6 +116,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public int getBalance(string userID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -127,6 +136,8 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
 
         public bool withdrawMoney(UUID transactionID, string senderID, int amount)
         {
@@ -147,6 +158,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public bool giveMoney(UUID transactionID, string receiverID, int amount)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -165,6 +178,8 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
 
         public bool addTransaction(TransactionData transaction)
         {
@@ -185,6 +200,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public bool addUser(string userID, int balance, int status)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -204,6 +221,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public bool updateTransactionStatus(UUID transactionID, int status, string description)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -222,6 +241,9 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
+
         public bool SetTransExpired(int deadTime)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -240,6 +262,8 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
 
         public bool ValidateTransfer(string secureCode, UUID transactionID)
         {
@@ -260,6 +284,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public TransactionData FetchTransaction(UUID transactionID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -278,6 +304,7 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
 
 
         public TransactionData FetchTransaction(string userID, int startTime, int endTime, int lastIndex)
@@ -319,6 +346,8 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
 
         public bool DoTransfer(UUID transactionUUID)
         {
@@ -376,6 +405,38 @@ namespace OpenSim.Grid.MoneyServer
             return false;
         }
 
+
+
+		// by Fumi.Iseki
+        public bool DoAdd(UUID transactionUUID)
+        {
+            TransactionData transaction = new TransactionData();
+            transaction = FetchTransaction(transactionUUID);
+			
+            if (transaction != null && transaction.Status == (int)Status.PENDING_STATUS)
+            {
+                //If receiver not found, add it to DB.
+                if (getBalance(transaction.Receiver)==-1)
+                {
+                    addUser(transaction.Receiver, 0, (int)Status.SUCCESS_STATUS);
+                }
+
+                if (giveMoney(transactionUUID, transaction.Receiver, transaction.Amount)) return true;
+                else // give money to receiver failed.
+                {
+                    m_log.ErrorFormat("[Money] Give money to receiver {0} failed", transaction.Receiver);
+                    updateTransactionStatus(transactionUUID, (int)Status.FAILED_STATUS, "give money to receiver failed");
+				}
+            }
+            else // Can not fetch the transaction or it has expired
+            {
+                m_log.ErrorFormat("[Money] The transaction:{0} has expired", transactionUUID.ToString());
+            }
+            return false;
+        }
+
+
+
         public bool TryAddUserInfo(UserInfo user)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -408,6 +469,8 @@ namespace OpenSim.Grid.MoneyServer
             }
         }
 
+
+
         public UserInfo FetchUserInfo(string userID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -426,6 +489,8 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
+
+
 
         public int getTransactionNum(string userID, int startTime, int endTime)
         {
