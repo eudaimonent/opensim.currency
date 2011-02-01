@@ -428,7 +428,7 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 
-			bool ret = TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objLocalID, regionHandle, description);
+			TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objLocalID, regionHandle, description);
 		}
 
 
@@ -525,8 +525,7 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								client.SendMoneyBalance(UUID.Random(),
-														true,
+								client.SendMoneyBalance(UUID.Random(), true,
 														Utils.StringToBytes("Balance update event from money server"),
 														(int)requestParam["Balance"]);
 								ret = true;
@@ -582,7 +581,6 @@ namespace OpenSim.Forge.Currency
 																					(byte)InstantMessageDialog.MessageFromAgent,
 																					"Please clink the URI in IM window to confirm your purchase.",
 																					false, new Vector3());
-
 								client.SendInstantMessage(gridMsg);
 								ret = true; 
 							}
@@ -641,7 +639,6 @@ namespace OpenSim.Forge.Currency
 																						 (string)requestParam["URI"],
 																						 false, new Vector3());
 								client.SendInstantMessage(gridMsg_link);
-
 								ret = true;
 							}
 						}
@@ -735,7 +732,6 @@ namespace OpenSim.Forge.Currency
 		{
 			bool ret = false;
 
-m_log.ErrorFormat("[MONEY]: start ******************************************************************** {0}", request.Params.Count);
 			if (request.Params.Count > 0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
@@ -743,39 +739,32 @@ m_log.ErrorFormat("[MONEY]: start **********************************************
 					requestParam.Contains("bankerSessionID") &&
 					requestParam.Contains("bankerSecureSessionID"))
 				{
-m_log.ErrorFormat("[MONEY]: start 11111111111111111111111111111111111111111111111111111111111111111111");
 					UUID bankerID = UUID.Zero;
 					UUID.TryParse((string)requestParam["bankerID"], out bankerID);
 					if (bankerID != UUID.Zero)
 					{
-m_log.ErrorFormat("[MONEY]: start 22222222222222222222222222222222222222222222222222222222222222222222");
 						IClientAPI client = LocateClientObject(bankerID);
 						if (client != null &&
 							client.SessionId.ToString() == (string)requestParam["bankerSessionID"] &&
 							client.SecureSessionId.ToString() == (string)requestParam["bankerSecureSessionID"])
 						{
-m_log.ErrorFormat("[MONEY]: start 33333333333333333333333333333333333333333333333333333333333333333333");
 							if (requestParam.Contains("amount"))
 							{
-m_log.ErrorFormat("[MONEY]: start 44444444444444444444444444444444444444444444444444444444444444444443");
 								int amount = (int)requestParam["amount"];
-m_log.ErrorFormat("[MONEY]: start 55555555555555555555555555555555555555555555555555555555555555555555i amount = {0}", amount);
 								ret = AddBankerMoney(bankerID, amount, 0, "Send to Banker");
-m_log.ErrorFormat("[MONEY]: start 666666666666666666666666666666666666666666666666666666666666666666666 amount = {0}", amount);
 							}
 						}
 					}
 				}
 			}
 
-
-			// Send the response to php script.
+			// Send the response to caller.
 			XmlRpcResponse resp  = new XmlRpcResponse();
 			Hashtable paramTable = new Hashtable();
 			paramTable["success"] = ret;
 			if (!ret) 
 			{
-				m_log.ErrorFormat("[MONEY]: Banker transaction is failed.");
+				m_log.ErrorFormat("[MONEY]: Add Banker Money transaction is failed.");
 			}
 			resp.Value = paramTable;
 
@@ -803,11 +792,9 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 		{
 			bool ret = false;
 			IClientAPI senderClient = LocateClientObject(sender);
-			IClientAPI receiverClient = LocateClientObject(receiver);
-			int senderBalance = -1;
-			int receiverBalance = -1;
-
-			//if (sender==receiver) return true;
+			//IClientAPI receiverClient = LocateClientObject(receiver);
+			//int senderBalance = -1;
+			//int receiverBalance = -1;
 
 			// Handle the illegal transaction.   
 			if (senderClient == null) // receiverClient could be null.
@@ -867,9 +854,8 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 					}
 					m_moneyServer[sender] -= amount;
 					m_moneyServer[receiver] += amount;
-
-					senderBalance = m_moneyServer[sender];
-					receiverBalance = m_moneyServer[receiver];
+					//senderBalance = m_moneyServer[sender];
+					//receiverBalance = m_moneyServer[receiver];
 
 					ret = true;
 				}
@@ -894,12 +880,6 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 		private bool ForceTransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, uint localID, ulong regionHandle, string description)
 		{
 			bool ret = false;
-			//IClientAPI senderClient = LocateClientObject(sender);
-			//IClientAPI receiverClient = LocateClientObject(receiver);
-			int senderBalance = -1;
-			int receiverBalance = -1;
-
-			//if (sender==receiver) return true;
 
 			#region Force send transaction request to money server and parse the resultes.
 
@@ -911,8 +891,6 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 				paramTable["senderID"] = sender.ToString();
 				paramTable["receiverUserServIP"] = m_userServIP;
 				paramTable["receiverID"] = receiver.ToString();
-				//paramTable["senderSessionID"] = senderClient.SessionId.ToString();
-				//paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
 				paramTable["transactionType"] = transactiontype;
 				paramTable["localID"] = localID.ToString();
 				paramTable["regionHandle"] = regionHandle.ToString();
@@ -947,9 +925,6 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 					m_moneyServer[sender] -= amount;
 					m_moneyServer[receiver] += amount;
 
-					senderBalance = m_moneyServer[sender];
-					receiverBalance = m_moneyServer[receiver];
-
 					ret = true;
 				}
 			}
@@ -962,15 +937,14 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 
 
 		/// <summary>   
-		/// transfer the money to banker avatarr. Need to notify money server to update.   
+		/// add the money to banker avatarr. Need to notify money server to update.   
 		/// </summary>   
 		/// <param name="amount">   
-		/// The amount of money.   
+		/// The amount of money.  
 		/// </param>   
 		/// <returns>   
 		/// return true, if successfully.   
 		/// </returns>   
-
 		private bool AddBankerMoney(UUID banker, int amount, int transactiontype, string description)
 		{
 			bool ret = false;
@@ -985,25 +959,21 @@ m_log.ErrorFormat("[MONEY]: start 6666666666666666666666666666666666666666666666
 				paramTable["amount"] = amount;
 				paramTable["description"] = description;
 
-m_log.ErrorFormat("[MONEY]: start ========================================================================");
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
-m_log.ErrorFormat("[MONEY]: start ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
 
 				// Handle the return values from Money Server.  
 				if (resultTable != null && resultTable.Contains("success"))
 				{
-m_log.ErrorFormat("[MONEY]: start ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 					if ((bool)resultTable["success"] == true)
 					{
-m_log.ErrorFormat("[MONEY]: start ------------------------------------------------------------------------");
-						m_log.DebugFormat("[MONEY]: Money banker transfer to [{0}] is done.", banker.ToString());
+						m_log.DebugFormat("[MONEY]: Add money to banker [{0}] is done.", banker.ToString());
 						ret = true;
 					}
 				}
 				else
 				{
-					m_log.ErrorFormat("[MONEY]: Can not banker send money server transaction request to [{0}].", banker.ToString());
+					m_log.ErrorFormat("[MONEY]: Can not add money to banker [{0}].", banker.ToString());
 				}
 			}
 
