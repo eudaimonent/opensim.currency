@@ -140,7 +140,7 @@ namespace OpenSim.Forge.Currency
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						HttpServer.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
-						HttpServer.AddXmlRPCHandler("OnMoneyAddBanker", OnMoneyAddBankerHandler);		// added by Fumi.Iseki
+						HttpServer.AddXmlRPCHandler("OnMoneyAddBanker", AddBankerMoneyHandler);		// added by Fumi.Iseki
 
 						//scene.CommsManager.HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						//scene.CommsManager.HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
@@ -150,7 +150,7 @@ namespace OpenSim.Forge.Currency
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						MainServer.Instance.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
 						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
-						MainServer.Instance.AddXmlRPCHandler("OnMoneyAddBanker", OnMoneyAddBankerHandler);
+						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);
 					}
 				}
 
@@ -731,10 +731,11 @@ namespace OpenSim.Forge.Currency
 
 
 
-		public XmlRpcResponse OnMoneyAddBankerHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		public XmlRpcResponse AddBankerMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			bool ret = false;
 
+m_log.ErrorFormat("[MONEY]: start ******************************************************************** {0}", request.Params.Count);
 			if (request.Params.Count > 0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
@@ -742,18 +743,23 @@ namespace OpenSim.Forge.Currency
 					requestParam.Contains("bankerSessionID") &&
 					requestParam.Contains("bankerSecureSessionID"))
 				{
+m_log.ErrorFormat("[MONEY]: start 11111111111111111111111111111111111111111111111111111111111111111111");
 					UUID bankerID = UUID.Zero;
 					UUID.TryParse((string)requestParam["bankerID"], out bankerID);
 					if (bankerID != UUID.Zero)
 					{
+m_log.ErrorFormat("[MONEY]: start 22222222222222222222222222222222222222222222222222222222222222222222");
 						IClientAPI client = LocateClientObject(bankerID);
 						if (client != null &&
 							client.SessionId.ToString() == (string)requestParam["bankerSessionID"] &&
 							client.SecureSessionId.ToString() == (string)requestParam["bankerSecureSessionID"])
 						{
+m_log.ErrorFormat("[MONEY]: start 33333333333333333333333333333333333333333333333333333333333333333333");
 							if (requestParam.Contains("amount"))
 							{
+m_log.ErrorFormat("[MONEY]: start 44444444444444444444444444444444444444444444444444444444444444444443");
 								int amount = (int)requestParam["amount"];
+m_log.ErrorFormat("[MONEY]: start 55555555555555555555555555555555555555555555555555555555555555555555i amount = {0}", amount);
 								ret = AddBankerMoney(bankerID, amount, 0, "Send to Banker");
 							}
 						}
@@ -978,14 +984,18 @@ namespace OpenSim.Forge.Currency
 				paramTable["amount"] = amount;
 				paramTable["description"] = description;
 
+m_log.ErrorFormat("[MONEY]: start ========================================================================");
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
+m_log.ErrorFormat("[MONEY]: start @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 				// Handle the return values from Money Server.  
 				if (resultTable != null && resultTable.Contains("success"))
 				{
+m_log.ErrorFormat("[MONEY]: start ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 					if ((bool)resultTable["success"] == true)
 					{
+m_log.ErrorFormat("[MONEY]: start ------------------------------------------------------------------------");
 						m_log.DebugFormat("[MONEY]: Money banker transfer to [{0}] is done.", banker.ToString());
 						ret = true;
 					}
