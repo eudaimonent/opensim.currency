@@ -261,14 +261,14 @@ namespace OpenSim.Grid.MoneyServer
 			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
+			int	   amount = 0;
+			int	   transactionType = 0;
 			string senderID = string.Empty;
 			string receiverID = string.Empty;
 			string senderSessionID = string.Empty;
 			string senderSecureSessionID = string.Empty;
-			int	amount = 0;
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
-			int	transactionType = 0;
 			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
@@ -395,12 +395,12 @@ namespace OpenSim.Grid.MoneyServer
 			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
+			int	   amount = 0;
+			int	   transactionType = 0;
 			string senderID = string.Empty;
 			string receiverID = string.Empty;
-			int	amount = 0;
 			string localID = string.Empty;
 			string regionHandle = string.Empty;
-			int	transactionType = 0;
 			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
 			string receiverUserServIP = string.Empty;
@@ -508,11 +508,11 @@ namespace OpenSim.Grid.MoneyServer
 			Hashtable responseData  = new Hashtable();
 			response.Value = responseData;
 
+			int	   amount = 0;
+			int	   transactionType = 0;
 			string senderID = UUID.Zero.ToString();
 			string bankerID = string.Empty;
-
-			int	amount = 0;
-			int	transactionType = 0;
+			string regionHandle = string.Empty;
 			string description  = "Add Money to Avatar on";
 			string bankerUserServIP = string.Empty;
 
@@ -523,10 +523,10 @@ namespace OpenSim.Grid.MoneyServer
 			responseData["success"] = false;
 
 			m_log.InfoFormat("[Money RPC] in handleAddBankerMoney");
-		
 			
 			if (requestData.ContainsKey("bankerID")) 			bankerID = (string)requestData["bankerID"];
 			if (requestData.ContainsKey("amount")) 				amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("regionHandle")) 		regionHandle = (string)requestData["regionHandle"];
 			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
 			if (requestData.ContainsKey("bankerUserServIP"))	bankerUserServIP = (string)requestData["bankerUserServIP"];
@@ -552,7 +552,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Receiver = toID;
 				transaction.Amount = amount;
 				transaction.ObjectUUID   = string.Empty;
-				transaction.RegionHandle = string.Empty;
+				transaction.RegionHandle = regionHandle;
 				transaction.Type = transactionType;
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
@@ -576,7 +576,7 @@ namespace OpenSim.Grid.MoneyServer
 							transaction = m_moneyDBService.FetchTransaction(transactionUUID);
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
-								m_log.InfoFormat("[Money RPC] To add money finished successfully, now update balance:{0} ", transactionUUID.ToString());
+								m_log.InfoFormat("[Money RPC] Addiing money finished successfully, now update balance:{0} ", transactionUUID.ToString());
 								UpdateBalance(transaction.Receiver);
 								responseData["success"] = true;
 							}
