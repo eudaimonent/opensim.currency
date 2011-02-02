@@ -505,7 +505,7 @@ namespace OpenSim.Forge.Currency
 								UUID sessionID, UUID groupID, UUID categoryID,
 								uint localID, byte saleType, int salePrice)
 		{
-			//m_log.ErrorFormat("[Money] Event OnObjectBuy.");
+			//m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
 
 			// Handle the parameters error.   
 			if (remoteClient == null || salePrice < 0) return;		// for L$0 Sell  by Fumi.Iseki
@@ -527,9 +527,10 @@ namespace OpenSim.Forge.Currency
 					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
 					if (mod!=null)
 					{
+						UUID senderId = sceneObj.OwnerID;
 						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
 						{
-							TransferMoney(remoteClient.AgentId, sceneObj.OwnerID, salePrice, 5008, 0, 0, "Object Buy");
+							TransferMoney(remoteClient.AgentId, senderId, salePrice, 5008, 0, 0, "Object Buy");
 						}
 					}
 				}
