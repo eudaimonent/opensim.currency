@@ -55,7 +55,7 @@ namespace OpenSim.Forge.Currency
 		#region Constant numbers and members.
 
 		// Constant memebers   
-		private const int MONEYMODULE_REQUEST_TIMEOUT = 30000;
+		private const int MONEYMODULE_REQUEST_TIMEOUT = 50000;
 
 		public enum TransactionType : int
 		{
@@ -215,7 +215,7 @@ namespace OpenSim.Forge.Currency
 		// for LSL ObjectGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
-			m_log.ErrorFormat("[Money] LSL ObjectGiveMoney. UUID = ", objectID.ToString());
+			//m_log.ErrorFormat("[Money] LSL ObjectGiveMoney. UUID = ", objectID.ToString());
 
 			string objName = string.Empty;
 			string avatarName = string.Empty;
@@ -532,7 +532,7 @@ namespace OpenSim.Forge.Currency
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
-			m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
+			//m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
 
 			// Handle the parameters error.   
 			if (remoteClient == null || salePrice < 0) return;		// for L$0 Sell  by Fumi.Iseki
