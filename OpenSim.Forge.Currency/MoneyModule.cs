@@ -532,7 +532,7 @@ namespace OpenSim.Forge.Currency
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
-			//m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
+			m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
 
 			// Handle the parameters error.   
 			if (remoteClient == null || salePrice < 0) return;		// for L$0 Sell  by Fumi.Iseki
@@ -780,8 +780,18 @@ namespace OpenSim.Forge.Currency
 									PostObjectPaid handlerOnObjectPaid = OnPostObjectPaid;
 									if (handlerOnObjectPaid != null)
 									{
-										ret = handlerOnObjectPaid(UInt32.Parse((string)requestParam["objectID"]),
-																  ulong.Parse((string)requestParam["regionHandle"]),
+										uint localID  = 0;
+										UUID objectID = UUID.Zero;
+
+										UUID.TryParse((string)requestParam["objectID"], out objectID);
+										SceneObjectPart sceneObj = FindPrim(objectID);
+										if (sceneObj!=null)
+										{
+											localID = sceneObj.LocalId;
+										}
+
+										//ret = handlerOnObjectPaid(UInt32.Parse((string)requestParam["objectID"]),
+										ret = handlerOnObjectPaid(localID, ulong.Parse((string)requestParam["regionHandle"]),
 																  senderID, (int)requestParam["amount"]);
 									}
 								}
