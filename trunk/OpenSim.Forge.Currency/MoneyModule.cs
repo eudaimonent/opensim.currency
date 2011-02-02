@@ -217,6 +217,8 @@ namespace OpenSim.Forge.Currency
 		// for LSL ObjectGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
+			m_log.ErrorFormat("[Money] LSL ObjectGiveMoney. UUID = ", objectID.ToString());
+
 			string objName = string.Empty;
 			string avatarName = string.Empty;
 
@@ -514,8 +516,8 @@ namespace OpenSim.Forge.Currency
 				{
 					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
-					uint parcelID = (uint)landBuyEvent.parcelLocalID;
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, parcelID, 0, "Land Purchase"))
+					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, 0, parcelID, "Land Purchase"))
 					{
 						lock (landBuyEvent)
 						{
