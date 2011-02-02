@@ -338,7 +338,7 @@ namespace OpenSim.Grid.MoneyServer
 
 								if (amount!=0)
 								{
-									responseData["success"] = noConfirmTransfer(transactionUUID);
+									responseData["success"] = NotifyTransfer(transactionUUID);
 								}
 								else
 								{
@@ -459,7 +459,7 @@ namespace OpenSim.Grid.MoneyServer
 					{
 						if (amount!=0)
 						{
-							responseData["success"] = noConfirmTransfer(transactionUUID);
+							responseData["success"] = NotifyTransfer(transactionUUID);
 						}
 						else
 						{
@@ -603,7 +603,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="transactionUUID"></param>
 		/// <returns></returns>
-		public bool  noConfirmTransfer(UUID transactionUUID)
+		public bool  NotifyTransfer(UUID transactionUUID)
 		{
 			m_log.InfoFormat("[Money RPC] User has accepted the transaction, now continue with the transaction");
 

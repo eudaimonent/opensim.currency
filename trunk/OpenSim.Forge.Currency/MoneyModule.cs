@@ -439,13 +439,14 @@ namespace OpenSim.Forge.Currency
 			// Before paying for the object, save the object local ID for current transaction.
 			UUID  objectID = UUID.Zero;
 			ulong regionHandle = 0;
-			if (moneyEvent.transactiontype==5008)
+
+			if (sender is Scene)
 			{
-				// Notify the client.   
-				if (sender is Scene)
+				Scene scene  = (Scene)sender;
+				regionHandle = scene.RegionInfo.RegionHandle;
+
+				if (moneyEvent.transactiontype==5008)
 				{
-					Scene scene = (Scene)sender;
-					regionHandle = scene.RegionInfo.RegionHandle;
 					objectID = scene.GetSceneObjectPart(moneyEvent.receiver).UUID;
 					m_log.Debug("Paying for object " + objectID.ToString());
 				}
@@ -509,13 +510,15 @@ namespace OpenSim.Forge.Currency
 
 			lock (landBuyEvent)
 			{
-				if (landBuyEvent.economyValidated == true &&
-					landBuyEvent.transactionID == 0)
+				if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
 				{
 					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
 					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, UUID.Zero, parcelID, "Land Purchase"))
+					UUID  regionID = UUID.Zero;
+					if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
+
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, regionID, parcelID, "Land Purchase"))
 					{
 						lock (landBuyEvent)
 						{
@@ -602,9 +605,8 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								client.SendMoneyBalance(UUID.Random(), true,
-														Utils.StringToBytes("Balance update event from money server"),
-														(int)requestParam["Balance"]);
+								client.SendMoneyBalance(UUID.Random(), true, 
+											Utils.StringToBytes("Balance update event from money server"), (int)requestParam["Balance"]);
 								ret = true;
 							}
 						}
@@ -656,9 +658,8 @@ namespace OpenSim.Forge.Currency
 							{
 								// Show the notice dialog with money server message.
 							   	GridInstantMessage gridMsg = new GridInstantMessage(null, UUID.Zero, "MonyServer", new UUID(clientUUID.ToString()),
-																					(byte)InstantMessageDialog.MessageFromAgent,
-																					"Please clink the URI in IM window to confirm your purchase.",
-																					false, new Vector3());
+																		(byte)InstantMessageDialog.MessageFromAgent,
+																		"Please clink the URI in IM window to confirm your purchase.", false, new Vector3());
 								client.SendInstantMessage(gridMsg);
 								ret = true; 
 							}
@@ -785,12 +786,8 @@ namespace OpenSim.Forge.Currency
 
 										UUID.TryParse((string)requestParam["objectID"], out objectID);
 										SceneObjectPart sceneObj = FindPrim(objectID);
-										if (sceneObj!=null)
-										{
-											localID = sceneObj.LocalId;
-										}
+										if (sceneObj!=null) localID = sceneObj.LocalId;
 
-										//ret = handlerOnObjectPaid(UInt32.Parse((string)requestParam["objectID"]),
 										ret = handlerOnObjectPaid(localID, ulong.Parse((string)requestParam["regionHandle"]),
 																  senderID, (int)requestParam["amount"]);
 									}
