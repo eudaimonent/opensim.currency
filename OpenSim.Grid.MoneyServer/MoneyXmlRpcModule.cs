@@ -38,7 +38,6 @@ using System.Net;
 using OpenMetaverse;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using Nini.Config;
-//using OpenSim.Grid.Framework;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -79,7 +78,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		public void Initialise(string opensimVersion,IConfig config, IMoneyDBService moneyDBService, IMoneyServiceCore moneyCore) 
 		{
 			m_opensimVersion = opensimVersion;
@@ -104,11 +102,9 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		public void PostInitialise()
 		{	
 		}
-
 
 
 		public void RegisterHandlers()
@@ -130,7 +126,6 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
 			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);			// added by Fumi.Iseki
 		}
-
 
 
 		/// <summary>
@@ -243,7 +238,6 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
-
 
 
 		//
@@ -379,7 +373,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		//
 		// added by Fumi.Iseki
 		//
@@ -492,7 +485,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		//
 		// added by Fumi.Iseki
 		//
@@ -603,8 +595,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
-
 		//
 		//  added by Fumi.Iseki
 		//
@@ -615,22 +605,21 @@ namespace OpenSim.Grid.MoneyServer
 		/// <returns></returns>
 		public bool  noConfirmTransfer(UUID transactionUUID)
 		{
-			m_log.InfoFormat("[Money RPC] User has accepted the transaction,now continue with the transaction");
+			m_log.InfoFormat("[Money RPC] User has accepted the transaction, now continue with the transaction");
 
 			try
 			{
 				if (m_moneyDBService.DoTransfer(transactionUUID))
 				{
-					//update balance
 					TransactionData transaction = m_moneyDBService.FetchTransaction(transactionUUID);
 					if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 					{
-						m_log.InfoFormat("[Money RPC] Payment finished successfully,now update balance:{0} ", transactionUUID.ToString());
+						m_log.InfoFormat("[Money RPC] Payment finished successfully, now update balance:{0} ", transactionUUID.ToString());
 						UpdateBalance(transaction.Sender);
 						UpdateBalance(transaction.Receiver);
-						//Notify opensim that transaction has been finished successfully and give item to the customer.
 
-						if (transaction.Type == 5008)
+						// Notify to sender.
+						if (transaction.Type==5008)
 						{
 							m_log.InfoFormat("[Money RPC] Now notify opensim to give object to customer:{0} ", transaction.Sender);
 							Hashtable requestTable = new Hashtable();
@@ -638,6 +627,7 @@ namespace OpenSim.Grid.MoneyServer
 							string receiverID = transaction.Receiver.Split('@')[0];
 							requestTable["senderID"] = senderID;
 							requestTable["receiverID"] = receiverID;
+
 							if(m_sessionDic.ContainsKey(transaction.Sender)&&m_secureSessionDic.ContainsKey(transaction.Sender))
 							{
 								requestTable["senderSessionID"] = m_sessionDic[transaction.Sender];
@@ -703,7 +693,6 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			return false;
 		}
-
 
 
 		/// <summary>
@@ -781,7 +770,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		public XmlRpcResponse handleClientLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
@@ -834,9 +822,8 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		//
-		//  This Function is never used.
+		//  This Function is never used, now. (by Fumi.Iseki)
 		//
 		/// <summary>
 		/// Continue with the transaction if user clicks the confirm link.
@@ -960,7 +947,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		//This bit of code is taken from OpenSim.
 
 		/// <summary>   
@@ -1016,7 +1002,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		/// <summary>
 		/// Update the client balance.We don't care about the result.
 		/// </summary>
@@ -1046,7 +1031,6 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
 		/// <summary>
 		/// RollBack the transaction if user failed to get the object paid
 		/// </summary>
@@ -1072,7 +1056,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
+		//
 		public XmlRpcResponse handleCancelTransfer(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			m_log.InfoFormat("[Money RPC] in handleCancelTransfer");
@@ -1124,7 +1108,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-
+		//
 		public XmlRpcResponse handleGetTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			m_log.InfoFormat("[Money RPC] in handleGetTransaction");
@@ -1178,6 +1162,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+		//
 		public XmlRpcResponse handleWebLogin(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			m_log.InfoFormat("[Money RPC] in handleWebLogin");
@@ -1217,6 +1202,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+		//
 		public XmlRpcResponse handleWebLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			m_log.InfoFormat("[Money RPC] in handleWebLogout");
@@ -1253,7 +1239,6 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
-
 
 
 		/// <summary>
@@ -1326,7 +1311,6 @@ namespace OpenSim.Grid.MoneyServer
 			responseData["errorMessage"] = "Session check failure,please re-login";
 			return response;
 		}
-
 
 
 		/// <summary>
@@ -1423,7 +1407,6 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
-
 
 
 		/// <summary>
