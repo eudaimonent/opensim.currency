@@ -138,7 +138,6 @@ namespace OpenSim.Forge.Currency
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
-						HttpServer.AddXmlRPCHandler("MoveMoney", MoveMoneyHandler);						// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);			// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);					// added by Fumi.Iseki
 						//HttpServer.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
@@ -150,7 +149,6 @@ namespace OpenSim.Forge.Currency
 						MainServer.Instance.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
-						MainServer.Instance.AddXmlRPCHandler("MoveMoney", MoveMoneyHandler);			// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);	// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);			// added by Fumi.Iseki
 						//MainServer.Instance.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
@@ -261,11 +259,11 @@ namespace OpenSim.Forge.Currency
 			{
 				if (LocateClientObject(fromID)!=null)
 				{
-					ret = TransferMoney(fromID, toID, amount, 5002, sceneObj.LocalId, sceneObj.RegionHandle, description);
+					ret = TransferMoney(fromID, toID, amount, 5002, objectID, sceneObj.RegionHandle, description);
 				}
 				else
 				{
-					ret = ForceTransferMoney(fromID, toID, amount, 5002, sceneObj.LocalId, sceneObj.RegionHandle, description);
+					ret = ForceTransferMoney(fromID, toID, amount, 5002, objectID, sceneObj.RegionHandle, description);
 				}
 			}
 
@@ -439,7 +437,7 @@ namespace OpenSim.Forge.Currency
 			}
 
 			// Before paying for the object, save the object local ID for current transaction.
-			uint objLocalID = 0;
+			UUID  objectID = UUID.Zero;
 			ulong regionHandle = 0;
 			if (moneyEvent.transactiontype==5008)
 			{
@@ -448,12 +446,12 @@ namespace OpenSim.Forge.Currency
 				{
 					Scene scene = (Scene)sender;
 					regionHandle = scene.RegionInfo.RegionHandle;
-					objLocalID = scene.GetSceneObjectPart(moneyEvent.receiver).LocalId;
-					m_log.Debug("Paying for object " + objLocalID);
+					objectID = scene.GetSceneObjectPart(moneyEvent.receiver).UUID;
+					m_log.Debug("Paying for object " + objectID.ToString());
 				}
 			}
 
-			TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objLocalID, regionHandle, "OnMoneyTransfer event");
+			TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objectID, regionHandle, "OnMoneyTransfer event");
 		}
 
 
@@ -517,7 +515,7 @@ namespace OpenSim.Forge.Currency
 					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
 					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, 0, parcelID, "Land Purchase"))
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, UUID.Zero, parcelID, "Land Purchase"))
 					{
 						lock (landBuyEvent)
 						{
@@ -559,7 +557,7 @@ namespace OpenSim.Forge.Currency
 						UUID receiverId = sceneObj.OwnerID;
 						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
 						{
-							TransferMoney(remoteClient.AgentId, receiverId, salePrice, 5008, localID, sceneObj.RegionHandle, "Object Buy");
+							TransferMoney(remoteClient.AgentId, receiverId, salePrice, 5008, sceneObj.UUID, sceneObj.RegionHandle, "Object Buy");
 						}
 					}
 				}
@@ -773,7 +771,7 @@ namespace OpenSim.Forge.Currency
 							client.SecureSessionId.ToString() == (string)requestParam["senderSecureSessionID"])
 						{
 							if (requestParam.Contains("transactionType") &&
-								requestParam.Contains("localID") &&
+								requestParam.Contains("objectID") &&
 								requestParam.Contains("amount"))
 							{
 								if ((int)requestParam["transactionType"] == 5008)	// Pay for the object.
@@ -782,7 +780,7 @@ namespace OpenSim.Forge.Currency
 									PostObjectPaid handlerOnObjectPaid = OnPostObjectPaid;
 									if (handlerOnObjectPaid != null)
 									{
-										ret = handlerOnObjectPaid(UInt32.Parse((string)requestParam["localID"]),
+										ret = handlerOnObjectPaid(UInt32.Parse((string)requestParam["objectID"]),
 																  ulong.Parse((string)requestParam["regionHandle"]),
 																  senderID, (int)requestParam["amount"]);
 									}
@@ -802,54 +800,6 @@ namespace OpenSim.Forge.Currency
 			if (!ret)
 			{
 				m_log.ErrorFormat("[MONEY]: Transaction is failed. MoneyServer will rollback.");
-			}
-			resp.Value = paramTable;
-
-			return resp;
-		}
-
-
-
-		// for MoveMoney RPC
-		public XmlRpcResponse MoveMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
-		{
-			bool ret = false;
-
-			if (request.Params.Count > 0)
-			{
-				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("senderID") &&
-					requestParam.Contains("senderSessionID") &&
-					requestParam.Contains("senderSecureSessionID"))
-				{
-					UUID senderID   = UUID.Zero;
-					UUID receiverID = UUID.Zero;
-					UUID.TryParse((string)requestParam["senderID"],   out senderID);
-					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
-					if (senderID!=UUID.Zero && receiverID!=UUID.Zero)
-					{
-						IClientAPI client = LocateClientObject(senderID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["senderSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["senderSecureSessionID"])
-						{
-							if (requestParam.Contains("amount"))
-							{
-								int amount = (int)requestParam["amount"];
-								ret = TransferMoney(senderID, receiverID, amount, 5032, 0, 0, "Move Money");
-							}
-						}
-					}
-				}
-			}
-
-			// Send the response to caller.
-			XmlRpcResponse resp  = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
-			paramTable["success"] = ret;
-			if (!ret) 
-			{
-				m_log.ErrorFormat("[MONEY]: Move Money transaction is failed.");
 			}
 			resp.Value = paramTable;
 
@@ -964,7 +914,7 @@ namespace OpenSim.Forge.Currency
 		/// <returns>   
 		/// return true, if successfully.   
 		/// </returns>   
-		private bool TransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, uint localID, ulong regionHandle, string description)
+		private bool TransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, UUID objectID, ulong regionHandle, string description)
 		{
 			bool ret = false;
 			IClientAPI senderClient = LocateClientObject(sender);
@@ -998,7 +948,7 @@ namespace OpenSim.Forge.Currency
 				paramTable["senderSessionID"] = senderClient.SessionId.ToString();
 				paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
 				paramTable["transactionType"] = transactiontype;
-				paramTable["localID"] = localID.ToString();
+				paramTable["objectID"] = objectID.ToString();
 				paramTable["regionHandle"] = regionHandle.ToString();
 				paramTable["amount"] = amount;
 				paramTable["description"] = description;
@@ -1058,7 +1008,7 @@ namespace OpenSim.Forge.Currency
 		/// <returns>   
 		/// return true, if successfully.   
 		/// </returns>   
-		private bool ForceTransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, uint localID, ulong regionHandle, string description)
+		private bool ForceTransferMoney(UUID sender, UUID receiver, int amount, int transactiontype, UUID objectID, ulong regionHandle, string description)
 		{
 			bool ret = false;
 
@@ -1073,7 +1023,7 @@ namespace OpenSim.Forge.Currency
 				paramTable["receiverUserServIP"] = m_userServIP;
 				paramTable["receiverID"] = receiver.ToString();
 				paramTable["transactionType"] = transactiontype;
-				paramTable["localID"] = localID.ToString();
+				paramTable["objectID"] = objectID.ToString();
 				paramTable["regionHandle"] = regionHandle.ToString();
 				paramTable["amount"] = amount;
 				paramTable["description"] = description;

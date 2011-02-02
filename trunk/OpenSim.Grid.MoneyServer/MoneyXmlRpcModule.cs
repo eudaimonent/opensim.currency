@@ -261,7 +261,7 @@ namespace OpenSim.Grid.MoneyServer
 			string receiverID = string.Empty;
 			string senderSessionID = string.Empty;
 			string senderSecureSessionID = string.Empty;
-			string localID = string.Empty;
+			string objectID = string.Empty;
 			string regionHandle = string.Empty;
 			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
@@ -278,7 +278,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("senderSessionID")) 	  senderSessionID = (string)requestData["senderSessionID"];
 			if (requestData.ContainsKey("senderSecureSessionID")) senderSecureSessionID = (string)requestData["senderSecureSessionID"];
 			if (requestData.ContainsKey("amount")) 				  amount = (Int32)requestData["amount"];
-			if (requestData.ContainsKey("localID")) 			  localID = (string)requestData["localID"];
+			if (requestData.ContainsKey("objectID")) 			  objectID = (string)requestData["objectID"];
 			if (requestData.ContainsKey("regionHandle")) 		  regionHandle = (string)requestData["regionHandle"];
 			if (requestData.ContainsKey("transactionType")) 	  transactionType = (Int32)requestData["transactionType"];
 			if (requestData.ContainsKey("description")) 		  description = (string)requestData["description"];
@@ -302,7 +302,7 @@ namespace OpenSim.Grid.MoneyServer
 						transaction.Sender   = fmID;
 						transaction.Receiver = toID;
 						transaction.Amount = amount;
-						transaction.ObjectUUID = localID;
+						transaction.ObjectUUID = objectID;
 						transaction.RegionHandle = regionHandle;
 						transaction.Type = transactionType;
 						transaction.Time = time;
@@ -392,7 +392,7 @@ namespace OpenSim.Grid.MoneyServer
 			int	   transactionType = 0;
 			string senderID = string.Empty;
 			string receiverID = string.Empty;
-			string localID = string.Empty;
+			string objectID = string.Empty;
 			string regionHandle = string.Empty;
 			string description  = "Newly added on";
 			string senderUserServIP = string.Empty;
@@ -415,7 +415,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("senderID")) 			senderID = (string)requestData["senderID"];
 			if (requestData.ContainsKey("receiverID")) 			receiverID = (string)requestData["receiverID"];
 			if (requestData.ContainsKey("amount")) 				amount = (Int32)requestData["amount"];
-			if (requestData.ContainsKey("localID")) 			localID = (string)requestData["localID"];
+			if (requestData.ContainsKey("objectID")) 			objectID = (string)requestData["objectID"];
 			if (requestData.ContainsKey("regionHandle")) 		regionHandle = (string)requestData["regionHandle"];
 			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
@@ -435,7 +435,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Sender   = fmID;
 				transaction.Receiver = toID;
 				transaction.Amount = amount;
-				transaction.ObjectUUID = localID;
+				transaction.ObjectUUID = objectID;
 				transaction.RegionHandle = regionHandle;
 				transaction.Type = transactionType;
 				transaction.Time = time;
@@ -640,7 +640,7 @@ namespace OpenSim.Grid.MoneyServer
 							}
 							requestTable["transactionType"] = transaction.Type;
 							requestTable["amount"] = transaction.Amount;
-							requestTable["localID"] = transaction.ObjectUUID;
+							requestTable["objectID"] = transaction.ObjectUUID;
 							requestTable["regionHandle"] = transaction.RegionHandle;
 
 							UserInfo user = m_moneyDBService.FetchUserInfo(transaction.Sender);
@@ -834,7 +834,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
-			Hashtable responseData = new Hashtable();
+			Hashtable responseData  = new Hashtable();
 
 			string secureCode = string.Empty;
 			string transactionID = string.Empty;
@@ -894,7 +894,7 @@ namespace OpenSim.Grid.MoneyServer
 								}
 								requestTable["transactionType"] = transaction.Type;
 								requestTable["amount"] = transaction.Amount;
-								requestTable["localID"] = transaction.ObjectUUID;
+								requestTable["objectID"] = transaction.ObjectUUID;
 								requestTable["regionHandle"] = transaction.RegionHandle;
 								UserInfo user = m_moneyDBService.FetchUserInfo(transaction.Sender);
 								if (user != null)
