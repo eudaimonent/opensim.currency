@@ -34,6 +34,7 @@ using log4net;
 using System.Reflection;
 using OpenMetaverse;
 
+
 namespace OpenSim.Grid.MoneyServer
 {
     class MoneyDBService: IMoneyDBService
@@ -48,7 +49,6 @@ namespace OpenSim.Grid.MoneyServer
         public int m_lastConnect = 0;
 
 
-
         public MoneyDBService(string connect)
         {
             m_connect = connect;
@@ -56,11 +56,9 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public MoneyDBService()
         {
         }
-
 
 
         public void Initialise(string connectionString,int maxDBConnections)
@@ -84,7 +82,6 @@ namespace OpenSim.Grid.MoneyServer
                 throw new Exception("Failed to initialise MySql database");
             }
         }
-
 
 
         private MySQLSuperManager GetLockedConnection()
@@ -117,7 +114,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public int getBalance(string userID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -136,7 +132,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public bool withdrawMoney(UUID transactionID, string senderID, int amount)
@@ -159,7 +154,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public bool giveMoney(UUID transactionID, string receiverID, int amount)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -178,7 +172,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public bool addTransaction(TransactionData transaction)
@@ -201,7 +194,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public bool addUser(string userID, int balance, int status)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -220,7 +212,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public bool updateTransactionStatus(UUID transactionID, int status, string description)
@@ -243,7 +234,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public bool SetTransExpired(int deadTime)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -262,7 +252,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public bool ValidateTransfer(string secureCode, UUID transactionID)
@@ -285,7 +274,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public TransactionData FetchTransaction(UUID transactionID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -304,7 +292,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public TransactionData FetchTransaction(string userID, int startTime, int endTime, int lastIndex)
@@ -346,7 +333,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public bool DoTransfer(UUID transactionUUID)
@@ -406,7 +392,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
 		// by Fumi.Iseki
         public bool DoAddMoney(UUID transactionUUID)
         {
@@ -434,7 +419,6 @@ namespace OpenSim.Grid.MoneyServer
             }
             return false;
         }
-
 
 
         public bool TryAddUserInfo(UserInfo user)
@@ -470,7 +454,6 @@ namespace OpenSim.Grid.MoneyServer
         }
 
 
-
         public UserInfo FetchUserInfo(string userID)
         {
             MySQLSuperManager dbm = GetLockedConnection();
@@ -489,7 +472,6 @@ namespace OpenSim.Grid.MoneyServer
                 dbm.Release();
             }
         }
-
 
 
         public int getTransactionNum(string userID, int startTime, int endTime)
