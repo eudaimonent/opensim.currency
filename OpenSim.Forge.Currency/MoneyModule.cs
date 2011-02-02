@@ -391,6 +391,8 @@ namespace OpenSim.Forge.Currency
 		// for OnMoneyTransfer event
 		private void MoneyTransferAction(Object sender, EventManager.MoneyTransferArgs moneyEvent)
 		{
+			//m_log.ErrorFormat("[Money] Event OnMoneyTransfer. type = {0}", moneyEvent.transactiontype);
+		
 			// Check the money transaction is necessary.   
 			if (moneyEvent.sender == moneyEvent.receiver)
 			{
@@ -457,6 +459,8 @@ namespace OpenSim.Forge.Currency
 		// for OnValidateLandBuy event
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
+			//m_log.ErrorFormat("[Money] Event OniValidateLandBuy.");
+			
 			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
 			if (senderClient != null)
 			{
@@ -475,6 +479,8 @@ namespace OpenSim.Forge.Currency
 		// for OnLandBuy event
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
+			//m_log.ErrorFormat("[Money] Event OnLandBuy.");
+
 			lock (landBuyEvent)
 			{
 				if (landBuyEvent.economyValidated == true &&
@@ -482,7 +488,7 @@ namespace OpenSim.Forge.Currency
 				{
 					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 0, 0, 0, "Land purchase"))
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, 0, 0, "Land purchase"))
 					{
 						lock (landBuyEvent)
 						{
@@ -492,6 +498,49 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 		}
+
+
+		// for OnObjectBuy event
+		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID,
+								UUID sessionID, UUID groupID, UUID categoryID,
+								uint localID, byte saleType, int salePrice)
+		{
+			//m_log.ErrorFormat("[Money] Event OnObjectBuy.");
+
+			// Handle the parameters error.   
+			if (remoteClient == null || salePrice < 0) return;		// for L$0 Sell  by Fumi.Iseki
+
+			// Get the balance from money server.   
+			int balance = QueryBalanceFromMoneyServer(remoteClient);
+			if (balance < salePrice)
+			{
+				remoteClient.SendAgentAlertMessage("Unable to buy now. You don't have sufficient funds.", false);
+				return;
+			}
+
+			Scene scene = LocateSceneClientIn(remoteClient.AgentId);
+			if (scene != null)
+			{
+				SceneObjectPart sceneObj = scene.GetSceneObjectPart(localID);
+				if (sceneObj != null)
+				{
+					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
+					if (mod!=null)
+					{
+						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
+						{
+							TransferMoney(remoteClient.AgentId, sceneObj.OwnerID, salePrice, 5008, 0, 0, "Object Buy");
+						}
+					}
+				}
+				else
+				{
+					remoteClient.SendAgentAlertMessage("Unable to buy now. The object was not found.", false);
+					return;
+				}
+			}
+		}
+
 
 		#endregion
 
@@ -588,7 +637,7 @@ namespace OpenSim.Forge.Currency
 					}
 				}
 			}
-
+//
 			#endregion
 
 			// Send the response to money server.
@@ -1329,46 +1378,6 @@ namespace OpenSim.Forge.Currency
 			SceneObjectPart root = group.RootPart;
 
 			client.SendPayPrice(objectID, root.PayPrice);
-		}
-
-
-		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID,
-								UUID sessionID, UUID groupID, UUID categoryID,
-								uint localID, byte saleType, int salePrice)
-		{
-			// Handle the parameters error.   
-			//if (remoteClient == null || salePrice <= 0) return;
-			if (remoteClient == null || salePrice < 0) return;		// for L$0 Sell  by Fumi.Iseki
-
-			// Get the balance from money server.   
-			int balance = QueryBalanceFromMoneyServer(remoteClient);
-			if (balance < salePrice)
-			{
-				remoteClient.SendAgentAlertMessage("Unable to buy now. You don't have sufficient funds.", false);
-				return;
-			}
-
-			Scene scene = LocateSceneClientIn(remoteClient.AgentId);
-			if (scene != null)
-			{
-				SceneObjectPart sceneObj = scene.GetSceneObjectPart(localID);
-				if (sceneObj != null)
-				{
-					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
-					if (mod!=null)
-					{
-						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
-						{
-							TransferMoney(remoteClient.AgentId, sceneObj.OwnerID, salePrice, 5000, 0, 0, "Object Buy");
-						}
-					}
-				}
-				else
-				{
-					remoteClient.SendAgentAlertMessage("Unable to buy now. The object was not found.", false);
-					return;
-				}
-			}
 		}
 
 		#endregion
