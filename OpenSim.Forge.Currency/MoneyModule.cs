@@ -138,6 +138,7 @@ namespace OpenSim.Forge.Currency
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
+						HttpServer.AddXmlRPCHandler("MoveMoney", MoveMoneyHandler);						// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);			// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);					// added by Fumi.Iseki
 						//HttpServer.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
@@ -149,6 +150,7 @@ namespace OpenSim.Forge.Currency
 						MainServer.Instance.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
+						MainServer.Instance.AddXmlRPCHandler("MoveMoney", MoveMoneyHandler);			// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);	// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);			// added by Fumi.Iseki
 						//MainServer.Instance.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
@@ -250,16 +252,19 @@ namespace OpenSim.Forge.Currency
 				//}
 			}
 
+			bool   ret = false;
 			string description = String.Format("Object {0} pays {1}", objName, avatarName);
 
-			bool ret;
-			if (LocateClientObject(fromID)!=null)
+			if (sceneObj.OwnerID==fromID)
 			{
-				ret = TransferMoney(fromID, toID, amount, 5002, 0, 0, description);
-			}
-			else
-			{
-				ret = ForceTransferMoney(fromID, toID, amount, 5002, 0, 0, description);
+				if (LocateClientObject(fromID)!=null)
+				{
+					ret = TransferMoney(fromID, toID, amount, 5002, sceneObj.LocalId, sceneObj.RegionHandle, description);
+				}
+				else
+				{
+					ret = ForceTransferMoney(fromID, toID, amount, 5002, sceneObj.LocalId, sceneObj.RegionHandle, description);
+				}
 			}
 
 			return ret;
@@ -417,9 +422,8 @@ namespace OpenSim.Forge.Currency
 				return;
 			}
 
-			string description = string.Empty;
 			UUID receiver = moneyEvent.receiver;
-			if (moneyEvent.transactiontype == 5008)		// Pay for the object.   
+			if (moneyEvent.transactiontype==5008)		// Pay for the object.   
 			{
 				SceneObjectPart sceneObj = FindPrim(moneyEvent.receiver);
 				if (sceneObj != null)
@@ -435,7 +439,7 @@ namespace OpenSim.Forge.Currency
 			// Before paying for the object, save the object local ID for current transaction.
 			uint objLocalID = 0;
 			ulong regionHandle = 0;
-			if (moneyEvent.transactiontype == 5008)
+			if (moneyEvent.transactiontype==5008)
 			{
 				// Notify the client.   
 				if (sender is Scene)
@@ -447,7 +451,7 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 
-			TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objLocalID, regionHandle, description);
+			TransferMoney(moneyEvent.sender, receiver, moneyEvent.amount, moneyEvent.transactiontype, objLocalID, regionHandle, "OnMoneyTransfer event");
 		}
 
 
@@ -510,7 +514,8 @@ namespace OpenSim.Forge.Currency
 				{
 					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, 0, 0, "Land purchase"))
+					uint parcelID = (uint)landBuyEvent.parcelLocalID;
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, parcelID, 0, "Land Purchase"))
 					{
 						lock (landBuyEvent)
 						{
@@ -549,10 +554,10 @@ namespace OpenSim.Forge.Currency
 					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
 					if (mod!=null)
 					{
-						UUID senderId = sceneObj.OwnerID;
+						UUID receiverId = sceneObj.OwnerID;
 						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
 						{
-							TransferMoney(remoteClient.AgentId, senderId, salePrice, 5008, 0, 0, "Object Buy");
+							TransferMoney(remoteClient.AgentId, receiverId, salePrice, 5008, localID, sceneObj.RegionHandle, "Object Buy");
 						}
 					}
 				}
@@ -803,6 +808,54 @@ namespace OpenSim.Forge.Currency
 
 
 
+		// for MoveMoney RPC
+		public XmlRpcResponse MoveMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			bool ret = false;
+
+			if (request.Params.Count > 0)
+			{
+				Hashtable requestParam = (Hashtable)request.Params[0];
+				if (requestParam.Contains("senderID") &&
+					requestParam.Contains("senderSessionID") &&
+					requestParam.Contains("senderSecureSessionID"))
+				{
+					UUID senderID   = UUID.Zero;
+					UUID receiverID = UUID.Zero;
+					UUID.TryParse((string)requestParam["senderID"],   out senderID);
+					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
+					if (senderID!=UUID.Zero && receiverID!=UUID.Zero)
+					{
+						IClientAPI client = LocateClientObject(senderID);
+						if (client != null &&
+							client.SessionId.ToString() == (string)requestParam["senderSessionID"] &&
+							client.SecureSessionId.ToString() == (string)requestParam["senderSecureSessionID"])
+						{
+							if (requestParam.Contains("amount"))
+							{
+								int amount = (int)requestParam["amount"];
+								ret = TransferMoney(senderID, receiverID, amount, 5032, 0, 0, "Move Money");
+							}
+						}
+					}
+				}
+			}
+
+			// Send the response to caller.
+			XmlRpcResponse resp  = new XmlRpcResponse();
+			Hashtable paramTable = new Hashtable();
+			paramTable["success"] = ret;
+			if (!ret) 
+			{
+				m_log.ErrorFormat("[MONEY]: Move Money transaction is failed.");
+			}
+			resp.Value = paramTable;
+
+			return resp;
+		}
+
+
+
 		// for AddBankerMoney RPC
 		public XmlRpcResponse AddBankerMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -918,13 +971,13 @@ namespace OpenSim.Forge.Currency
 			//int receiverBalance = -1;
 
 			// Handle the illegal transaction.   
-			if (senderClient == null) // receiverClient could be null.
+			if (senderClient==null) // receiverClient could be null.
 			{
-				m_log.ErrorFormat("[MONEY]: Client {0} not found", ((senderClient == null) ? sender : receiver).ToString());
+				m_log.ErrorFormat("[MONEY]: Client {0} not found", sender.ToString());
 				return false;
 			}
 
-			if (QueryBalanceFromMoneyServer(senderClient) < amount)
+			if (QueryBalanceFromMoneyServer(senderClient)<amount)
 			{
 				m_log.ErrorFormat("[MONEY]: No insufficient balance in client [{0}].", sender.ToString());
 				return false;
