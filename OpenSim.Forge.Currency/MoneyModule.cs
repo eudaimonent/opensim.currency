@@ -831,8 +831,9 @@ namespace OpenSim.Forge.Currency
 						{
 							if (requestParam.Contains("amount"))
 							{
-								int amount = (int)requestParam["amount"];
-								ret = AddBankerMoney(bankerID, amount);
+								Scene scene = (Scene)client.Scene;
+								int amount  = (int)requestParam["amount"];
+								ret = AddBankerMoney(bankerID, amount, scene.RegionInfo.RegionHandle);
 							}
 						}
 					}
@@ -1066,7 +1067,7 @@ namespace OpenSim.Forge.Currency
 		/// <returns>   
 		/// return true, if successfully.   
 		/// </returns>   
-		private bool AddBankerMoney(UUID banker, int amount)
+		private bool AddBankerMoney(UUID bankerID, int amount, ulong regionHandle)
 		{
 			bool ret = false;
 
@@ -1075,9 +1076,10 @@ namespace OpenSim.Forge.Currency
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
 				paramTable["bankerUserServIP"] = m_userServIP;
-				paramTable["bankerID"] = banker.ToString();
+				paramTable["bankerID"] = bankerID.ToString();
 				paramTable["transactionType"] = 5000;
 				paramTable["amount"] = amount;
+				paramTable["regionHandle"] = regionHandle.ToString();;
 				paramTable["description"] = "Add Money to Avatar";
 
 				// Generate the request for transfer.   
@@ -1088,13 +1090,13 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"] == true)
 					{
-						m_log.DebugFormat("[MONEY]: Add money to banker [{0}] is done.", banker.ToString());
+						m_log.DebugFormat("[MONEY]: Add money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
 					}
 				}
 				else
 				{
-					m_log.ErrorFormat("[MONEY]: Can not add money to banker [{0}].", banker.ToString());
+					m_log.ErrorFormat("[MONEY]: Can not add money to banker [{0}].", bankerID.ToString());
 				}
 			}
 			else 
