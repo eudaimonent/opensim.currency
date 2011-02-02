@@ -504,7 +504,7 @@ namespace OpenSim.Grid.MoneyServer
 			int	   transactionType = 0;
 			string senderID = UUID.Zero.ToString();
 			string bankerID = string.Empty;
-			string regionHandle = string.Empty;
+			string regionHandle = "0";
 			string description  = "Add Money to Avatar on";
 			string bankerUserServIP = string.Empty;
 
@@ -543,7 +543,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Sender   = fmID;
 				transaction.Receiver = toID;
 				transaction.Amount = amount;
-				transaction.ObjectUUID   = string.Empty;
+				transaction.ObjectUUID   = UUID.Zero.ToString();
 				transaction.RegionHandle = regionHandle;
 				transaction.Type = transactionType;
 				transaction.Time = time;
