@@ -259,11 +259,11 @@ namespace OpenSim.Forge.Currency
 			{
 				if (LocateClientObject(fromID)!=null)
 				{
-					ret = TransferMoney(fromID, toID, amount, 5002, objectID, sceneObj.RegionHandle, description);
+					ret = TransferMoney(fromID, toID, amount, 5009, objectID, sceneObj.RegionHandle, description);
 				}
 				else
 				{
-					ret = ForceTransferMoney(fromID, toID, amount, 5002, objectID, sceneObj.RegionHandle, description);
+					ret = ForceTransferMoney(fromID, toID, amount, 5009, objectID, sceneObj.RegionHandle, description);
 				}
 			}
 
@@ -518,7 +518,7 @@ namespace OpenSim.Forge.Currency
 					UUID  regionID = UUID.Zero;
 					if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
 
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5004, regionID, parcelID, "Land Purchase"))
+					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5002, regionID, parcelID, "Land Purchase"))
 					{
 						lock (landBuyEvent)
 						{
@@ -656,10 +656,10 @@ namespace OpenSim.Forge.Currency
 						{
 							if (requestParam.Contains("Description"))
 							{
+								string description = (string)requestParam["Description"])
 								// Show the notice dialog with money server message.
 							   	GridInstantMessage gridMsg = new GridInstantMessage(null, UUID.Zero, "MonyServer", new UUID(clientUUID.ToString()),
-																		(byte)InstantMessageDialog.MessageFromAgent,
-																		"Please clink the URI in IM window to confirm your purchase.", false, new Vector3());
+																	(byte)InstantMessageDialog.MessageFromAgent, description, false, new Vector3());
 								client.SendInstantMessage(gridMsg);
 								ret = true; 
 							}
@@ -775,7 +775,7 @@ namespace OpenSim.Forge.Currency
 								requestParam.Contains("objectID") &&
 								requestParam.Contains("amount"))
 							{
-								if ((int)requestParam["transactionType"] == 5008)	// Pay for the object.
+								if ((int)requestParam["transactionType"]==5008)	// Pay for the object.
 								{
 									// Send notify to the client(viewer).   
 									PostObjectPaid handlerOnObjectPaid = OnPostObjectPaid;
@@ -1084,7 +1084,7 @@ namespace OpenSim.Forge.Currency
 				Hashtable paramTable = new Hashtable();
 				paramTable["bankerUserServIP"] = m_userServIP;
 				paramTable["bankerID"] = bankerID.ToString();
-				paramTable["transactionType"] = 5000;
+				paramTable["transactionType"] = 5010;	// BuyMoney
 				paramTable["amount"] = amount;
 				paramTable["regionHandle"] = regionHandle.ToString();;
 				paramTable["description"] = "Add Money to Avatar";
