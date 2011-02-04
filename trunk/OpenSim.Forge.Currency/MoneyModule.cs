@@ -656,7 +656,7 @@ namespace OpenSim.Forge.Currency
 						{
 							if (requestParam.Contains("Description"))
 							{
-								string description = (string)requestParam["Description"])
+								string description = (string)requestParam["Description"];
 								// Show the notice dialog with money server message.
 							   	GridInstantMessage gridMsg = new GridInstantMessage(null, UUID.Zero, "MonyServer", new UUID(clientUUID.ToString()),
 																	(byte)InstantMessageDialog.MessageFromAgent, description, false, new Vector3());
