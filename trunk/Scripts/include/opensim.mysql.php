@@ -86,7 +86,7 @@
  function  opensim_get_servers_ip(&$db=null)
  function  opensim_get_server_info($uuid, &$db=null)
  function  opensim_is_access_from_region_server()
- function  opensim_check_secure_session($uuid, $regoinid, $secure, &$db=null)
+ function  opensim_check_secure_session($uuid, $regionid, $secure, &$db=null)
  function  opensim_check_secret_region($uuid, $secret, &$db=null)
  function  opensim_clear_login_table(&$db=null)
 
@@ -1834,7 +1834,7 @@ function  opensim_is_access_from_region_server()
 
 
 //
-function  opensim_check_secure_session($uuid, $regoinid, $secure, &$db=null)
+function  opensim_check_secure_session($uuid, $regionid, $secure, &$db=null)
 {
 	if (!isGUID($uuid) or !isGUID($secure)) return false;
 
