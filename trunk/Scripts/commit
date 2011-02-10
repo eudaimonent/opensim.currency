@@ -1,3 +1,0 @@
-svn ci -m ""
-(cd opensimwiredux && svn ci -m "")
-(cd opensim.phplib && svn ci -m "")
