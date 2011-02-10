@@ -71,7 +71,7 @@
  # chown -R apache.apache .
  # vi include/config.php
 
-  - Please execute viewer with "-helperuri [ENV_HELPER_URL]" option. (ex. -loginuri http://localhost/currency/helper)
+  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option. (need last '/' ex. -loginuri http://localhost/currency/helper/)
     Here, ENV_HELPER_URL is helper directory url in include/config.php.
 
 
