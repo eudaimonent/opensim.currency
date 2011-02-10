@@ -76,14 +76,15 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 に合わせて変更する．
 
  コマンド例)
- # mkdir /var/www/html/currency
- # cp -R Scripts/* /var/www/html/currency
- # cd /var/www/html/currency
- # chown -R apache.apache .
+ # mkdir /var/www/currency
+ # cp -R Scripts/* /var/www/currency
+ # cd /var/www/currency
+ # chown -R www-data.www-data .
  # vi include/config.php
 
-  Viewerは "-helperuri [ENV_HELPER_URL]" オプション付きで起動しなければならない．ここで ENV_HELPER_URL
+  Viewerは "-helperuri [ENV_HELPER_URL/]" オプション付きで起動しなければならない．ここで ENV_HELPER_URL
 ヘルパースクリプトの helperディレクトリのURLである．
+例) -helperuri http://localhost/currency/helper/      最後の / は必ず必要!!
 
 
 
