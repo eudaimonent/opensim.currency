@@ -5,8 +5,8 @@
 //
 //
 
-if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://www.nsl.tuis.ac.jp/xoops/modules/xoopensim/helper');
-if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/home/apache/htdocs/xoops/modules/xoopensim/helper');
+if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://localhost/currency/helper');
+if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/var/www/htdocs/currency/helper');
 
 
 $GLOBALS['xmlrpc_internalencoding'] = 'UTF-8';
