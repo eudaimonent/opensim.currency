@@ -6,7 +6,7 @@
 //
 
 if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://localhost/currency/helper');
-if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/var/www/htdocs/currency/helper');
+if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/var/www/html/currency/helper');
 
 
 $GLOBALS['xmlrpc_internalencoding'] = 'UTF-8';
