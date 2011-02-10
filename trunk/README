@@ -65,14 +65,15 @@
     in include/config.php 
 
  ex.)
- # mkdir /var/www/html/currency
- # cp -R Scripts/* /var/www/html/currency
- # cd /var/www/html/currency
- # chown -R apache.apache .
+ # mkdir /var/www/currency
+ # cp -R Scripts/* /var/www/currency
+ # cd /var/www/currency
+ # chown -R www-data.www-data .
  # vi include/config.php
 
-  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option. (need last '/' ex. -loginuri http://localhost/currency/helper/)
+  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option. 
     Here, ENV_HELPER_URL is helper directory url in include/config.php.
+  - ex.) -helperuri http://localhost/currency/helper/   need last '/'
 
 
 
