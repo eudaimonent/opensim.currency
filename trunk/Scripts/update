@@ -1,0 +1,14 @@
+svn update
+
+if [ -d opensimwiredux ]; then
+	svn update opensimwiredux
+else
+	svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensimwiredux/trunk opensimwiredux
+fi
+
+if [ -d opensim.phplib ]; then
+	svn update opensim.phplib
+else
+	svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.phplib/trunk opensim.phplib
+fi
+
