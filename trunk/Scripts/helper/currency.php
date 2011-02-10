@@ -1,1 +1,0 @@
-../opensimwiredux/currency.php
