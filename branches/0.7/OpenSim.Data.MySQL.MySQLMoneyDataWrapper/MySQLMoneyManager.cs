@@ -671,17 +671,21 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql = string.Empty;
+           
+            if (userInfo.Avatar==null) return false;
+
             sql += "INSERT INTO userinfo(`user`,`simip`,`avatar`,`pass`) VALUES";
             sql += "(?user,?simip,?avatar,?password);";
+
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?user", userInfo.UserID);
             cmd.Parameters.AddWithValue("?simip", userInfo.SimIP);
             cmd.Parameters.AddWithValue("?avatar", userInfo.Avatar);
             cmd.Parameters.AddWithValue("?password", userInfo.PswHash);
+
             try
             {
-                if (cmd.ExecuteNonQuery() > 0)
-                    bRet = true;
+                if (cmd.ExecuteNonQuery() > 0) bRet = true;
                 cmd.Dispose();
             }
             catch (Exception e)
