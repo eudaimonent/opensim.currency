@@ -140,14 +140,14 @@ namespace OpenSim.Grid.MoneyServer
 
 			IConfig s_config = moneyConfig.m_config.Configs["Startup"];
 			string PIDFile = s_config.GetString("PIDFile", "");
-			if (PIDFile!="") CreatePIDFile(PIDFile);
+			if (PIDFile!="") Create_PIDFile(PIDFile);
 
 			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
 			string hostname = db_config.GetString("hostname", "localhost");
 			string database = db_config.GetString("database", "OpenSim");
 			string username = db_config.GetString("username", "root");
 			string password = db_config.GetString("password", "password");
-			string pooling	= db_config.GetString("pooling",  "false");
+			string pooling 	= db_config.GetString("pooling",  "false");
 			string port 	= db_config.GetString("port", 	  "3306");
 			MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
 			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
@@ -159,7 +159,7 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		// added by skidz
-		protected void CreatePIDFile(string path)
+		protected void Create_PIDFile(string path)
 		{
 			try
 			{
