@@ -61,6 +61,8 @@ namespace OpenSim.Grid.MoneyServer
 
         bool DoTransfer(UUID transactionUUID);
 
+        bool DoAddMoney(UUID transactionUUID);		// Added by Fumi.Iseki
+
         bool TryAddUserInfo(UserInfo user);
 
         UserInfo FetchUserInfo(string userID);
