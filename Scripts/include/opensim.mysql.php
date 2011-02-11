@@ -111,7 +111,6 @@ require_once(ENV_HELPER_PATH.'/../include/mysql.func.php');
 //
 // for DB
 //
-
 function  opensim_new_db($timeout=60)
 {
 	$db = new DB(OPENSIM_DB_HOST, OPENSIM_DB_NAME, OPENSIM_DB_USER, OPENSIM_DB_PASS, $timeout);
@@ -310,19 +309,17 @@ function  opensim_get_avatar_session($uuid, &$db=null)
 	if (!is_object($db)) $db = & opensim_new_db();
 
 	if ($db->exist_table('Presence')) {			// 0.7
-		$sql = "SELECT RegionID,SessionID,SecureSessionID,LastSeen FROM Presence WHERE UserID='".$uuid."'";
-		$db->query($sql);
-		list($RegionID, $SessionID, $SecureSessionID, $LastSeen) = $db->next_record();
-		$LastLogin = $LastSeen;		//
+		$sql = "SELECT RegionID,SessionID,SecureSessionID FROM Presence WHERE UserID='".$uuid."'";
 	}
-	else if ($db->exist_table('agents')) {		// 0.6x
-		$sql = "SELECT currentRegion,sessionID,secureSessionID,logionTime FROM agents WHERE UUID='".$uuid."'";
-		$db->query($sql);
-		list($RegionID, $SessionID, $SecureSessionID, $LastLogin) = $db->next_record();
+	else if ($db->exist_table('agents')) {		// 0.6.x
+		$sql = "SELECT currentRegion,sessionID,secureSessionID FROM agents WHERE UUID='".$uuid."'";
 	}
 	else {
 		return null;
 	}
+
+	$db->query($sql);
+	list($RegionID, $SessionID, $SecureSessionID) = $db->next_record();
 
 	$avssn['regionID']  = $RegionID;
 	$avssn['sessionID'] = $SessionID;
