@@ -310,24 +310,22 @@ function  opensim_get_avatar_session($uuid, &$db=null)
 	if (!is_object($db)) $db = & opensim_new_db();
 
 	if ($db->exist_table('Presence')) {			// 0.7
-		$sql = "SELECT RegionID,SessionID,SecureSessionID,LastSeen FROM Presence WHERE UserID='".$uuid."'";
-		$db->query($sql);
-		list($RegionID, $SessionID, $SecureSessionID, $LastSeen) = $db->next_record();
-		$LastLogin = $LastSeen;		//
+		$sql = "SELECT RegionID,SessionID,SecureSessionID FROM Presence WHERE UserID='".$uuid."'";
 	}
 	else if ($db->exist_table('agents')) {		// 0.6x
-		$sql = "SELECT currentRegion,sessionID,secureSessionID,logionTime FROM agents WHERE UUID='".$uuid."'";
-		$db->query($sql);
-		list($RegionID, $SessionID, $SecureSessionID, $LastLogin) = $db->next_record();
+		$sql = "SELECT currentRegion,sessionID,secureSessionID FROM agents WHERE UUID='".$uuid."'";
 	}
 	else {
 		return null;
 	}
 
+	$db->query($sql);
+	list($RegionID, $SessionID, $SecureSessionID) = $db->next_record();
+
 	$avssn['regionID']  = $RegionID;
 	$avssn['sessionID'] = $SessionID;
 	$avssn['secureID']  = $SecureSessionID;
-	$avssn['lastlogin'] = $LastLogin;
+	//$avssn['lastlogin'] = $LastLogin;
 	
 	return $avssn;
 }
@@ -909,8 +907,11 @@ function  opensim_set_current_region($uuid, $regionid, &$db=null)
 	if ($db->exist_table("Presence")) {
 		$sql = "UPDATE Presence SET RegionID='".$regionid."' WHERE UserID='". $uuid."'";
 	}
-	else {
+	else if ($db->exist_table("agents")) {
 		$sql = "UPDATE agents SET currentRegion='".$regionid."' WHERE UUID='".$uuid."'";
+	}
+	else {
+		return false;
 	}
 
 	$db->query($sql);
@@ -1844,10 +1845,14 @@ function  opensim_check_secure_session($uuid, $regionid, $secure, &$db=null)
 		$sql = "SELECT UserID FROM Presence WHERE UserID='".$uuid."' AND SecureSessionID='".$secure."'";
 		if (isGUID($regionid)) $sql = $sql." AND RegionID='".$regionid."'";
 	}
-	else {    
+	else if ($db->exist_table("agents")) {
 		$sql = "SELECT UUID FROM agents WHERE UUID='".$uuid."' AND secureSessionID='".$secure."' AND agentOnline='1'";
 		if (isGUID($regionid)) $sql = $sql." AND  currentRegion='".$regionid."'";
 	}
+	else { 
+		return false;
+	}
+
 	$db->query($sql);
 	if ($db->Errno!=0) return false;
 
