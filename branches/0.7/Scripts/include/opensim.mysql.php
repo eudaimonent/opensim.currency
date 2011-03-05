@@ -312,7 +312,7 @@ function  opensim_get_avatar_session($uuid, &$db=null)
 	if ($db->exist_table('Presence')) {			// 0.7
 		$sql = "SELECT RegionID,SessionID,SecureSessionID FROM Presence WHERE UserID='".$uuid."'";
 	}
-	else if ($db->exist_table('agents')) {		// 0.6x
+	else if ($db->exist_table('agents')) {		// 0.6.x
 		$sql = "SELECT currentRegion,sessionID,secureSessionID FROM agents WHERE UUID='".$uuid."'";
 	}
 	else {
