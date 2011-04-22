@@ -13,6 +13,7 @@
 				<include name="MoneyXmlRpcModule.cs" />
 				<include name="IMoneyDBService.cs" />
 				<include name="IMoneyServiceCore.cs" />
+				<include name="NSLXmlRpc.cs" />
 				<include name="Program.cs" />
 			</sources>
 			<references>

@@ -39,6 +39,8 @@ using OpenMetaverse;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using Nini.Config;
 
+using NSL.XmlRpc;
+
 
 namespace OpenSim.Grid.MoneyServer
 {
@@ -972,8 +974,10 @@ namespace OpenSim.Grid.MoneyServer
 			XmlRpcResponse moneyServResp = null;
 			try
 			{
-				XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
+				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
+				//moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
+				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
+				moneyServResp = moneyModuleReq.xSend(uri, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{

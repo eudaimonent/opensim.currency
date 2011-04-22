@@ -45,6 +45,8 @@ using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.Framework;
 
+using NSL.XmlRpc;
+
 
 
 namespace OpenSim.Forge.Currency
@@ -1255,8 +1257,10 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse moneyServResp = null;
 			try
 			{
-				XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.Send(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
+				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
+				//moneyServResp = moneyModuleReq.Send(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
+				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
+				moneyServResp = moneyModuleReq.xSend(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{
