@@ -655,7 +655,7 @@ namespace OpenSim.Grid.MoneyServer
 									//User not online or failed to get object ?
 									if (!(bool)responseTable["success"])
 									{
-										m_log.ErrorFormat("[Money RPC] User: {0} can't get the object,rolling back", transaction.Sender);
+										m_log.ErrorFormat("[Money RPC] User: {0} can't get the object, rolling back in NotifyTransfer()", transaction.Sender);
 										if (RollBackTransaction(transaction))
 										{
 											m_log.ErrorFormat("[Money RPC] transaction: {0} failed but roll back succeeded", transactionUUID.ToString());
