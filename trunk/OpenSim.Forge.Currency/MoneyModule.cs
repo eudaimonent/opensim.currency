@@ -792,13 +792,39 @@ namespace OpenSim.Forge.Currency
 
 										ret = handlerOnObjectPaid(localID, ulong.Parse((string)requestParam["regionHandle"]),
 																  senderID, (int)requestParam["amount"]);
+
+										if (!ret) {
+											m_log.ErrorFormat("[MONEY]: ERROR: handlerOnObjectPaid() is fail");
+										}
+									}
+									else {
+										m_log.ErrorFormat("[MONEY]: ERROR: handlerOnObjectPaid is null");
 									}
 								}
+								else {
+									m_log.ErrorFormat("[MONEY]: ERROR: transaction type is not 5008");
+								}
+							}
+							else {
+								m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 2");
 							}
 						}
+						else {
+							m_log.ErrorFormat("[MONEY]: ERROR: client is null");
+						}
+					}
+					else {
+						m_log.ErrorFormat("[MONEY]: ERROR: senderID is Zero.");
 					}
 				}
+				else {
+					m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 1");
+				}
 			}
+			else {
+				m_log.ErrorFormat("[MONEY]: ERROR: request.Params.Count <= 0");
+			}
+
 
 			#endregion
 
@@ -808,7 +834,7 @@ namespace OpenSim.Forge.Currency
 			paramTable["success"] = ret;
 			if (!ret)
 			{
-				m_log.ErrorFormat("[MONEY]: Transaction is failed. MoneyServer will rollback.");
+				m_log.ErrorFormat("[MONEY]: ERROR: Transaction is failed. MoneyServer will rollback.");
 			}
 			resp.Value = paramTable;
 
