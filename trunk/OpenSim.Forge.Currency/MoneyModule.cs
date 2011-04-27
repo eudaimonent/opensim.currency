@@ -86,7 +86,7 @@ namespace OpenSim.Forge.Currency
 
 		// Events  
 		public event ObjectPaid OnObjectPaid;
-		public event PostObjectPaid OnPostObjectPaid;
+		//public event PostObjectPaid OnPostObjectPaid;
 
 		public BaseHttpServer HttpServer;
 
@@ -747,6 +747,7 @@ namespace OpenSim.Forge.Currency
 
 
 
+		/*
 		// for OnMoneyTransfered RPC
 		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -840,6 +841,84 @@ namespace OpenSim.Forge.Currency
 
 			return resp;
 		}
+		*/
+
+
+
+		// for OnMoneyTransfered RPC
+		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			bool ret = false;
+
+			#region Confirm the transaction type and send out object paid event.
+
+			if (request.Params.Count > 0)
+			{
+				Hashtable requestParam = (Hashtable)request.Params[0];
+				if (requestParam.Contains("senderID") &&
+					requestParam.Contains("receiverID") &&
+					requestParam.Contains("senderSessionID") &&
+					requestParam.Contains("senderSecureSessionID"))
+				{
+					UUID senderID = UUID.Zero;
+					UUID receiverID = UUID.Zero;
+					UUID.TryParse((string)requestParam["senderID"], out senderID);
+					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
+					if (senderID != UUID.Zero)
+					{
+						IClientAPI client = LocateClientObject(senderID);
+						if (client != null &&
+							client.SessionId.ToString() == (string)requestParam["senderSessionID"] &&
+							client.SecureSessionId.ToString() == (string)requestParam["senderSecureSessionID"])
+						{
+							if (requestParam.Contains("transactionType") &&
+								requestParam.Contains("objectID") &&
+								requestParam.Contains("amount"))
+							{
+								if ((int)requestParam["transactionType"]==5008)	// Pay for the object.
+								{
+									ret = true;
+								}
+								else {
+									m_log.ErrorFormat("[MONEY]: ERROR: transaction type is not 5008");
+								}
+							}
+							else {
+								m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 2");
+							}
+						}
+						else {
+							m_log.ErrorFormat("[MONEY]: ERROR: client is null");
+						}
+					}
+					else {
+						m_log.ErrorFormat("[MONEY]: ERROR: senderID is Zero.");
+					}
+				}
+				else {
+					m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 1");
+				}
+			}
+			else {
+				m_log.ErrorFormat("[MONEY]: ERROR: request.Params.Count <= 0");
+			}
+
+
+			#endregion
+
+			// Send the response to money server.
+			XmlRpcResponse resp = new XmlRpcResponse();
+			Hashtable paramTable = new Hashtable();
+			paramTable["success"] = ret;
+			if (!ret)
+			{
+				m_log.ErrorFormat("[MONEY]: ERROR: Transaction is failed. MoneyServer will rollback.");
+			}
+			resp.Value = paramTable;
+
+			return resp;
+		}
+
 
 
 
