@@ -141,6 +141,7 @@ namespace OpenSim.Forge.Currency
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);			// added by Fumi.Iseki
+						HttpServer.AddXmlRPCHandler("SendMoney",  SendMoneyHandler);					// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);					// added by Fumi.Iseki
 						//HttpServer.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
 
@@ -152,6 +153,7 @@ namespace OpenSim.Forge.Currency
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
 						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);	// added by Fumi.Iseki
+						MainServer.Instance.AddXmlRPCHandler("SendMoney",  SendMoneyHandler);			// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);			// added by Fumi.Iseki
 						//MainServer.Instance.AddXmlRPCHandler("SendConfirmLink", SendConfirmLinkHandler);
 					}
@@ -969,6 +971,47 @@ namespace OpenSim.Forge.Currency
 
 
 
+		// for SendMoney RPC
+		public XmlRpcResponse SendMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			bool ret = false;
+
+			if (request.Params.Count > 0)
+			{
+				Hashtable requestParam = (Hashtable)request.Params[0];
+				if (requestParam.Contains("avatarID") &&
+					requestParam.Contains("secretCode"))
+				{
+					UUID avatarID = UUID.Zero;
+					UUID.TryParse((string)requestParam["avatarID"], out avatarID);
+					if (avatarID != UUID.Zero)
+					{
+						if (requestParam.Contains("amount"))
+						{
+							int amount  = (int)requestParam["amount"];
+							string secretCode = (string)requestParam["secrectCode"];
+							string clientIP   = remoteClient.Address.ToString();
+							ret = SendMoney(avatarID, amount, secretCode, clientIP);
+						}
+					}
+				}
+			}
+
+			// Send the response to caller.
+			XmlRpcResponse resp  = new XmlRpcResponse();
+			Hashtable paramTable = new Hashtable();
+			paramTable["success"] = ret;
+			if (!ret) 
+			{
+				m_log.ErrorFormat("[MONEY]: Send Money transaction is failed.");
+			}
+			resp.Value = paramTable;
+
+			return resp;
+		}
+
+
+
 		// for GetBalance RPC
 		public XmlRpcResponse GetBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -1173,7 +1216,7 @@ namespace OpenSim.Forge.Currency
 
 
 		/// <summary>   
-		/// Add the money to banker avatarr. Need to notify money server to update.   
+		/// Add the money to banker avatar. Need to notify money server to update.   
 		/// </summary>   
 		/// <param name="amount">   
 		/// The amount of money.  
@@ -1204,18 +1247,72 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"] == true)
 					{
-						m_log.DebugFormat("[MONEY]: Add money to banker [{0}] is done.", bankerID.ToString());
+						m_log.DebugFormat("[MONEY]: Add the money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
 					}
 				}
 				else
 				{
-					m_log.ErrorFormat("[MONEY]: Can not add money to banker [{0}].", bankerID.ToString());
+					m_log.ErrorFormat("[MONEY]: Can not add the money to banker [{0}].", bankerID.ToString());
 				}
 			}
 			else 
 			{
-				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+				m_log.ErrorFormat("[MONEY]: AddBankerMoney: Money Server is not available!!");
+			}
+
+			return ret;
+		}
+
+
+
+		/// <summary>   
+		/// Send the money to avatar. Need to notify money server to update.   
+		/// </summary>   
+		/// <param name="amount">   
+		/// The amount of money.  
+		/// </param>   
+		/// <returns>   
+		/// return true, if successfully.   
+		/// </returns>   
+		// private bool SendMoney(UUID bankerID, int amount, ulong regionHandle)
+		private bool SendMoney(UUID avatarID, int amount, string secretCode, string scriptIP)
+		{
+			bool ret = false;
+
+			if (!string.IsNullOrEmpty(m_moneyServURL))
+			{
+				// Fill parameters for money transfer XML-RPC.   
+				Hashtable paramTable = new Hashtable();
+				paramTable["avatarUserServIP"] = m_userServIP;
+				paramTable["avatarID"] = avatarID.ToString();
+				paramTable["transactionType"] = 5003;	// ReferBonus
+				paramTable["amount"] = amount;
+				paramTable["secrectCode"] = secretCode;
+				paramTable["scriptIP"] = scriptIP;
+				//paramTable["regionHandle"] = regionHandle.ToString();;
+				paramTable["description"] = "Bonus to Avatar";
+
+				// Generate the request for transfer.   
+				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "SendMoney");
+
+				// Handle the return values from Money Server.  
+				if (resultTable != null && resultTable.Contains("success"))
+				{
+					if ((bool)resultTable["success"] == true)
+					{
+						m_log.DebugFormat("[MONEY]: Send the money to avatar [{0}] is done.", avatarID.ToString());
+						ret = true;
+					}
+				}
+				else
+				{
+					m_log.ErrorFormat("[MONEY]: Can not send the money to avatar [{0}].", avatarID.ToString());
+				}
+			}
+			else 
+			{
+				m_log.ErrorFormat("[MONEY]: SendMoney: Money Server is not available!!");
 			}
 
 			return ret;
