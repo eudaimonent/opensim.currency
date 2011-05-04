@@ -296,10 +296,11 @@ function do_call($host, $port, $uri, $request)
 
 
 
-function  get_confirm_value()
+function  get_confirm_value($ipAddress)
 {
-	$confirmvalue = env_get_config("currency_script_key");
-	if ($confirmvalue=="") $confirmvalue = "1234567883789";
+	$key = env_get_config("currency_script_key");
+	if ($key=="") $key = "1234567883789";
+	$confirmvalue = md5($key."_".$ipAddress);
 
 	return $confirmvalue;
 }

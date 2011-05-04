@@ -61,11 +61,12 @@ function buy_land_prep($method_name, $params, $app_data)
 	$sessionid	  = $req['secureSessionId'];
 	$amount		  = $req['currencyBuy'];
 	$billableArea = $req['billableArea'];
+	$ipAddress 	  = $_SERVER['REMOTE_ADDR'];
 
 	$ret = opensim_check_secure_session($agentid, null, $sessionid);
 
 	if($ret) {
-		$confirmvalue = get_confirm_value();
+		$confirmvalue = get_confirm_value($ipAddress);
 		$membership_levels = array('levels' => array('id' => "00000000-0000-0000-0000-000000000000", 'description' => "some level"));
 		$landUse	= array('upgrade' => False, 'action' => "".SYSURL."");
 		$currency   = array('estimatedCost' => convert_to_real($amount));
@@ -108,7 +109,7 @@ function buy_land($method_name, $params, $app_data)
 	$ipAddress	  = $_SERVER['REMOTE_ADDR'];
      
 	//
-	if ($confim!=get_confirm_value()) {
+	if ($confim!=get_confirm_value($ipAddress)) {
 		$response_xml = xmlrpc_encode(array('success'     => False,
 											'errorMessage'=> "\n\nMissmatch Confirm Value!!",
 											'errorURI'    => "".SYSURL.""));
