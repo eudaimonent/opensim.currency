@@ -45,6 +45,7 @@ using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.Framework;
 
+using System.Security.Cryptography;
 using NSL.XmlRpc;
 
 
@@ -989,9 +990,14 @@ namespace OpenSim.Forge.Currency
 						if (requestParam.Contains("amount"))
 						{
 							int amount  = (int)requestParam["amount"];
-							string secretCode = (string)requestParam["secrectCode"];
-							string clientIP   = remoteClient.Address.ToString();
-							ret = SendMoney(avatarID, amount, secretCode, clientIP);
+							string secretCode = (string)requestParam["secretCode"];
+							string scriptIP   = remoteClient.Address.ToString();
+
+							MD5 md5 = MD5.Create();
+							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
+							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+				m_log.ErrorFormat("[MONEY]: {0} + {1} = {2}", secretCode, scriptIP, hash);
+							ret = SendMoney(avatarID, amount, hash);
 						}
 					}
 				}
@@ -1276,7 +1282,7 @@ namespace OpenSim.Forge.Currency
 		/// return true, if successfully.   
 		/// </returns>   
 		// private bool SendMoney(UUID bankerID, int amount, ulong regionHandle)
-		private bool SendMoney(UUID avatarID, int amount, string secretCode, string scriptIP)
+		private bool SendMoney(UUID avatarID, int amount, string secretCode)
 		{
 			bool ret = false;
 
@@ -1288,8 +1294,7 @@ namespace OpenSim.Forge.Currency
 				paramTable["avatarID"] = avatarID.ToString();
 				paramTable["transactionType"] = 5003;	// ReferBonus
 				paramTable["amount"] = amount;
-				paramTable["secrectCode"] = secretCode;
-				paramTable["scriptIP"] = scriptIP;
+				paramTable["secretCode"] = secretCode;
 				//paramTable["regionHandle"] = regionHandle.ToString();;
 				paramTable["description"] = "Bonus to Avatar";
 

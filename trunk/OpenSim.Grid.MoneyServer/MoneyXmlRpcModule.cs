@@ -59,6 +59,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		private bool   m_scriptSendMoney  = false;
 		private string m_scriptAccessKey  = "";
+		private string m_scriptIPaddress  = "127.0.0.1";
 
 		private bool   m_sendNotifyMessage = true;
 
@@ -110,13 +111,13 @@ namespace OpenSim.Grid.MoneyServer
 			string sendmoney = m_config.GetString("enableScriptSendMoney", "false");
 			if (sendmoney.ToLower()=="true") m_scriptSendMoney = true;
 			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
+			m_scriptIPaddress = m_config.GetString("MoneyScriptIPaddress", "127.0.0.1");
 
 			string notifymsg = m_config.GetString("enableSendNotify", "true");
 			if (notifymsg.ToLower()=="false") m_sendNotifyMessage = false;
 
 			m_certFilename = m_config.GetString("RegionCertificateFile", "");
 			if (m_certFilename!="") m_useCertFile = true;
-
 
 			//m_config = config;
 			m_sessionDic = m_moneyCore.GetSessionDic();
@@ -548,6 +549,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
 			if (requestData.ContainsKey("bankerUserServIP"))	bankerUserServIP = (string)requestData["bankerUserServIP"];
 
+			// Check Banker Avatar
 			if (m_bankerAvatar!=UUID.Zero.ToString() && m_bankerAvatar!=bankerID)
 			{
 				m_log.Error("[Money RPC] Not allowed add money to avatar!!");
@@ -643,7 +645,7 @@ namespace OpenSim.Grid.MoneyServer
 			string avatarID = string.Empty;
 			string description  = "Send Money to Avatar on";
 			string avatarUserServIP = string.Empty;
-			string scriptIP   = string.Empty;
+			string clientIP   = remoteClient.Address.ToString();
 			string secretCode = string.Empty;
 
 			string fmID = string.Empty;
@@ -667,22 +669,26 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
 			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
 			if (requestData.ContainsKey("avatarUserServIP"))	avatarUserServIP = (string)requestData["avatarUserServIP"];
-			if (requestData.ContainsKey("scriptIP"))			scriptIP = (string)requestData["scriptIP"];
 			if (requestData.ContainsKey("secretCode"))			secretCode = (string)requestData["secretCode"];
 
 			MD5 md5 = MD5.Create();
-			byte[] code = md5.ComputeHash(Encoding.Unicode.GetBytes(m_scriptAccessKey + "_" + scriptIP));
+			byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(m_scriptAccessKey + "_" + clientIP));
 			string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+m_log.ErrorFormat("[Money RPC] SECRET1 {0} + {1} = {2}", m_scriptAccessKey, clientIP, hash);
+			code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(hash + "_" + m_scriptIPaddress));
+			hash = BitConverter.ToString(code).ToLower().Replace("-","");
+m_log.ErrorFormat("[Money RPC] SECRET1 xxx + {0} = {1}", m_scriptIPaddress, hash);
 
+m_log.ErrorFormat("[Money RPC] IP = {0} , {1}", clientIP, m_scriptIPaddress);
+m_log.ErrorFormat("[Money RPC] SECRET CODE = {0} == {1}", secretCode.ToLower(), hash);
 			if (secretCode.ToLower()!=hash)
 			{
-				m_log.Error("[Money RPC] Not allowed add money to avatar!!");
+				m_log.Error("[Money RPC] Not allowed send money to avatar!!");
 				m_log.Error("[Money RPC] Not match Script Key");
-				responseData["message"] = "not allowed add money to avatar! not match Script Key";
+				responseData["message"] = "not allowed send money to avatar! not match Script Key";
 				return response;
 			}
 
-m_log.ErrorFormat("[Money RPC] SECRET CODE = {0} {1}", secretCode.ToLower(), hash);
 			fmID = senderID + "@" + avatarUserServIP;
 			toID = avatarID + "@" + avatarUserServIP;
 
