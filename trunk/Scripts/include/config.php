@@ -18,14 +18,14 @@ $GLOBALS['xmlrpc_internalencoding'] = 'UTF-8';
 //
 
 
-define('OPENSIM_DB_HOST',			'202.26.159.200');
-define('OPENSIM_DB_NAME',			'opensim_nsl');
+define('OPENSIM_DB_HOST',			'star-light.nsl.tuis.ac.jp');
+define('OPENSIM_DB_NAME',			'opensim_071rc1');
 define('OPENSIM_DB_USER',			'opensim_user');
-define('OPENSIM_DB_PASS',			'OpenSimSimPass');
+define('OPENSIM_DB_PASS',			'opensim_pass');
 
 define('USE_CURRENCY_SERVER',		1);
 define('CURRENCY_SCRIPT_KEY',		'123456789');
-define('USER_SERVER_URI',			'http://202.26.159.200:8002');	// not use localhost or 127.0.0.1
+define('USER_SERVER_URI',			'http://star-light.nsl.tuis.ac.jp:8002');	// not use localhost or 127.0.0.1
 
 
 //

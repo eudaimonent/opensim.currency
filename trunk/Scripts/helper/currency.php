@@ -125,6 +125,16 @@ function buy_currency($method_name, $params, $app_data)
 		return "";
 	}
 
+	$checkSecure = opensim_check_secure_session($agentid, null, $sessionid);
+	if (!$checkSecure) {
+		$response_xml = xmlrpc_encode(array('success'	  => False,
+											'errorMessage'=> "\n\nMissmatch Secure Session ID!!",
+											'errorURI'	  => "".SYSURL.""));
+		header("Content-type: text/xml");
+		echo $response_xml;
+		return "";
+	}
+
 	$ret  = false;
 	$cost = convert_to_real($amount);
 	$transactionPermit = process_transaction($agentid, $cost, $ipAddress);

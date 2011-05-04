@@ -196,19 +196,54 @@ function  add_money($agentID, $amount, $secureID=null)
 	if (!isGUID($secureID, true)) return false;
 
 	$results = opensim_get_server_info($agentID);
-	if (!$results) return false;
 	$serverip  = $results["serverIP"];
 	$httpport  = $results["serverHttpPort"];
 	$serveruri = $results["serverURI"];
+	if ($serverip=="") return false;
 
 	$results = opensim_get_avatar_session($agentID);
-	if (!$results) return false;
 	$sessionID = $results["sessionID"];
+	if ($sessionID=="")  return false;
 	if ($secureID==null) $secureID = $results["secureID"];
 	
 	$req	  = array('bankerID'=>$agentID, 'bankerSessionID'=>$sessionID, 'bankerSecureSessionID'=>$secureID, 'amount'=>$amount);
 	$params   = array($req);
 	$request  = xmlrpc_encode_request('AddBankerMoney', $params);
+	$response = do_call($serverip, $httpport, $serveruri, $request);
+
+	return $response;
+}
+
+
+
+//
+// by millo (Sylvie)
+//
+function send_money($agentID, $amount, $secureID=null)
+{
+    if (!isGUID($agentID)) return false;
+
+    if (!USE_CURRENCY_SERVER) {
+    	env_set_money_transaction(null, $agentID, $amount, 5003, 0, "Send Money", 0, 0, "");
+    	$res["success"] = true;
+    	return $res;
+	}
+
+	//
+	// XML RPC to Region Server
+	//
+	if (!isGUID($secureID, true)) return false;
+
+    $results = opensim_get_server_info($agentID);
+	$serverip  = $results["serverIP"];
+	$httpport  = $results["serverHttpPort"];
+	$serveruri = $results["serverURI"];
+	if ($serverip=="") return false;
+
+	$secretCode = get_confirm_value($serverip);
+	$req = array('avatarID'=>$agentID, 'secretCode'=>$secretCode, 'amount'=>$amount);
+	$params = array($req);
+	$request = xmlrpc_encode_request('SendMoney', $params);
 	$response = do_call($serverip, $httpport, $serveruri, $request);
 
 	return $response;
@@ -234,14 +269,14 @@ function  get_balance($agentID, $secureID=null)
 	if (!isGUID($secureID, true)) return (integer)$cash;
 
 	$results = opensim_get_server_info($agentID);
-	if (!$results) return (integer)$cash;
 	$serverip  = $results["serverIP"];
 	$httpport  = $results["serverHttpPort"];
 	$serveruri = $results["serverURI"];
+	if ($serverip=="") return (integer)$cash;
 
 	$results = opensim_get_avatar_session($agentID);
-	if (!$results) return (integer)$cash;
 	$sessionID = $results["sessionID"];
+	if ($sessionID=="")  return (integer)$cash;
 	if ($secureID==null) $secureID = $results["secureID"];
 	
 	$req	  = array('clientID'=>$agentID, 'clientSessionID'=>$sessionID, 'clientSecureSessionID'=>$secureID);
@@ -252,6 +287,7 @@ function  get_balance($agentID, $secureID=null)
 	if ($response) $cash = $response["balance"];
 	return (integer)$cash;
 }
+
 
 
 
@@ -283,13 +319,13 @@ function do_call($host, $port, $uri, $request)
 	if ($data) $ret = xmlrpc_decode($data);
 
 	// for Debug
-	/*
+	/**/
 	ob_start();
 	print_r($ret);
 	$rt = ob_get_contents();
 	ob_end_clean();
 	error_log("[do_call] responce = ".$rt);
-	*/
+	/**/
 
 	return $ret;
 }
@@ -301,6 +337,7 @@ function  get_confirm_value($ipAddress)
 	$key = env_get_config("currency_script_key");
 	if ($key=="") $key = "1234567883789";
 	$confirmvalue = md5($key."_".$ipAddress);
+print("key = ".$key." +  ".$ipAddress." = ".$confirmvalue."\n");
 
 	return $confirmvalue;
 }
