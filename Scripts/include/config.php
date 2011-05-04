@@ -5,8 +5,8 @@
 //
 //
 
-if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://localhost/currency/helper');
-if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/var/www/html/currency/helper');
+if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://202.26.159.139/currency/helper');
+if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/home/apache/htdocs/currency/helper/');
 
 
 $GLOBALS['xmlrpc_internalencoding'] = 'UTF-8';
@@ -17,10 +17,11 @@ $GLOBALS['xmlrpc_internalencoding'] = 'UTF-8';
 // Valiables for OpenSim
 //
 
-define('OPENSIM_DB_HOST',			'localhost');
-define('OPENSIM_DB_NAME',			'opensim_db');
+
+define('OPENSIM_DB_HOST',			'202.26.159.200');
+define('OPENSIM_DB_NAME',			'opensim_nsl');
 define('OPENSIM_DB_USER',			'opensim_user');
-define('OPENSIM_DB_PASS',			'opensim_pass');
+define('OPENSIM_DB_PASS',			'OpenSimSimPass');
 
 define('USE_CURRENCY_SERVER',		1);
 define('CURRENCY_SCRIPT_KEY',		'123456789');
