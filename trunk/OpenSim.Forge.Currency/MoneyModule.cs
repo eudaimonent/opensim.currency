@@ -996,7 +996,6 @@ namespace OpenSim.Forge.Currency
 							MD5 md5 = MD5.Create();
 							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
 							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
-				m_log.ErrorFormat("[MONEY]: {0} + {1} = {2}", secretCode, scriptIP, hash);
 							ret = SendMoney(avatarID, amount, hash);
 						}
 					}
@@ -1281,7 +1280,6 @@ namespace OpenSim.Forge.Currency
 		/// <returns>   
 		/// return true, if successfully.   
 		/// </returns>   
-		// private bool SendMoney(UUID bankerID, int amount, ulong regionHandle)
 		private bool SendMoney(UUID avatarID, int amount, string secretCode)
 		{
 			bool ret = false;

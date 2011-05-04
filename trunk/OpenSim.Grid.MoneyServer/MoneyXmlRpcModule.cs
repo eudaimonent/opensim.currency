@@ -674,13 +674,9 @@ namespace OpenSim.Grid.MoneyServer
 			MD5 md5 = MD5.Create();
 			byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(m_scriptAccessKey + "_" + clientIP));
 			string hash = BitConverter.ToString(code).ToLower().Replace("-","");
-m_log.ErrorFormat("[Money RPC] SECRET1 {0} + {1} = {2}", m_scriptAccessKey, clientIP, hash);
 			code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(hash + "_" + m_scriptIPaddress));
 			hash = BitConverter.ToString(code).ToLower().Replace("-","");
-m_log.ErrorFormat("[Money RPC] SECRET1 xxx + {0} = {1}", m_scriptIPaddress, hash);
 
-m_log.ErrorFormat("[Money RPC] IP = {0} , {1}", clientIP, m_scriptIPaddress);
-m_log.ErrorFormat("[Money RPC] SECRET CODE = {0} == {1}", secretCode.ToLower(), hash);
 			if (secretCode.ToLower()!=hash)
 			{
 				m_log.Error("[Money RPC] Not allowed send money to avatar!!");
