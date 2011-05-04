@@ -216,8 +216,8 @@ function  add_money($agentID, $amount, $secureID=null)
 
 
 
-//
-// by millo (Sylvie)
+// Send the money to avatar for bonus 
+// 								by millo (Sylvie)
 //
 function send_money($agentID, $amount, $secureID=null)
 {
@@ -337,7 +337,6 @@ function  get_confirm_value($ipAddress)
 	$key = env_get_config("currency_script_key");
 	if ($key=="") $key = "1234567883789";
 	$confirmvalue = md5($key."_".$ipAddress);
-print("key = ".$key." +  ".$ipAddress." = ".$confirmvalue."\n");
 
 	return $confirmvalue;
 }
