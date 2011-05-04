@@ -319,13 +319,13 @@ function do_call($host, $port, $uri, $request)
 	if ($data) $ret = xmlrpc_decode($data);
 
 	// for Debug
-	/**/
+	/*
 	ob_start();
 	print_r($ret);
 	$rt = ob_get_contents();
 	ob_end_clean();
 	error_log("[do_call] responce = ".$rt);
-	/**/
+	*/
 
 	return $ret;
 }
