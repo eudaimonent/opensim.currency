@@ -39,6 +39,7 @@ using OpenMetaverse;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using Nini.Config;
 
+using System.Security.Cryptography;
 using NSL.XmlRpc;
 
 
@@ -52,8 +53,18 @@ namespace OpenSim.Grid.MoneyServer
 		//private string m_simServURI = string.Empty;
 		//private string m_confirmURI = string.Empty;
 
+		//
 		private bool   m_forceTransfer = false;
 		private string m_bankerAvatar  = "";
+
+		private bool   m_scriptSendMoney  = false;
+		private string m_scriptAccessKey  = "";
+
+		private bool   m_sendNotifyMessage = true;
+
+		private bool   m_useCertFile  = false;
+		private string m_certFilename = "";
+
 
 		const int MONEYMODULE_REQUEST_TIMEOUT = 30 * 1000;	//30 seconds
 		private long TicksToEpoch = new DateTime(1970, 1, 1).Ticks;
@@ -90,11 +101,22 @@ namespace OpenSim.Grid.MoneyServer
 			m_defaultBalance = m_config.GetInt("DefaultBalance", 1000);
 			//m_confirmURI = m_config.GetString("ConfirmURL", "https://SampleServer.com/confirm.aspx");
 
-			string ftrans	 = m_config.GetString("enableForceTransfer", "false");
+			string ftrans  = m_config.GetString("enableForceTransfer", "false");
 			if (ftrans.ToLower()=="true") m_forceTransfer = true;
 
 			string banker  = m_config.GetString("BankerAvatar", "");
 			m_bankerAvatar = banker.ToLower();
+
+			string sendmoney = m_config.GetString("enableScriptSendMoney", "false");
+			if (sendmoney.ToLower()=="true") m_scriptSendMoney = true;
+			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
+
+			string notifymsg = m_config.GetString("enableSendNotify", "true");
+			if (notifymsg.ToLower()=="false") m_sendNotifyMessage = false;
+
+			m_certFilename = m_config.GetString("RegionCertificateFile", "");
+			if (m_certFilename!="") m_useCertFile = true;
+
 
 			//m_config = config;
 			m_sessionDic = m_moneyCore.GetSessionDic();
@@ -127,6 +149,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("WebGetTransaction", handleWebGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
 			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);			// added by Fumi.Iseki
+			m_httpServer.AddXmlRPCHandler("SendMoney", handleSendMoney);					// added by Fumi.Iseki
 		}
 
 
@@ -527,7 +550,8 @@ namespace OpenSim.Grid.MoneyServer
 
 			if (m_bankerAvatar!=UUID.Zero.ToString() && m_bankerAvatar!=bankerID)
 			{
-				m_log.Error("[Money RPC] Not allowed add money to avatar!! Set BankerAvatar at [MoneyServer] in MoneyServer.ini");
+				m_log.Error("[Money RPC] Not allowed add money to avatar!!");
+				m_log.Error("[Money RPC] Set BankerAvatar at [MoneyServer] in MoneyServer.ini");
 				responseData["message"] = "not allowed add money to avatar!";
 				return response;
 			}
@@ -570,7 +594,7 @@ namespace OpenSim.Grid.MoneyServer
 							transaction = m_moneyDBService.FetchTransaction(transactionUUID);
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
-								m_log.InfoFormat("[Money RPC] Addiing money finished successfully, now update balance:{0} ", transactionUUID.ToString());
+								m_log.InfoFormat("[Money RPC] Adding money finished successfully, now update balance:{0} ", transactionUUID.ToString());
 								UpdateBalance(transaction.Receiver);
 								responseData["success"] = true;
 							}
@@ -597,6 +621,134 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
+		//
+		// added by Fumi.Iseki
+		//
+		/// <summary>
+		/// handle sending money transaction.
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public XmlRpcResponse handleSendMoney(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			Hashtable requestData = (Hashtable)request.Params[0];
+			XmlRpcResponse response = new XmlRpcResponse();
+			Hashtable responseData  = new Hashtable();
+			response.Value = responseData;
+
+			int	   amount = 0;
+			int	   transactionType = 0;
+			string senderID = UUID.Zero.ToString();
+			string avatarID = string.Empty;
+			string description  = "Send Money to Avatar on";
+			string avatarUserServIP = string.Empty;
+			string scriptIP   = string.Empty;
+			string secretCode = string.Empty;
+
+			string fmID = string.Empty;
+			string toID = string.Empty;
+			UUID transactionUUID = UUID.Random();
+
+			responseData["success"] = false;
+
+			m_log.InfoFormat("[Money RPC] in handleSendMoney");
+			
+			if (!m_scriptSendMoney || m_scriptAccessKey=="")
+			{
+				m_log.Error("[Money RPC] Not allowed send money to avatar!!");
+				m_log.Error("[Money RPC] Set enableScriptSendMoney and MoneyScriptAccessKey at [MoneyServer] in MoneyServer.ini");
+				responseData["message"] = "not allowed set money to avatar!";
+				return response;
+			}
+
+			if (requestData.ContainsKey("avatarID")) 			avatarID = (string)requestData["avatarID"];
+			if (requestData.ContainsKey("amount")) 				amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
+			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
+			if (requestData.ContainsKey("avatarUserServIP"))	avatarUserServIP = (string)requestData["avatarUserServIP"];
+			if (requestData.ContainsKey("scriptIP"))			scriptIP = (string)requestData["scriptIP"];
+			if (requestData.ContainsKey("secretCode"))			secretCode = (string)requestData["secretCode"];
+
+			MD5 md5 = MD5.Create();
+			byte[] code = md5.ComputeHash(Encoding.Unicode.GetBytes(m_scriptAccessKey + "_" + scriptIP));
+			string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+
+			if (secretCode.ToLower()!=hash)
+			{
+				m_log.Error("[Money RPC] Not allowed add money to avatar!!");
+				m_log.Error("[Money RPC] Not match Script Key");
+				responseData["message"] = "not allowed add money to avatar! not match Script Key";
+				return response;
+			}
+
+m_log.ErrorFormat("[Money RPC] SECRET CODE = {0} {1}", secretCode.ToLower(), hash);
+			fmID = senderID + "@" + avatarUserServIP;
+			toID = avatarID + "@" + avatarUserServIP;
+
+			m_log.InfoFormat("[Money RPC] Send money to avatar {0}", toID);
+			int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
+
+			try
+			{
+				TransactionData transaction = new TransactionData();
+				transaction.TransUUID = transactionUUID;
+				transaction.Sender   = fmID;
+				transaction.Receiver = toID;
+				transaction.Amount = amount;
+				transaction.ObjectUUID   = UUID.Zero.ToString();
+				transaction.RegionHandle = "0";
+				transaction.Type = transactionType;
+				transaction.Time = time;
+				transaction.SecureCode = UUID.Random().ToString();
+				transaction.Status = (int)Status.PENDING_STATUS;
+				transaction.Description = description + " " + DateTime.Now.ToString();
+
+				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
+				if (rcvr==null) 
+				{
+					m_log.ErrorFormat("[Money RPC] Avatar is not yet in DB: {0}", toID);
+					return response;
+				}
+
+				bool result = m_moneyDBService.addTransaction(transaction);
+				if (result) 
+				{
+					if (amount!=0)
+					{
+						if (m_moneyDBService.DoAddMoney(transactionUUID))
+						{
+							transaction = m_moneyDBService.FetchTransaction(transactionUUID);
+							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
+							{
+								m_log.InfoFormat("[Money RPC] Sending money finished successfully, now update balance:{0} ", transactionUUID.ToString());
+								UpdateBalance(transaction.Receiver);
+								responseData["success"] = true;
+							}
+						}
+					}
+					else
+					{
+						responseData["success"] = true;		// No messages for L$0 add
+					}
+					return response;
+				}
+				else // add transaction failed
+				{
+					m_log.ErrorFormat("[Money RPC] Add force transaction for user:{0} failed", fmID);
+				}
+
+				return response;
+			}
+			catch (Exception e)
+			{
+				m_log.Error("[Money RPC] Exception occurred while adding money transaction " + e.ToString());
+				return response;
+			}
+		}
+
+
+
 		//
 		//  added by Fumi.Iseki
 		//
@@ -608,6 +760,10 @@ namespace OpenSim.Grid.MoneyServer
 		public bool  NotifyTransfer(UUID transactionUUID)
 		{
 			m_log.InfoFormat("[Money RPC] User has accepted the transaction, now continue with the transaction");
+			if (!m_sendNotifyMessage) {
+				m_log.InfoFormat("[Money RPC] No transaction notify is specified");
+				return true;
+			}
 
 			try
 			{
@@ -695,6 +851,7 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			return false;
 		}
+
 
 
 		/// <summary>
