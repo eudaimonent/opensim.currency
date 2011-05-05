@@ -369,8 +369,6 @@ namespace OpenSim.Forge.Currency
 		///
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
-			m_log.ErrorFormat("[Money] CALLED ApplyUploadCharge = {0}, {1}, {2}", agentID.ToString(), amount, text);
-			
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, amount, 1101, region, text);
 		}
@@ -380,7 +378,6 @@ namespace OpenSim.Forge.Currency
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
 			m_log.ErrorFormat("[Money] CALLED ApplyCharge = {0}, {1}, {2}", agentID.ToString(), amount, text);
-
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, amount, 1004, region, text);
 		}
