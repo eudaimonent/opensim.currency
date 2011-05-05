@@ -150,7 +150,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("WebGetTransaction", handleWebGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
 			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);			// added by Fumi.Iseki
-			m_httpServer.AddXmlRPCHandler("SendMoney", handleSendMoney);					// added by Fumi.Iseki
+			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);		// added by Fumi.Iseki
 		}
 
 
@@ -632,7 +632,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
-		public XmlRpcResponse handleSendMoney(XmlRpcRequest request, IPEndPoint remoteClient)
+		public XmlRpcResponse handleSendMoneyBalance(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -654,7 +654,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			responseData["success"] = false;
 
-			//m_log.InfoFormat("[Money RPC] in handleSendMoney");
+			//m_log.InfoFormat("[Money RPC] in handleSendMoneyBalance");
 			
 			if (!m_scriptSendMoney || m_scriptAccessKey=="")
 			{

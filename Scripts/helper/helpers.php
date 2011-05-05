@@ -248,7 +248,7 @@ function send_money($agentID, $amount, $secretCode=null)
 
 	$req 	  = array('avatarID'=>$agentID, 'secretCode'=>$secretCode, 'amount'=>$amount);
 	$params   = array($req);
-	$request  = xmlrpc_encode_request('SendMoney', $params);
+	$request  = xmlrpc_encode_request('SendMoneyBalance', $params);
 	$response = do_call($serverip, $httpport, $serveruri, $request);
 
 	return $response;
