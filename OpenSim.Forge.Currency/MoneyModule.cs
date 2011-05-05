@@ -342,6 +342,7 @@ namespace OpenSim.Forge.Currency
 
 
 
+		///
 		public int GetBalance(UUID agentID)
 		{
 			IClientAPI client = LocateClientObject(agentID);
@@ -351,12 +352,16 @@ namespace OpenSim.Forge.Currency
 
 		public bool UploadCovered(IClientAPI client, int amount)
 		{
+			int balance = QueryBalanceFromMoneyServer(client);
+			if (balance<amount) return false;
 			return true;
 		}
 
 
 		public bool AmountCovered(IClientAPI client, int amount)
 		{
+			int balance = QueryBalanceFromMoneyServer(client);
+			if (balance<amount) return false;
 			return true;
 		}
 
@@ -365,56 +370,31 @@ namespace OpenSim.Forge.Currency
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
 			m_log.ErrorFormat("[Money] CALLED ApplyUploadCharge = {0}, {1}, {2}", agentID.ToString(), amount, text);
+			
+			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+			PayMoneyCharge(agentID, amount, 1101, region, text);
 		}
 
-
-/*
-		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
-								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
-		{
-			// Get the balance from money server.   
-			int balance = QueryBalanceFromMoneyServer(remoteClient);
-			if (balance < salePrice)
-			{
-				remoteClient.SendAgentAlertMessage("Unable to buy now. You don't have sufficient funds.", false);
-				return;
-			}
-
-			Scene scene = LocateSceneClientIn(remoteClient.AgentId);
-			if (scene != null)
-			{
-				SceneObjectPart sceneObj = scene.GetSceneObjectPart(localID);
-				if (sceneObj != null)
-				{
-					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
-					if (mod!=null)
-					{
-						UUID receiverId = sceneObj.OwnerID;
-						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
-						{
-							TransferMoney(remoteClient.AgentId, receiverId, salePrice, 5008, sceneObj.UUID, sceneObj.RegionHandle, "Object Buy");
-						}
-					}
-				}
-				else
-				{
-					remoteClient.SendAgentAlertMessage("Unable to buy now. The object was not found.", false);
-					return;
-				}
-			}
-		}
-
-*/
 
 		///
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
 			m_log.ErrorFormat("[Money] CALLED ApplyCharge = {0}, {1}, {2}", agentID.ToString(), amount, text);
+
+			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+			PayMoneyCharge(agentID, amount, 1004, region, text);
 		}
 
 
+		//
 		public bool GroupCreationCovered(IClientAPI client)
 		{
+			int balance = QueryBalanceFromMoneyServer(client);
+			if (balance<PriceGroupCreate)
+			{
+				client.SendAgentAlertMessage("Unable to group charge. You don't have sufficient funds.", false);
+				return false;
+			}
 			return true;
 		}
 
@@ -422,6 +402,9 @@ namespace OpenSim.Forge.Currency
 		public void ApplyGroupCreationCharge(UUID agentID)
 		{
 			m_log.ErrorFormat("[Money] CALLED ApplyGroupCreationCharge = {0}", agentID.ToString());
+
+			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+			PayMoneyCharge(agentID, PriceGroupCreate, 1002, region, "Create Group");
 		}
 
 
@@ -694,8 +677,7 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								client.SendMoneyBalance(UUID.Random(), true, 
-											Utils.StringToBytes("Balance update event from money server"), (int)requestParam["Balance"]);
+								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(""), (int)requestParam["Balance"]);
 								ret = true;
 							}
 						}
@@ -1002,9 +984,6 @@ namespace OpenSim.Forge.Currency
 		{
 			bool ret = false;
 			IClientAPI senderClient = LocateClientObject(sender);
-			//IClientAPI receiverClient = LocateClientObject(receiver);
-			//int senderBalance = -1;
-			//int receiverBalance = -1;
 
 			// Handle the illegal transaction.   
 			if (senderClient==null) // receiverClient could be null.
@@ -1237,6 +1216,76 @@ namespace OpenSim.Forge.Currency
 
 
 		/// <summary>   
+		/// Pay the money of charge.
+		/// </summary>   
+		/// <param name="amount">   
+		/// The amount of money.   
+		/// </param>   
+		/// <returns>   
+		/// return true, if successfully.   
+		/// </returns>   
+		private bool PayMoneyCharge(UUID sender, int amount, int transactiontype, ulong regionHandle, string description)
+		{
+			bool ret = false;
+			IClientAPI senderClient = LocateClientObject(sender);
+
+			// Handle the illegal transaction.   
+			if (senderClient==null) // receiverClient could be null.
+			{
+				m_log.ErrorFormat("[MONEY]: Client {0} not found", sender.ToString());
+				return false;
+			}
+
+			if (QueryBalanceFromMoneyServer(senderClient)<amount)
+			{
+				m_log.ErrorFormat("[MONEY]: No insufficient balance in client [{0}].", sender.ToString());
+				return false;
+			}
+
+			#region Send transaction request to money server and parse the resultes.
+
+			if (!string.IsNullOrEmpty(m_moneyServURL))
+			{
+				// Fill parameters for money transfer XML-RPC.   
+				Hashtable paramTable = new Hashtable();
+				paramTable["senderID"] = sender.ToString();
+				paramTable["senderSessionID"] = senderClient.SessionId.ToString();
+				paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
+				paramTable["transactionType"] = transactiontype;
+				paramTable["amount"] = amount;
+				paramTable["regionHandle"] = regionHandle.ToString();
+				paramTable["description"] = description;
+				paramTable["senderUserServIP"] = m_userServIP;
+
+				// Generate the request for transfer.   
+				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "PayMoneyCharge");
+
+				// Handle the return values from Money Server.  
+				if (resultTable != null && resultTable.Contains("success"))
+				{
+					if ((bool)resultTable["success"] == true)
+					{
+						m_log.DebugFormat("[MONEY]: Pay money of charge from [{0}] is done.", sender.ToString());
+						ret = true;
+					}
+				}
+				else
+				{
+					m_log.ErrorFormat("[MONEY]: Can not pay money of charge request from [{0}].", sender.ToString());
+				}
+			}
+			else // Money server is not available.
+			{
+				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+			}
+
+			#endregion
+
+			return ret;
+		}
+
+
+
 		/// <summary>   
 		/// Login the money server when the new client login.
 		/// </summary>   

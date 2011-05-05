@@ -60,8 +60,6 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_scriptAccessKey  = "";
 		private string m_scriptIPaddress  = "127.0.0.1";
 
-		private bool   m_updateBalance = true;
-
 		private bool   m_useCertFile   = false;
 		private string m_certFilename  = "";
 
@@ -111,9 +109,6 @@ namespace OpenSim.Grid.MoneyServer
 			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
 			m_scriptIPaddress = m_config.GetString("MoneyScriptIPaddress", "127.0.0.1");
 
-			string upbalance = m_config.GetString("enableUpdateBalance", "true");
-			if (upbalance.ToLower()=="false") m_updateBalance = false;
-
 			m_certFilename = m_config.GetString("RegionCertificateFile", "");
 			if (m_certFilename!="") m_useCertFile = true;
 
@@ -136,10 +131,10 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer = m_moneyCore.GetHttpServer();
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
 			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
-			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);
+			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);		// added by Fumi.Iseki
 			m_httpServer.AddXmlRPCHandler("GetBalance", handleSimulatorUserBalanceRequest);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
-			m_httpServer.AddXmlRPCHandler("ConfirmTransfer", handleConfirmTransfer);
+			//m_httpServer.AddXmlRPCHandler("ConfirmTransfer", handleConfirmTransfer);
 			m_httpServer.AddXmlRPCHandler("CancelTransfer", handleCancelTransfer);
 			m_httpServer.AddXmlRPCHandler("GetTransaction", handleGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebLogin", handleWebLogin);
@@ -147,9 +142,11 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer.AddXmlRPCHandler("WebGetBalance", handleWebGetBalance);
 			m_httpServer.AddXmlRPCHandler("WebGetTransaction", handleWebGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
-			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);			// added by Fumi.Iseki
-			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);		// added by Fumi.Iseki
+			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);				// added by Fumi.Iseki
+			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);			// added by Fumi.Iseki
+			m_httpServer.AddXmlRPCHandler("PayMoneyCharge", handlePayMoneyCharge);				// added by Fumi.Iseki
 		}
+
 
 
 		/// <summary>
@@ -262,6 +259,7 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
+
 
 
 		//
@@ -385,6 +383,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		//
 		// added by Fumi.Iseki
 		//
@@ -495,6 +494,7 @@ namespace OpenSim.Grid.MoneyServer
 				return response;
 			}
 		}
+
 
 
 		//
@@ -738,6 +738,117 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		//
+		// added by Fumi.Iseki
+		//
+		/// <summary>
+		/// handle pay charge transaction. no check receiver information.
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public XmlRpcResponse handlePayMoneyCharge(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			Hashtable requestData = (Hashtable)request.Params[0];
+			XmlRpcResponse response = new XmlRpcResponse();
+			Hashtable responseData  = new Hashtable();
+			response.Value = responseData;
+
+			int	   amount = 0;
+			int	   transactionType = 0;
+			string senderID = string.Empty;
+			string receiverID = UUID.Zero.ToString();
+			string senderSessionID = string.Empty;
+			string senderSecureSessionID = string.Empty;
+			string objectID = UUID.Zero.ToString();
+			string regionHandle = string.Empty;
+			string description  = "Pay Charge on";
+			string senderUserServIP = string.Empty;
+			string receiverUserServIP = "0.0.0.0";
+
+			string fmID = string.Empty;
+			string toID = string.Empty;
+			UUID transactionUUID = UUID.Random();
+
+			//m_log.InfoFormat("[Money RPC] in handlePayMoneyCharge");
+
+			if (requestData.ContainsKey("senderID")) 			  senderID = (string)requestData["senderID"];
+			if (requestData.ContainsKey("senderSessionID")) 	  senderSessionID = (string)requestData["senderSessionID"];
+			if (requestData.ContainsKey("senderSecureSessionID")) senderSecureSessionID = (string)requestData["senderSecureSessionID"];
+			if (requestData.ContainsKey("amount")) 				  amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("regionHandle")) 		  regionHandle = (string)requestData["regionHandle"];
+			if (requestData.ContainsKey("transactionType")) 	  transactionType = (Int32)requestData["transactionType"];
+			if (requestData.ContainsKey("description")) 		  description = (string)requestData["description"];
+			if (requestData.ContainsKey("senderUserServIP")) 	  senderUserServIP = (string)requestData["senderUserServIP"];
+
+
+			fmID = senderID   + "@" + senderUserServIP;
+			toID = receiverID + "@" + receiverUserServIP;
+
+			if (m_sessionDic.ContainsKey(fmID) && m_secureSessionDic.ContainsKey(fmID))
+			{
+				if (m_sessionDic[fmID] == senderSessionID && m_secureSessionDic[fmID] == senderSecureSessionID)
+				{
+					m_log.InfoFormat("[Money RPC] Pay from {0}", fmID);
+					int time = (int)((DateTime.Now.Ticks - TicksToEpoch) / 10000000);
+					try
+					{
+						TransactionData transaction = new TransactionData();
+						transaction.TransUUID = transactionUUID;
+						transaction.Sender   = fmID;
+						transaction.Receiver = toID;
+						transaction.Amount = amount;
+						transaction.ObjectUUID = objectID;
+						transaction.RegionHandle = regionHandle;
+						transaction.Type = transactionType;
+						transaction.Time = time;
+						transaction.SecureCode = UUID.Random().ToString();
+						transaction.Status = (int)Status.PENDING_STATUS;
+						transaction.Description = description + " " + DateTime.Now.ToString();
+
+						bool result = m_moneyDBService.addTransaction(transaction);
+						if (result) 
+						{
+							UserInfo user = m_moneyDBService.FetchUserInfo(fmID);
+							if (user != null) 
+							{
+								if (amount!=0)
+								{
+									responseData["success"] = NotifyTransfer(transactionUUID);
+								}
+								else
+								{
+									responseData["success"] = true;		// No messages for L$0 object. by Fumi.Iseki
+								}
+								return response;
+							}
+						}
+						else // add transaction failed
+						{
+							m_log.ErrorFormat("[Money RPC] Pay money transaction for user:{0} failed", fmID);
+						}
+
+						responseData["success"] = false;
+						return response;
+					}
+					catch (Exception e)
+					{
+						m_log.Error("[Money RPC] Exception occurred while pay money transaction " + e.ToString());
+						responseData["success"] = false;
+						return response;
+					}
+					
+				}
+
+			}
+
+			m_log.Error("[Money RPC] Session authentication failure for sender: " + fmID);
+			responseData["success"] = false;
+			responseData["message"] = "Session check failure, please re-login later!";
+			return response;
+		}
+
+
+
+		//
 		//  added by Fumi.Iseki
 		//
 		/// <summary>
@@ -760,14 +871,8 @@ namespace OpenSim.Grid.MoneyServer
 
 						bool updateSender = true;
 						bool updateReceiv = true;
-						if (m_updateBalance) {
-							if (transaction.Sender==transaction.Receiver) updateSender = false;
-						}
-						else {
-							if 		(transaction.Type==5008) updateReceiv = false;	// PayObject  (OnObjectBuy)
-							else if (transaction.Type==5009) updateSender = false;	// ObjectPays (ObjectGiveMoney)
-						}
 
+						if (transaction.Sender==transaction.Receiver) updateSender = false;
 						if (updateSender) UpdateBalance(transaction.Sender);
 						if (updateReceiv) UpdateBalance(transaction.Receiver);
 
@@ -923,6 +1028,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		public XmlRpcResponse handleClientLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
@@ -971,6 +1077,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		//
 		//  This Function is never used, now. (by Fumi.Iseki)
 		//
@@ -979,6 +1086,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
+/*
 		public XmlRpcResponse handleConfirmTransfer(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			Hashtable requestData = (Hashtable)request.Params[0];
@@ -1094,9 +1202,9 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			return response;
 		}
+*/
 
 
-		//This bit of code is taken from OpenSim.
 
 		/// <summary>   
 		/// Generic XMLRPC client abstraction
@@ -1153,6 +1261,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		/// <summary>
 		/// Update the client balance.We don't care about the result.
 		/// </summary>
@@ -1182,6 +1291,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		/// <summary>
 		/// RollBack the transaction if user failed to get the object paid
 		/// </summary>
@@ -1205,6 +1315,7 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			return false;
 		}
+
 
 
 		//
@@ -1257,6 +1368,7 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			return response;
 		}
+
 
 
 		//
@@ -1313,6 +1425,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		//
 		public XmlRpcResponse handleWebLogin(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -1353,6 +1466,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
+
 		//
 		public XmlRpcResponse handleWebLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -1390,6 +1504,7 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
+
 
 
 		/// <summary>
@@ -1462,6 +1577,7 @@ namespace OpenSim.Grid.MoneyServer
 			responseData["errorMessage"] = "Session check failure,please re-login";
 			return response;
 		}
+
 
 
 		/// <summary>
@@ -1558,6 +1674,7 @@ namespace OpenSim.Grid.MoneyServer
 			return response;
 
 		}
+
 
 
 		/// <summary>
