@@ -246,9 +246,9 @@ function send_money($agentID, $amount, $secretCode=null)
 		$secretCode = get_confirm_value($serverip);
 	}
 
-	$req = array('avatarID'=>$agentID, 'secretCode'=>$secretCode, 'amount'=>$amount);
-	$params = array($req);
-	$request = xmlrpc_encode_request('SendMoney', $params);
+	$req 	  = array('avatarID'=>$agentID, 'secretCode'=>$secretCode, 'amount'=>$amount);
+	$params   = array($req);
+	$request  = xmlrpc_encode_request('SendMoney', $params);
 	$response = do_call($serverip, $httpport, $serveruri, $request);
 
 	return $response;
