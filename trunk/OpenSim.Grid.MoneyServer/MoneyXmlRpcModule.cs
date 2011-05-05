@@ -51,7 +51,6 @@ namespace OpenSim.Grid.MoneyServer
 
 		private int m_defaultBalance = 0;
 		//private string m_simServURI = string.Empty;
-		//private string m_confirmURI = string.Empty;
 
 		//
 		private bool   m_forceTransfer = false;
@@ -100,7 +99,6 @@ namespace OpenSim.Grid.MoneyServer
 			m_config = config;
 
 			m_defaultBalance = m_config.GetInt("DefaultBalance", 1000);
-			//m_confirmURI = m_config.GetString("ConfirmURL", "https://SampleServer.com/confirm.aspx");
 
 			string ftrans  = m_config.GetString("enableForceTransfer", "false");
 			if (ftrans.ToLower()=="true") m_forceTransfer = true;
@@ -350,18 +348,6 @@ namespace OpenSim.Grid.MoneyServer
 							UserInfo user = m_moneyDBService.FetchUserInfo(fmID);
 							if (user != null) 
 							{
-								/* deleted (more code) by Fumi.Iseki
-								Hashtable resultTable = genericCurrencyXMLRPCRequest(confirmTable, "SendConfirmLink", user.SimIP);
-								if (resultTable != null && resultTable.ContainsKey("success"))
-								{
-									if ((bool)resultTable["success"])
-									{
-										m_log.InfoFormat("[Money RPC] Sent confirm link to client:{0} successfully", senderID);
-										responseData["success"] = true;
-										return response;
-									}
-								} */
-
 								if (amount!=0)
 								{
 									responseData["success"] = NotifyTransfer(transactionUUID);
@@ -943,18 +929,14 @@ namespace OpenSim.Grid.MoneyServer
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
 			string clientUUID = string.Empty;
-			//string clientSessionID = string.Empty;
-			//string clientSecureSessionID = string.Empty;
 			string userServerIP = string.Empty;
 			string userID = string.Empty;
 
 			//m_log.InfoFormat("[Money RPC] in handleClientLogout");
 
 			response.Value = responseData;
-			if (requestData.ContainsKey("clientUUID")) 			  clientUUID = (string)requestData["clientUUID"];
-			//if (requestData.ContainsKey("clientSessionID")) 	  clientSessionID = (string)requestData["clientSessionID"];
-			//if (requestData.ContainsKey("clientSecureSessionID")) clientSecureSessionID = (string)requestData["clientSecureSessionID"];
-			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
+			if (requestData.ContainsKey("clientUUID")) clientUUID = (string)requestData["clientUUID"];
+			if (requestData.ContainsKey("userServIP")) userServerIP = (string)requestData["userServIP"];
 
 			userID = clientUUID + "@" + userServerIP;
 
