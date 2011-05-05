@@ -377,13 +377,13 @@ namespace OpenSim.Forge.Currency
 		///
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
-			m_log.ErrorFormat("[Money] CALLED ApplyCharge = {0}, {1}, {2}", agentID.ToString(), amount, text);
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, 1004, region, text);
+			PayMoneyCharge(agentID, amount, 1002, region, text);
 		}
 
 
 		//
+		/*
 		public bool GroupCreationCovered(IClientAPI client)
 		{
 			int balance = QueryBalanceFromMoneyServer(client);
@@ -403,6 +403,7 @@ namespace OpenSim.Forge.Currency
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, PriceGroupCreate, 1002, region, "Create Group");
 		}
+		*/
 
 
 		///
@@ -674,7 +675,8 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(""), (int)requestParam["Balance"]);
+								//client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(""), (int)requestParam["Balance"]);
+								client.SendMoneyBalance(UUID.Random(), true, new byte[0], (int)requestParam["Balance"]);
 								ret = true;
 							}
 						}
