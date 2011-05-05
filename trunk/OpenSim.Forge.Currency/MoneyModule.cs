@@ -382,29 +382,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		//
-		/*
-		public bool GroupCreationCovered(IClientAPI client)
-		{
-			int balance = QueryBalanceFromMoneyServer(client);
-			if (balance<PriceGroupCreate)
-			{
-				client.SendAgentAlertMessage("Unable to group charge. You don't have sufficient funds.", false);
-				return false;
-			}
-			return true;
-		}
-
-
-		public void ApplyGroupCreationCharge(UUID agentID)
-		{
-			m_log.ErrorFormat("[Money] CALLED ApplyGroupCreationCharge = {0}", agentID.ToString());
-
-			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, PriceGroupCreate, 1002, region, "Create Group");
-		}
-		*/
-
 
 		///
 		public int UploadCharge
@@ -675,7 +652,6 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								//client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(""), (int)requestParam["Balance"]);
 								client.SendMoneyBalance(UUID.Random(), true, new byte[0], (int)requestParam["Balance"]);
 								ret = true;
 							}
