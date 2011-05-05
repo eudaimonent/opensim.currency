@@ -1255,10 +1255,14 @@ namespace OpenSim.Forge.Currency
 						m_log.DebugFormat("[MONEY]: Add the money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
 					}
+					else
+					{
+						m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
+					}
 				}
 				else
 				{
-					m_log.ErrorFormat("[MONEY]: Can not add the money to banker [{0}].", bankerID.ToString());
+					m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
 				}
 			}
 			else 
@@ -1293,7 +1297,6 @@ namespace OpenSim.Forge.Currency
 				paramTable["transactionType"] = 5003;	// ReferBonus
 				paramTable["amount"] = amount;
 				paramTable["secretCode"] = secretCode;
-				//paramTable["regionHandle"] = regionHandle.ToString();;
 				paramTable["description"] = "Bonus to Avatar";
 
 				// Generate the request for transfer.   
@@ -1307,10 +1310,14 @@ namespace OpenSim.Forge.Currency
 						m_log.DebugFormat("[MONEY]: Send the money to avatar [{0}] is done.", avatarID.ToString());
 						ret = true;
 					}
+					else 
+					{
+						m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
+					}
 				}
 				else
 				{
-					m_log.ErrorFormat("[MONEY]: Can not send the money to avatar [{0}].", avatarID.ToString());
+					m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
 				}
 			}
 			else 
