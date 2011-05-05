@@ -1,3 +1,26 @@
+diff -Nur opensim-/OpenSim/Framework/IMoneyModule.cs opensim/OpenSim/Framework/IMoneyModule.cs
+--- opensim-/OpenSim/Framework/IMoneyModule.cs	2011-04-27 16:14:00.000000000 +0900
++++ opensim/OpenSim/Framework/IMoneyModule.cs	2011-04-27 16:56:12.000000000 +0900
+@@ -29,13 +29,17 @@
+ 
+ namespace OpenSim.Framework
+ {
+-    public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    //public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    // For legacy money module. Fumi.Iseki
++    public delegate bool ObjectPaid(UUID objectID, UUID agentID, int amount);
++
+     public interface IMoneyModule
+     {
+         bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID,
+                 int amount);
+ 
+-        int GetBalance(UUID agentID);
++        //int GetBalance(UUID agentID);
++		int GetBalance(IClientAPI client);
+         bool UploadCovered(IClientAPI client, int amount);
+         bool AmountCovered(IClientAPI client, int amount);
+         void ApplyCharge(UUID agentID, int amount, string text);
 diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
 --- opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2011-04-27 16:14:00.000000000 +0900
 +++ opensim/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2011-04-27 16:56:12.000000000 +0900
@@ -14,3 +37,125 @@ diff -Nur opensim-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs opensi
                  }
  
                  m_httpListener2.RequestReceived += OnRequest;
+diff -Nur opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
+--- opensim-/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2011-04-27 16:14:00.000000000 +0900
++++ opensim/OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs	2011-04-27 16:56:12.000000000 +0900
+@@ -241,11 +241,23 @@
+         {
+             if (config == "Startup" && startupConfig != null)
+             {
+-                m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                //m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
+             }
+ 
+             if (config == "Economy" && startupConfig != null)
+             {
++                // Check if the SampleMoneyModule is enabled.
++                m_enabled = (startupConfig.GetString("EconomyModule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                if (m_enabled)
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is enabled.");
++                }
++                else
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is disabled. And the economy module [{0}] is being loaded for currency.",
++                                     startupConfig.GetString("EconomyModule"));
++                }
++
+                 PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
+                 PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
+                 PricePublicObjectDecay = startupConfig.GetInt("PricePublicObjectDecay", 4);
+@@ -767,7 +779,8 @@
+             //m_log.Info("[FRIEND]: " + avatar.Name + " status:" + (!avatar.IsChildAgent).ToString());
+         }
+ 
+-        public int GetBalance(UUID agentID)
++        //public int GetBalance(UUID agentID)
++		public int GetBalance(IClientAPI client)
+         {
+             return 0;
+         }
+diff -Nur opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
+--- opensim-/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2011-04-27 16:14:00.000000000 +0900
++++ opensim/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2011-04-27 16:56:12.000000000 +0900
+@@ -83,9 +83,10 @@
+         /// <param name="objectID">Object ID that got paid</param>
+         /// <param name="agentID">Agent Id that did the paying</param>
+         /// <param name="amount">Amount paid</param>
+-        private void HandleObjectPaid(UUID objectID, UUID agentID,
++        private bool HandleObjectPaid(UUID objectID, UUID agentID,
+                 int amount)
+         {
++			bool ret = false;
+             // Since this is an event from a shared module, all scenes will
+             // get it. But only one has the object in question. The others
+             // just ignore it.
+@@ -93,19 +94,28 @@
+             SceneObjectPart part =
+                     myScriptEngine.World.GetSceneObjectPart(objectID);
+ 
+-            if (part == null)
+-                return;
++            //if (part == null)
++            //   return;
+ 
+-            m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-            if (part.ParentGroup != null)
+-                part = part.ParentGroup.RootPart;
+-
+-            if (part != null)
+-            {
+-                money(part.LocalId, agentID, amount);
++            //m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++            //if (part.ParentGroup != null)
++            //    part = part.ParentGroup.RootPart;
++
++			if (part != null) 
++			{
++            	m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++                if (part.ParentGroup != null) part = part.ParentGroup.RootPart;
++                if (part != null)
++                {
++                    ret = money(part.LocalId, agentID, amount);
++                }
+             }
++
++            return ret;
+         }
+ 
++
++
+         /// <summary>
+         /// Handles piping the proper stuff to The script engine for touching
+         /// Including DetectedParams
+@@ -227,15 +237,24 @@
+         // state_entry: not processed here
+         // state_exit: not processed here
+ 
+-        public void money(uint localID, UUID agentID, int amount)
++
++        //public void money(uint localID, UUID agentID, int amount)
++        public bool money(uint localID, UUID agentID, int amount)
+         {
+-            myScriptEngine.PostObjectEvent(localID, new EventParams(
+-                    "money", new object[] {
+-                    new LSL_Types.LSLString(agentID.ToString()),
+-                    new LSL_Types.LSLInteger(amount) },
+-                    new DetectParams[0]));
++            //myScriptEngine.PostObjectEvent(localID, new EventParams(
++            //        "money", new object[] {
++            //        new LSL_Types.LSLString(agentID.ToString()),
++            //        new LSL_Types.LSLInteger(amount) },
++            //        new DetectParams[0]));
++
++            return myScriptEngine.PostObjectEvent(localID, new EventParams(
++                       "money", new object[] {
++                       new LSL_Types.LSLString(agentID.ToString()),
++                       new LSL_Types.LSLInteger(amount) },
++                       new DetectParams[0]));
+         }
+ 
++
+         public void collision_start(uint localID, ColliderArgs col)
+         {
+             // Add to queue for all scripts in ObjectID object
