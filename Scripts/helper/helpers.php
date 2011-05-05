@@ -216,10 +216,11 @@ function  add_money($agentID, $amount, $secureID=null)
 
 
 
+//
 // Send the money to avatar for bonus 
 // 								by millo (Sylvie)
 //
-function send_money($agentID, $amount, $secureID=null)
+function send_money($agentID, $amount, $secretCode=null)
 {
     if (!isGUID($agentID)) return false;
 
@@ -232,15 +233,19 @@ function send_money($agentID, $amount, $secureID=null)
 	//
 	// XML RPC to Region Server
 	//
-	if (!isGUID($secureID, true)) return false;
-
     $results = opensim_get_server_info($agentID);
 	$serverip  = $results["serverIP"];
 	$httpport  = $results["serverHttpPort"];
 	$serveruri = $results["serverURI"];
 	if ($serverip=="") return false;
 
-	$secretCode = get_confirm_value($serverip);
+	if ($secretCode!=null) {
+		$secretCode = md5($secretCode + "_" + $serverip);
+	}
+	else {
+		$secretCode = get_confirm_value($serverip);
+	}
+
 	$req = array('avatarID'=>$agentID, 'secretCode'=>$secretCode, 'amount'=>$amount);
 	$params = array($req);
 	$request = xmlrpc_encode_request('SendMoney', $params);
