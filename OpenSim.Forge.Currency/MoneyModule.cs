@@ -285,7 +285,7 @@ namespace OpenSim.Forge.Currency
 		// for LSL ObjectGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
-			//m_log.ErrorFormat("[Money] LSL ObjectGiveMoney. UUID = ", objectID.ToString());
+			//m_log.ErrorFormat("[MONEY]: LSL ObjectGiveMoney. UUID = ", objectID.ToString());
 
 			string objName = string.Empty;
 			string avatarName = string.Empty;
@@ -461,7 +461,7 @@ namespace OpenSim.Forge.Currency
 		// for OnMoneyTransfer event
 		private void MoneyTransferAction(Object sender, EventManager.MoneyTransferArgs moneyEvent)
 		{
-			//m_log.ErrorFormat("[Money] Event OnMoneyTransfer. type = {0}", moneyEvent.transactiontype);
+			//m_log.ErrorFormat("[MONEY]: Event OnMoneyTransfer. type = {0}", moneyEvent.transactiontype);
 		
 			// Check the money transaction is necessary.   
 			if (moneyEvent.sender == moneyEvent.receiver)
@@ -531,7 +531,7 @@ namespace OpenSim.Forge.Currency
 		// for OnValidateLandBuy event
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[Money] Event OniValidateLandBuy.");
+			//m_log.ErrorFormat("[MONEY]: Event OniValidateLandBuy.");
 			
 			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
 			if (senderClient != null)
@@ -552,7 +552,7 @@ namespace OpenSim.Forge.Currency
 		// for OnLandBuy event
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[Money] Event OnLandBuy.");
+			//m_log.ErrorFormat("[MONEY]: Event OnLandBuy.");
 
 			lock (landBuyEvent)
 			{
@@ -581,7 +581,7 @@ namespace OpenSim.Forge.Currency
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
-			//m_log.ErrorFormat("[Money] Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
+			//m_log.ErrorFormat("[MONEY]: Event OnObjectBuy. agent = {0}, {1}", agentID, remoteClient.AgentId);
 
 			// Handle the parameters error.   
 			if (!m_sellEnabled) return;
