@@ -1,0 +1,273 @@
+diff -Nur OpenSim/Framework/IMoneyModule.cs ../opensim_r9862/OpenSim/Framework/IMoneyModule.cs
+--- OpenSim/Framework/IMoneyModule.cs	2009-06-15 01:22:03.000000000 +0900
++++ ../opensim_r9862/OpenSim/Framework/IMoneyModule.cs	2009-06-15 01:23:47.000000000 +0900
+@@ -29,7 +29,12 @@
+ 
+ namespace OpenSim.Framework
+ {
+-    public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    //public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
++    // For legacy money module. 
++    public delegate bool ObjectPaid(UUID objectID, UUID agentID, int amount);
++    // For DTL money module.
++    public delegate bool PostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount);
++
+     public interface IMoneyModule
+     {
+         bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID,
+@@ -46,6 +51,7 @@
+         EconomyData GetEconomyData();
+ 
+         event ObjectPaid OnObjectPaid;
++        event PostObjectPaid OnPostObjectPaid;
+     }
+ 
+     public struct EconomyData
+diff -Nur OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs ../opensim_r9862/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
+--- OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-06-15 01:22:01.000000000 +0900
++++ ../opensim_r9862/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2009-06-15 01:24:39.000000000 +0900
+@@ -1419,6 +1419,12 @@
+                 {
+                     //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
+                     //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
++					System.Security.Cryptography.X509Certificates.X509Certificate2 cert =
++					         new System.Security.Cryptography.X509Certificates.X509Certificate2("SineWaveCert.pfx", "123");
++					m_httpListener2 = new CoolHTTPListener(IPAddress.Any, (int)m_port, cert);
++					m_httpListener2.ExceptionThrown += httpServerException;
++					m_httpListener2.LogWriter = httpserverlog;
++					m_httpListener2.DisconnectHandler = httpServerDisconnectMonitor; 
+                 }
+ 
+                 m_httpListener2.RequestHandler += OnHandleRequestIOThread;
+@@ -1431,7 +1437,7 @@
+                 //{
+                 //    context = m_httpListener.GetContext();
+                 //    ThreadPool.QueueUserWorkItem(new WaitCallback(HandleRequest), context);
+-               // }
++                // }
+             }
+             catch (Exception e)
+             {
+diff -Nur OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs ../opensim_r9862/OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs
+--- OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs	2009-06-15 01:21:46.000000000 +0900
++++ ../opensim_r9862/OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs	2009-06-15 01:25:10.000000000 +0900
+@@ -104,6 +104,7 @@
+         #region IMoneyModule Members
+ 
+         public event ObjectPaid OnObjectPaid;
++		public event PostObjectPaid OnPostObjectPaid;
+ 
+         /// <summary>
+         /// Startup
+@@ -225,11 +226,24 @@
+             if (config == "Startup" && startupConfig != null)
+             {
+                 gridmode = startupConfig.GetBoolean("gridmode", false);
+-                m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                //m_enabled = (startupConfig.GetString("economymodule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
+             }
+ 
+             if (config == "Economy" && startupConfig != null)
+             {
++                // Check if the SampleMoneyModule is enabled.
++                m_enabled = (startupConfig.GetString("EconomyModule", "BetaGridLikeMoneyModule") == "BetaGridLikeMoneyModule");
++                if (m_enabled)
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is enabled.");
++                }
++                else
++                {
++                    m_log.InfoFormat("The SampleMoneyModule is disabled. And the economy module [{0}] is being loaded for currency.",
++                                     startupConfig.GetString("EconomyModule"));
++                }
++
++                // Load the economy data.
+                 ObjectCapacity = startupConfig.GetInt("ObjectCapacity", 45000);
+                 PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
+                 PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
+diff -Nur OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs ../opensim_r9862/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
+--- OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-06-15 01:21:47.000000000 +0900
++++ ../opensim_r9862/OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs	2009-06-15 01:25:41.000000000 +0900
+@@ -107,25 +107,46 @@
+ 
+             IMoneyModule money =
+                     myScriptEngine.World.RequestModuleInterface<IMoneyModule>();
+-            if (money != null)
+-                money.OnObjectPaid+=HandleObjectPaid;
++            if (money != null) {
++                //money.OnObjectPaid+=HandleObjectPaid;
++                money.OnPostObjectPaid += HandlePostObjectPaid;
++                money.OnObjectPaid += HandleObjectPaid;
++			}
+         }
+ 
+         public void ReadConfig()
+         {
+         }
+ 
+-        private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        //private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        private bool HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+         {
++			bool  ret = false;
+             SceneObjectPart part =
+                     myScriptEngine.World.GetSceneObjectPart(objectID);
+ 
+             if (part != null)
+             {
+-                money(part.LocalId, agentID, amount);
++                //money(part.LocalId, agentID, amount);
++				ret = money(part.LocalId, agentID, amount);
+             }
++
++			return ret;
++        }
++
++
++        private bool HandlePostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount)
++        {
++            bool ret = true;
++            if (myScriptEngine.World.RegionInfo.RegionHandle == regionHandle)
++            {
++                ret = money(localID, agentID, amount);
++            }
++
++            return ret;
+         }
+ 
++
+         public void changed(uint localID, uint change)
+         {
+             // Add to queue for all scripts in localID, Object pass change.
+@@ -316,13 +337,20 @@
+                 );
+         }
+ 
+-        public void money(uint localID, UUID agentID, int amount)
++        //public void money(uint localID, UUID agentID, int amount)
++        public bool money(uint localID, UUID agentID, int amount)
+         {
+-            myScriptEngine.PostObjectEvent(localID, new EventParams(
+-                    "money", new object[] {
+-                    new LSL_Types.LSLString(agentID.ToString()),
+-                    new LSL_Types.LSLInteger(amount) },
+-                    new DetectParams[0]));
++            //myScriptEngine.PostObjectEvent(localID, new EventParams(
++            //        "money", new object[] {
++            //        new LSL_Types.LSLString(agentID.ToString()),
++            //        new LSL_Types.LSLInteger(amount) },
++            //        new DetectParams[0]));
++
++            return myScriptEngine.PostObjectEvent(localID, new EventParams(
++                           "money", new object[] {
++                           new LSL_Types.LSLString(agentID.ToString()),
++                           new LSL_Types.LSLInteger(amount) },
++                           new DetectParams[0]));
+         }
+ 
+         // TODO: Replace placeholders below
+diff -Nur OpenSim/Region/ScriptEngine/XEngine/EventManager.cs ../opensim_r9862/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
+--- OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-06-15 01:21:49.000000000 +0900
++++ ../opensim_r9862/OpenSim/Region/ScriptEngine/XEngine/EventManager.cs	2009-06-15 01:26:07.000000000 +0900
+@@ -65,13 +65,17 @@
+             IMoneyModule money=myScriptEngine.World.RequestModuleInterface<IMoneyModule>();
+             if (money != null)
+             {
+-                money.OnObjectPaid+=HandleObjectPaid;
++                //money.OnObjectPaid+=HandleObjectPaid;
++                money.OnObjectPaid += HandleObjectPaid;
++                money.OnPostObjectPaid += HandlePostObjectPaid;
+             }
+         }
+ 
+-        private void HandleObjectPaid(UUID objectID, UUID agentID,
+-                int amount)
++        //private void HandleObjectPaid(UUID objectID, UUID agentID,
++        //        int amount)
++        private bool HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+         {
++			bool ret = false;
+             // Since this is an event from a shared module, all scenes will
+             // get it. But only one has the object in question. The others
+             // just ignore it.
+@@ -79,19 +83,41 @@
+             SceneObjectPart part =
+                     myScriptEngine.World.GetSceneObjectPart(objectID);
+ 
+-            if (part == null)
+-                return;
++            //if (part == null)
++            //   return;
+ 
+-            m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-            if (part.ParentGroup != null)
+-                part = part.ParentGroup.RootPart;
++            //m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++            //if (part.ParentGroup != null)
++            //    part = part.ParentGroup.RootPart;
+ 
+-            if (part != null)
+-            {
+-                money(part.LocalId, agentID, amount);
++			if (part != null) 
++			{
++            	m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++                if (part.ParentGroup != null) part = part.ParentGroup.RootPart;
++                if (part != null)
++                {
++                    ret = money(part.LocalId, agentID, amount);
++                }
+             }
++
++            return ret;
++        }
++
++
++
++        private bool HandlePostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount)
++        {
++            bool ret = true;
++            if (myScriptEngine.World.RegionInfo.RegionHandle == regionHandle)
++             {
++                ret = money(localID, agentID, amount);
++             }
++
++            return ret;
+         }
+ 
++
++
+         public void touch_start(uint localID, uint originalID, Vector3 offsetPos,
+                 IClientAPI remoteClient, SurfaceTouchEventArgs surfaceArgs)
+         {
+@@ -194,15 +220,24 @@
+         // state_entry: not processed here
+         // state_exit: not processed here
+ 
+-        public void money(uint localID, UUID agentID, int amount)
++
++        //public void money(uint localID, UUID agentID, int amount)
++        public bool money(uint localID, UUID agentID, int amount)
+         {
+-            myScriptEngine.PostObjectEvent(localID, new EventParams(
+-                    "money", new object[] {
+-                    new LSL_Types.LSLString(agentID.ToString()),
+-                    new LSL_Types.LSLInteger(amount) },
+-                    new DetectParams[0]));
++            //myScriptEngine.PostObjectEvent(localID, new EventParams(
++            //        "money", new object[] {
++            //        new LSL_Types.LSLString(agentID.ToString()),
++            //        new LSL_Types.LSLInteger(amount) },
++            //        new DetectParams[0]));
++
++            return myScriptEngine.PostObjectEvent(localID, new EventParams(
++                       "money", new object[] {
++                       new LSL_Types.LSLString(agentID.ToString()),
++                       new LSL_Types.LSLInteger(amount) },
++                       new DetectParams[0]));
+         }
+ 
++
+         public void collision_start(uint localID, ColliderArgs col)
+         {
+             // Add to queue for all scripts in ObjectID object
