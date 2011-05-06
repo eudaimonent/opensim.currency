@@ -104,7 +104,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			m_log.Info("[Money]: Starting HTTP process");
 			ReadIniConfig();
-			m_httpServer = new BaseHttpServer(m_moneyServerPort,true);
+			m_httpServer = new BaseHttpServer(m_moneyServerPort, true, "SineWaveCert.pfx", "123");
 			SetupMoneyServices();
 			m_httpServer.Start();
 			base.StartupSpecific();
