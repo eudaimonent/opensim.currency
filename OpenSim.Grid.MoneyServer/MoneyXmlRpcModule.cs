@@ -583,7 +583,7 @@ namespace OpenSim.Grid.MoneyServer
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
 								m_log.InfoFormat("[Money RPC] Adding money finished successfully, now update balance:{0} ", transactionUUID.ToString());
-								UpdateBalance(transaction.Receiver);
+								UpdateBalance(transaction.Receiver, "Buy the Money");
 								responseData["success"] = true;
 							}
 						}
@@ -710,7 +710,7 @@ namespace OpenSim.Grid.MoneyServer
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
 								m_log.InfoFormat("[Money RPC] Sending money finished successfully, now update balance:{0} ", transactionUUID.ToString());
-								UpdateBalance(transaction.Receiver);
+								UpdateBalance(transaction.Receiver, "Receive the Money from System");
 								responseData["success"] = true;
 							}
 						}
@@ -873,8 +873,8 @@ namespace OpenSim.Grid.MoneyServer
 						bool updateReceiv = true;
 
 						if (transaction.Sender==transaction.Receiver) updateSender = false;
-						if (updateSender) UpdateBalance(transaction.Sender);
-						if (updateReceiv) UpdateBalance(transaction.Receiver);
+						if (updateSender) UpdateBalance(transaction.Sender, "");
+						if (updateReceiv) UpdateBalance(transaction.Receiver, "");
 
 						// Notify to sender.
 						if (transaction.Type==5008)
@@ -1078,134 +1078,6 @@ namespace OpenSim.Grid.MoneyServer
 
 
 
-		//
-		//  This Function is never used, now. (by Fumi.Iseki)
-		//
-		/// <summary>
-		/// Continue with the transaction if user clicks the confirm link.
-		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
-/*
-		public XmlRpcResponse handleConfirmTransfer(XmlRpcRequest request, IPEndPoint remoteClient)
-		{
-			Hashtable requestData = (Hashtable)request.Params[0];
-			XmlRpcResponse response = new XmlRpcResponse();
-			Hashtable responseData  = new Hashtable();
-
-			string secureCode = string.Empty;
-			string transactionID = string.Empty;
-			UUID transactionUUID = UUID.Zero;
-
-			//m_log.InfoFormat("[Money RPC] in handleConfirmTransfer");
-
-			response.Value = responseData;
-			if (requestData.ContainsKey("secureCode")) secureCode = (string)requestData["secureCode"];
-			if (requestData.ContainsKey("transactionID"))
-			{
-				transactionID = (string)requestData["transactionID"];
-				UUID.TryParse(transactionID,out transactionUUID);
-			}
-
-			if (string.IsNullOrEmpty(secureCode) || string.IsNullOrEmpty(transactionID))
-			{
-				responseData["success"] = false;
-				m_log.Error("[Money RPC] secureCode or transactionID can't be empty");
-				return response;
-			}
-
-			m_log.InfoFormat("[Money RPC] User has accepted the transaction,now continue with the transaction");
-
-			try
-			{
-				if (m_moneyDBService.ValidateTransfer(secureCode, transactionUUID))
-				{
-					if (m_moneyDBService.DoTransfer(transactionUUID))
-					{
-						//update balance
-						TransactionData transaction = m_moneyDBService.FetchTransaction(transactionUUID);
-						if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
-						{
-							m_log.InfoFormat("[Money RPC] Payment finished successfully,now update balance", transactionID);
-							UpdateBalance(transaction.Sender);
-							UpdateBalance(transaction.Receiver);
-							//Notify opensim that transaction has been finished successfully and give item to the customer.
-
-							if (transaction.Type == 5008)
-							{
-								m_log.InfoFormat("[Money RPC] Now notify opensim to give object to customer:{0} ", transaction.Sender);
-								Hashtable requestTable = new Hashtable();
-								string senderID = transaction.Sender.Split('@')[0];
-								string receiverID = transaction.Receiver.Split('@')[0];
-								requestTable["senderID"] = senderID;
-								requestTable["receiverID"] = receiverID;
-								if(m_sessionDic.ContainsKey(transaction.Sender)&&m_secureSessionDic.ContainsKey(transaction.Sender))
-								{
-									requestTable["senderSessionID"] = m_sessionDic[transaction.Sender];
-									requestTable["senderSecureSessionID"] = m_secureSessionDic[transaction.Sender];
-								}
-								else 
-								{
-									requestTable["senderSessionID"] =  UUID.Zero.ToString();
-									requestTable["senderSecureSessionID"] = UUID.Zero.ToString();
-								}
-								requestTable["transactionType"] = transaction.Type;
-								requestTable["amount"] = transaction.Amount;
-								requestTable["objectID"] = transaction.ObjectUUID;
-								requestTable["regionHandle"] = transaction.RegionHandle;
-								UserInfo user = m_moneyDBService.FetchUserInfo(transaction.Sender);
-								if (user != null)
-								{
-									Hashtable responseTable = genericCurrencyXMLRPCRequest(requestTable, "OnMoneyTransfered", user.SimIP);
-
-									if (responseTable != null && responseTable.ContainsKey("success"))
-									{
-										//User not online or failed to get object ?
-										if (!(bool)responseTable["success"])
-										{
-											m_log.ErrorFormat("[Money RPC] User: {0} can't get the object,rolling back", transaction.Sender);
-											if (RollBackTransaction(transaction))
-											{
-												m_log.ErrorFormat("[Money RPC] transaction: {0} failed but roll back succeeded", transactionID);
-											}
-											else
-											{
-												m_log.ErrorFormat("[Money RPC] Fatal error,transaction: {0} failed and roll back failed as well", transactionID);
-											}
-
-										}
-										else
-										{
-											m_log.InfoFormat("Object has been given,transaction: {0} finished successfully.",transactionID);
-											responseData["success"] = true;
-											return response;
-										}
-									}
-								}
-								responseData["success"] = false;
-								return response;
-							}
-							responseData["success"] = true;
-							return response;
-						}
-						
-					}
-				}
-				m_log.ErrorFormat("[Money RPC] Transaction:{0} failed", transactionID);
-				responseData["success"] = false;
-				responseData["message"] = "Transfer Money failed";
-			}
-			catch (Exception e)
-			{
-				m_log.ErrorFormat("[Money RPC] Exception occurred when transfering money in the transaction {0}: {1} ", transactionID,e.ToString());
-				responseData["success"] = false;
-			}
-			return response;
-		}
-*/
-
-
-
 		/// <summary>   
 		/// Generic XMLRPC client abstraction
 		/// </summary>   
@@ -1266,7 +1138,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// Update the client balance.We don't care about the result.
 		/// </summary>
 		/// <param name="userID"></param>
-		private void UpdateBalance(string userID)
+		private void UpdateBalance(string userID, string message)
 		{
 			string clientUUID = string.Empty;
 			string clientSessionID = string.Empty;
@@ -1279,13 +1151,15 @@ namespace OpenSim.Grid.MoneyServer
 				clientSessionID = m_sessionDic[userID];
 				clientSecureSessionID = m_secureSessionDic[userID];
 				clientUUID = userID.Split('@')[0];
+
 				Hashtable requestTable = new Hashtable();
 				requestTable["clientUUID"] = clientUUID;
 				requestTable["clientSessionID"] = clientSessionID;
 				requestTable["clientSecureSessionID"] = clientSecureSessionID;
 				requestTable["Balance"] = m_moneyDBService.getBalance(userID);
-				UserInfo user = m_moneyDBService.FetchUserInfo(userID);
+				if (message!="") requestTable["Message"] = message;
 
+				UserInfo user = m_moneyDBService.FetchUserInfo(userID);
 				if (user != null) genericCurrencyXMLRPCRequest(requestTable, "UpdateBalance", user.SimIP);
 			}
 		}
@@ -1308,8 +1182,10 @@ namespace OpenSim.Grid.MoneyServer
 					m_log.InfoFormat("Roll back transaction{0} successfully", transaction.TransUUID.ToString());
 					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS, 
 																	"The buyer failed to get the object,roll back the transaction");
-					UpdateBalance(transaction.Sender);
-					UpdateBalance(transaction.Receiver);
+
+					if (transaction.Sender!=transaction.Receiver) UpdateBalance(transaction.Sender, "Roll Back the Transaction");
+					UpdateBalance(transaction.Receiver, "Roll Back the Transaction");
+
 					return true;
 				}
 			}
