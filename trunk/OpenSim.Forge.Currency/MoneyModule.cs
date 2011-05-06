@@ -652,7 +652,9 @@ namespace OpenSim.Forge.Currency
 							if (requestParam.Contains("Balance"))
 							{
 								// Send notify to the client.   
-								client.SendMoneyBalance(UUID.Random(), true, new byte[0], (int)requestParam["Balance"]);
+								string msg = "";
+								if (requestParam.Contains("Message")) msg = (string)requestParam["Message"];
+								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"]);
 								ret = true;
 							}
 						}
