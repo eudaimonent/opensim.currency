@@ -1,8 +1,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  OpenSim 0.7.x用 Money Servefor Linux/Unix
-//                                                        by Fumi.Iseki and NSL '10 8/21
+//  OpenSim 0.7.x用 DTL/NSL Money Servefor Linux/Unix
+//                                                        by Fumi.Iseki and NSL '11 5/7
 //                                                        http://www.nsl.tuis.ac.jp
 
 
@@ -10,9 +10,9 @@
 0. はじめに
 
 　これは DTL Currency Processing Project (http://forge.opensimulator.org/gf/project/currency/) 
-から WEB Monitor を取り外して，いくつかのバグフィックスと 0.7.xで動作するようにパッチを充てた物
-です．WEB Monitor を取り外したのは，我々のターゲットが主にLinuxであるのに対して，これが ASP.NET
-で作動しており，Linux上で動作させるのが困難だったためです．
+から Web Monitor を取り外して，いくつかのバグフィックスと 0.7.xで動作するようにパッチを充てた物
+です．また幾つかの機能拡張も行っています．Web Monitor を取り外したのは，我々のターゲットが主に
+Linuxであるのに対して，この機能 ASP.NETで作動しており，Linux上で動作させるのが困難だったためです．
 
 　従って，セキュリティ的には本来の DTL Money Serverよりも低下していると思われます．実際，この
 Money Serverを誤魔化すことも不可能ではありません．つまり，このシステムについては厳密に仮想通貨
@@ -25,7 +25,6 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
  # cd opensim-0.7.x-source
  # tar xzfv opensim.currency-0.7.x.tar.gz 
- # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
  # ./runprebuild.sh && nant clean && nant
  # cd opensim.currency-0.7.x
  # ./build.sh
@@ -48,7 +47,12 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
      UUIDとして 00000000-0000-0000-0000-000000000000を指定した場合は，全てのアバターがバンカーアバターとなる．
   3. 支払い者がログインしていない状態でも，llGiveMoney()を正常に動かす場合は
      [MoneyServer]セクションの "enableForceTransfer" を trueにする．
-
+  4. PHPスクリプトの send_money() を使用して，お金をアバターに振り込む場合は "enableScriptSendMoney" を trueにする．
+     また，"MoneyScriptAccessKey", "MoneyScriptIPaddress" も設定が必要である．
+	"MoneyScriptAccessKey" はスクリプトへのアクセスキーであり，include/config.php または WI(XoopenSim/Modlos) と同じものを設定する．
+	"MoneyScriptIPaddress" にはスクリプトが動作するサーバのIPアドレスを記述する．127.0.0.1は使用しないこと．
+  5. 所持金のアップデートのメッセージ(青いダイアログ)を変更することが可能である．メッセージを変更したい場合は各 "BalanceMessage..."
+     を有効にし内容を書き換える．
 
 2-2. Region Server
 
@@ -64,13 +68,19 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
    EconomyModule  = DTLMoneyModule
    UserServer = "http://(MoneyServer's Name or IP):8003"
 
- 注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
-     これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
+   ;; Money Unit fee to upload textures, animations etc
+   PriceUpload = 10			;; テクスチャなどのアップロードのコスト
 
+   ;; Money Unit fee to create groups
+   PriceGroupCreate = 100	;; グループ作成のコスト
+
+
+ 注）なお，UserServer と CurrencyServer のアドレスに localhost (127.0.0.1)を使用しないこと．
+     これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
 
 2-3
  
-  WEBインターフェイスの XoopenSimまたは Modlosを使用しない場合，ヘルパースクリプトを手動で設置
+  Webインターフェイスの XoopenSimまたは Modlosを使用しない場合，ヘルパースクリプトを手動で設置
 なければならない．ヘルパースクリプトは Scriptsディレクトリにあるので，これを適当なディレクトリ
 にコピーし，inculde/helper.php の内容（主に ENV_HELPER_URL, ENV_HELPER_PATH, DB関連）をシステム
 に合わせて変更する．
@@ -132,5 +142,8 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   このプログラムは DTL Curremcy Processing を改造したものです．
   http://forge.opensimulator.org/gf/project/currency/ もご覧ください．
 
+  このプロジェクトに関して，Miloから沢山のアドバイスと寄付をいただきました．
+
   ありがとうございました．
+
 
