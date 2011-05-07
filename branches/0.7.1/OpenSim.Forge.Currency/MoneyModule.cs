@@ -876,6 +876,7 @@ namespace OpenSim.Forge.Currency
 							MD5 md5 = MD5.Create();
 							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
 							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+m_log.ErrorFormat("[MONEY]: SendMoneyBalanceHandler: SecretCode: {0} + {1} = {2}", secretCode, scriptIP, hash);
 							ret = SendMoneyBalance(avatarID, amount, hash);
 						}
 					}

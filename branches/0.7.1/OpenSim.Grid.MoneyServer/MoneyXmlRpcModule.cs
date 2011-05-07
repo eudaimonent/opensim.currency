@@ -716,8 +716,10 @@ namespace OpenSim.Grid.MoneyServer
 			MD5 md5 = MD5.Create();
 			byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(m_scriptAccessKey + "_" + clientIP));
 			string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+m_log.ErrorFormat("[Money RPC] SecretCode1: {0} + {1} = {2}", m_scriptAccessKey, clientIP, hash);
 			code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(hash + "_" + m_scriptIPaddress));
 			hash = BitConverter.ToString(code).ToLower().Replace("-","");
+m_log.ErrorFormat("[Money RPC] SecretCode2: hash + {0} = {1}", m_scriptIPaddress, hash);
 
 			if (secretCode.ToLower()!=hash)
 			{
