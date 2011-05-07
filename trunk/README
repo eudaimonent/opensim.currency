@@ -1,8 +1,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Money Server for OpenSim 0.7.x for Linux/Unix
-//                                                        by Fumi.Iseki and NSL '10 8/21
+//  DTL/NSL Money Server for OpenSim 0.7.x for Linux/Unix
+//                                                        by Fumi.Iseki and NSL '11 5/7
 //                                                        http://www.nsl.tuis.ac.jp
 
 
@@ -10,9 +10,9 @@
 0. Outline
 
  This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
- As for this, some bug fixes are done. And this can be operated by OpenSim 0.7.x. 
- But, WEB Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
- version!! Please use this at your own risk!!
+ As for this, some bug fixes and some functionality expansions are done. And this can be operated by OpenSim 0.7.x. 
+ But, Web Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
+ version!! Please use this at Your Own Risk!!
 
 
 
@@ -40,6 +40,11 @@
 	When 00000000-0000-0000-0000-000000000000 is specified as UUID, all avatars can get money from system.
   - If you want to normally use llGiveMoney() function even when payer doesn't login to Opensim,
 	you must set "true" to "enableForceTransfer" in MoneyServer.ini.
+  - If you want to send money to anotger avatar by PHP script, you must set "true" to "enableScriptSendMoney"
+	And please set "MoneyScriptAccessKey" and "MoneyScriptIPaddress", too.
+	"MoneyScriptAccessKey" is Secret key of Helper Script. Specify same key in include/config.php or WI(XoopenSim/Modlos)
+	"MoneyScriptIPaddress" is IP address of server that Helper Script execute at. Not specify 127.0.0.1. 
+  - If you want to change Update Balance Messages (blue dialog), pleaase enable and rewrite "BalanceMessage..." valiables.
 
 
 2-2. Region Server
@@ -54,14 +59,14 @@
    UserServer = "http://(MoneyServer's Name or IP):8003/"
 
  Attention) 
-   Not use 127.0.0.1 or localhost for UserServer's address. This address is used for 
-   identification of user on Money Server.
+   Not use 127.0.0.1 or localhost for UserServer's address and CurrencyServer's address. 
+   This address is used for identification of user on Money Server.
 
 
 2-3. Helper Script
 
-  - If you do not use XoopenSim or Modlos (WEB Interface), you should setup helper scripts by manual.
-  - Please copy Scripts/* to any WEB contents directory, and edit ENV_HELPER_URL, ENV_HELPER_PATH and DB information
+  - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
+  - Please copy Scripts/* to any Web contents directory, and edit ENV_HELPER_URL, ENV_HELPER_PATH and DB information
     in include/config.php 
 
  ex.)
@@ -120,6 +125,8 @@
 
  This Money Server is modified version of DTL Currency Processing.
  Please see also http://forge.opensimulator.org/gf/project/currency/
+
+ About this project, Milo did a lot of advice and donation to us. 
 
  Thank you very much!!
 
