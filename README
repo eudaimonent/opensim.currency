@@ -20,7 +20,6 @@
 
  # cd opensim-0.7.x-source
  # tar xzfv opensim.currency-0.7.x.tar.gz 
- # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
  # ./runprebuild.sh && nant clean && nant
  # cd opensim.currency-0.7.x
  # ./build.sh
@@ -57,6 +56,13 @@
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
    EconomyModule  = DTLMoneyModule
    UserServer = "http://(MoneyServer's Name or IP):8003/"
+
+   ;; Money Unit fee to upload textures, animations etc
+   PriceUpload = 10
+
+   ;; Money Unit fee to create groups
+   PriceGroupCreate = 100
+
 
  Attention) 
    Not use 127.0.0.1 or localhost for UserServer's address and CurrencyServer's address. 
