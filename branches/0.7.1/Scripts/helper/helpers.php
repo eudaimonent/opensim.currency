@@ -218,7 +218,7 @@ function  add_money($agentID, $amount, $secureID=null)
 
 //
 // Send the money to avatar for bonus 
-// 								by millo (Sylvie)
+// 										by Milo
 //
 function send_money($agentID, $amount, $secretCode=null)
 {
