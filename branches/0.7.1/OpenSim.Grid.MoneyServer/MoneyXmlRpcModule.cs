@@ -63,6 +63,17 @@ namespace OpenSim.Grid.MoneyServer
 		private bool   m_useCertFile   = false;
 		private string m_certFilename  = "";
 
+		// Update Balance Messages
+		private string m_BalanceMessageLandSale 	= "Paid the Money L${0} for Land.";
+		private string m_BalanceMessageSendGift 	= "Sent Gift L${0} to {1}.";
+		private string m_BalanceMessageReceiveGift	= "Received Gift L${0} from {1}.";
+		private string m_BalanceMessagePayCharge 	= "Paid L${0} to Charge.";
+		private string m_BalanceMessageBuyObject  	= "Bought the Object L${0} from {1}.";
+		private string m_BalanceMessageGetMoney  	= "Got the Money L${0} from {1}.";
+		private string m_BalanceMessageBuyMoney  	= "Bought the Money L${0}.";
+		private string m_BalanceMessageReceiveMoney = "Received L${0} from System.";
+		private string m_BalanceMessageRollBack		= "RollBack the Transaction: L${0} from/to {1}.";
+
 
 		const int MONEYMODULE_REQUEST_TIMEOUT = 30 * 1000;	//30 seconds
 		private long TicksToEpoch = new DateTime(1970, 1, 1).Ticks;
@@ -112,7 +123,17 @@ namespace OpenSim.Grid.MoneyServer
 			m_certFilename = m_config.GetString("RegionCertificateFile", "");
 			if (m_certFilename!="") m_useCertFile = true;
 
-			//m_config = config;
+			// Update Balance Messages
+			m_BalanceMessageLandSale	 = m_config.GetString("BalanceMessageLandSale", 	m_BalanceMessageLandSale);
+			m_BalanceMessageSendGift	 = m_config.GetString("BalanceMessageSendGift",		m_BalanceMessageSendGift);
+			m_BalanceMessageReceiveGift  = m_config.GetString("BalanceMessageReceiveGift",	m_BalanceMessageReceiveGift);
+			m_BalanceMessagePayCharge    = m_config.GetString("BalanceMessagePayCharge",	m_BalanceMessagePayCharge);
+			m_BalanceMessageBuyObject    = m_config.GetString("BalanceMessageBuyObject", 	m_BalanceMessageBuyObject); 
+			m_BalanceMessageGetMoney     = m_config.GetString("BalanceMessageGetMoney", 	m_BalanceMessageGetMoney); 
+			m_BalanceMessageBuyMoney     = m_config.GetString("BalanceMessageBuyMoney", 	m_BalanceMessageBuyMoney); 
+			m_BalanceMessageReceiveMoney = m_config.GetString("BalanceMessageReceiveMoney", m_BalanceMessageReceiveMoney);
+			m_BalanceMessageRollBack     = m_config.GetString("BalanceMessageRollBack", 	m_BalanceMessageRollBack);
+
 			m_sessionDic = m_moneyCore.GetSessionDic();
 			m_secureSessionDic = m_moneyCore.GetSecureSessionDic();
 			m_webSessionDic = m_moneyCore.GetWebSessionDic();
@@ -348,7 +369,24 @@ namespace OpenSim.Grid.MoneyServer
 							{
 								if (amount!=0)
 								{
-									responseData["success"] = NotifyTransfer(transactionUUID);
+									string snd_message = "";
+									string rcv_message = "";
+
+									if (transaction.Type==5001) {			// Gift
+										snd_message = m_BalanceMessageSendGift;
+										rcv_message = m_BalanceMessageReceiveGift;
+									}
+									else if (transaction.Type==5002) {		// LandSale
+										snd_message = m_BalanceMessageLandSale;
+									}
+									else if (transaction.Type==5008) {		// PayObject
+										snd_message = m_BalanceMessageBuyObject;
+									}
+									else if (transaction.Type==5009) {		// ObjectGiveMoney
+										rcv_message = m_BalanceMessageGetMoney;
+									}
+						
+									responseData["success"] = NotifyTransfer(transactionUUID, snd_message, rcv_message);
 								}
 								else
 								{
@@ -470,7 +508,24 @@ namespace OpenSim.Grid.MoneyServer
 					{
 						if (amount!=0)
 						{
-							responseData["success"] = NotifyTransfer(transactionUUID);
+							string snd_message = "";
+							string rcv_message = "";
+
+							if (transaction.Type==5001) {			// Gift
+								snd_message = m_BalanceMessageSendGift;
+								rcv_message = m_BalanceMessageReceiveGift;
+							}
+							else if (transaction.Type==5002) {		// LandSale
+								snd_message = m_BalanceMessageLandSale;
+							}
+							else if (transaction.Type==5008) {		// PayObject
+								snd_message = m_BalanceMessageBuyObject;
+							}
+							else if (transaction.Type==5009) {		// ObjectGiveMoney
+								rcv_message = m_BalanceMessageGetMoney;
+							}
+						
+							responseData["success"] = NotifyTransfer(transactionUUID, snd_message, rcv_message);
 						}
 						else
 						{
@@ -583,7 +638,8 @@ namespace OpenSim.Grid.MoneyServer
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
 								m_log.InfoFormat("[Money RPC] Adding money finished successfully, now update balance:{0} ", transactionUUID.ToString());
-								UpdateBalance(transaction.Receiver, "Buy the Money");
+								string message = string.Format(m_BalanceMessageBuyMoney, amount, "SYSTEM");
+								UpdateBalance(transaction.Receiver, message);
 								responseData["success"] = true;
 							}
 						}
@@ -710,7 +766,8 @@ namespace OpenSim.Grid.MoneyServer
 							if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 							{
 								m_log.InfoFormat("[Money RPC] Sending money finished successfully, now update balance:{0} ", transactionUUID.ToString());
-								UpdateBalance(transaction.Receiver, "Receive the Money from System");
+								string message = string.Format(m_BalanceMessageReceiveMoney, amount, "SYSTEM");
+								UpdateBalance(transaction.Receiver, message);
 								responseData["success"] = true;
 							}
 						}
@@ -812,7 +869,8 @@ namespace OpenSim.Grid.MoneyServer
 							{
 								if (amount!=0)
 								{
-									responseData["success"] = NotifyTransfer(transactionUUID);
+									string message = string.Format(m_BalanceMessagePayCharge, amount, "SYSTEM");
+									responseData["success"] = NotifyTransfer(transactionUUID, message, "");
 								}
 								else
 								{
@@ -856,7 +914,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="transactionUUID"></param>
 		/// <returns></returns>
-		public bool  NotifyTransfer(UUID transactionUUID)
+		public bool  NotifyTransfer(UUID transactionUUID, string msg2sender, string msg2receiver)
 		{
 			m_log.InfoFormat("[Money RPC] User has accepted the transaction, now continue with the transaction");
 
@@ -867,16 +925,29 @@ namespace OpenSim.Grid.MoneyServer
 					TransactionData transaction = m_moneyDBService.FetchTransaction(transactionUUID);
 					if (transaction != null && transaction.Status == (int)Status.SUCCESS_STATUS)
 					{
-						m_log.InfoFormat("[Money RPC] Payment finished successfully, now update balance:{0} ", transactionUUID.ToString());
+						m_log.InfoFormat("[Money RPC] Transaction Type = {0} ", transaction.Type);
+						m_log.InfoFormat("[Money RPC] Payment finished successfully, now update balance: {0} ", transactionUUID.ToString());
 
 						bool updateSender = true;
 						bool updateReceiv = true;
-
 						if (transaction.Sender==transaction.Receiver) updateSender = false;
-						if (updateSender) UpdateBalance(transaction.Sender, "");
-						if (updateReceiv) UpdateBalance(transaction.Receiver, "");
 
-						// Notify to sender.
+						if (updateSender) {
+							UserInfo receiverInfo = m_moneyDBService.FetchUserInfo(transaction.Receiver);
+							string receiverName = "unknown user";
+							if (receiverInfo!=null) receiverName = receiverInfo.Avatar;
+							string snd_message = string.Format(msg2sender, transaction.Amount, receiverName);
+							UpdateBalance(transaction.Sender, snd_message);
+						}
+						if (updateReceiv) {
+							UserInfo senderInfo = m_moneyDBService.FetchUserInfo(transaction.Sender);
+							string senderName = "unknown user";
+							if (senderInfo!=null) senderName = senderInfo.Avatar;
+							string rcv_message = string.Format(msg2receiver, transaction.Amount, senderName);
+							UpdateBalance(transaction.Receiver, rcv_message);
+						}
+
+						// Notify to sender?
 						if (transaction.Type==5008)
 						{
 							m_log.InfoFormat("[Money RPC] Now notify opensim to give object to customer:{0} ", transaction.Sender);
@@ -925,28 +996,21 @@ namespace OpenSim.Grid.MoneyServer
 									else
 									{
 										m_log.InfoFormat("[Money RPC] Object has been given,transaction: {0} finished successfully.",transactionUUID.ToString());
-										//responseData["success"] = true;
 										return true;
 									}
 								}
 							}
-							//responseData["success"] = false;
 							return false;
 						}
-
-						//responseData["success"] = true;
 						return true;
 					}
 					
 				}
 				m_log.ErrorFormat("[Money RPC] Transaction:{0} failed", transactionUUID.ToString());
-				//responseData["success"] = false;
-				//responseData["message"] = "Transfer Money failed";
 			}
 			catch (Exception e)
 			{
 				m_log.ErrorFormat("[Money RPC] Exception occurred when transfering money in the transaction {0}: {1}", transactionUUID.ToString(), e.ToString());
-				//responseData["success"] = false;
 			}
 			return false;
 		}
@@ -1183,9 +1247,18 @@ namespace OpenSim.Grid.MoneyServer
 					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS, 
 																	"The buyer failed to get the object,roll back the transaction");
 
-					if (transaction.Sender!=transaction.Receiver) UpdateBalance(transaction.Sender, "Roll Back the Transaction");
-					UpdateBalance(transaction.Receiver, "Roll Back the Transaction");
+					UserInfo senderInfo   = m_moneyDBService.FetchUserInfo(transaction.Sender);
+					UserInfo receiverInfo = m_moneyDBService.FetchUserInfo(transaction.Receiver);
+					string senderName 	= "unknown user";
+					string receiverName = "unknown user";
+					if (senderInfo!=null)   senderName   = senderInfo.Avatar;
+					if (receiverInfo!=null) receiverName = receiverInfo.Avatar;
 
+					string snd_message = string.Format(m_BalanceMessageRollBack, transaction.Amount, receiverName);
+					string rcv_message = string.Format(m_BalanceMessageRollBack, transaction.Amount, senderName);
+
+					if (transaction.Sender!=transaction.Receiver) UpdateBalance(transaction.Sender, snd_message);
+					UpdateBalance(transaction.Receiver, rcv_message);
 					return true;
 				}
 			}
@@ -1420,7 +1493,7 @@ namespace OpenSim.Grid.MoneyServer
 						}
 						else
 						{
-							responseData["userName"] = "Unknown user";
+							responseData["userName"] = "unknown user";
 						}
 						if (balance == -1) // User not found
 						{
@@ -1512,8 +1585,8 @@ namespace OpenSim.Grid.MoneyServer
 							}
 							else
 							{
-								responseData["senderName"] = "Unknown user";
-								responseData["receiverName"] = "Unknown user";
+								responseData["senderName"] = "unknown user";
+								responseData["receiverName"] = "unknown user";
 							}
 							responseData["success"] = true;
 							responseData["transactionIndex"] = lastIndex + 1;
