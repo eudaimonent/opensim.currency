@@ -768,7 +768,7 @@ namespace OpenSim.Forge.Currency
 								//m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
 								if ((int)requestParam["transactionType"]==5008)	// Pay for the object.
 								{
-									// Send notify to the client(viewer) for event trigger.   
+									// Send notify to the client(viewer) for Money Event Trigger.   
 									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
 									if (handlerOnObjectPaid != null)
 									{
