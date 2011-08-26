@@ -39,7 +39,7 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-using OpenSim.Services.UserAccountService;
+//using OpenSim.Services.UserAccountService;
 
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
@@ -52,7 +52,8 @@ using NSL.XmlRpc;
 
 namespace OpenSim.Forge.Currency
 {
-	public class MoneyModule : IMoneyModule, IRegionModule
+	//public class MoneyModule : IMoneyModule, IRegionModule
+	public class MoneyModule : IMoneyModule, ISharedRegionModule
 	{
 		/* Memebers *************************************************************/
 		#region Constant numbers and members.
@@ -120,10 +121,11 @@ namespace OpenSim.Forge.Currency
 		#region IRegionModule interface
 
 		///
-		public void Initialise(Scene scene, IConfigSource source)
+		//public void Initialise(Scene scene, IConfigSource source)
+		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
-			if (scene == null || source == null) return;
+			if (source == null) return;
 
 			try
 			{
@@ -180,6 +182,14 @@ namespace OpenSim.Forge.Currency
 			{
 				m_log.ErrorFormat("[MONEY]: Faile to read configuration file.");
 			}
+		}
+
+
+
+		public void AddRegion(Scene scene)
+		{
+			if (scene == null) return;
+
 			scene.RegisterModuleInterface<IMoneyModule>(this);
 
 			lock (m_sceneList)
@@ -231,10 +241,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 	
-		public void AddRegion(Scene scene)
-		{
-		}
-
 
 		public void RemoveRegion(Scene scene)
 		{
