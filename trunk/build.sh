@@ -4,7 +4,7 @@ CONFIGPATH=./config
 OPNSIMPATH=../bin
 
 echo "=========================="
-echo "NSL_CURRENCY"
+echo "DTL/NSL_CURRENCY"
 echo "=========================="
 
 rm -f OpenSim.Data.MySQL.MySQLMoneyDataWrapper/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
