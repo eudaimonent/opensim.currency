@@ -49,6 +49,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		private string connectionString = string.Empty;
 		private uint m_moneyServerPort = 8008;
+		private string HostName = "localhost";
 
 		private int DEAD_TIME;
 		private int MAX_DB_CONNECTION;
@@ -66,7 +67,6 @@ namespace OpenSim.Grid.MoneyServer
 		public MoneyServerBase()
 		{
 			m_console = new LocalConsole();
-			//m_console.CmdPrompt("Money");
 			m_console.DefaultPrompt = "Money";
 			MainConsole.Instance = m_console;
 		}
@@ -106,7 +106,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_log.Info("[Money]: Starting HTTP process");
 			ReadIniConfig();
 
-			m_httpServer = new BaseHttpServer(m_moneyServerPort, MainServer.Instance.HostName, true);
+			m_httpServer = new BaseHttpServer(m_moneyServerPort, HostName, true);
 			m_httpServer.SetSecureParams("SineWaveCert.pfx", "123", SslProtocols.Tls);
 			SetupMoneyServices();
 			m_httpServer.Start();
@@ -126,18 +126,19 @@ namespace OpenSim.Grid.MoneyServer
 			if (PIDFile!="") Create_PIDFile(PIDFile);
 
 			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
-			string hostname = db_config.GetString("hostname", "localhost");
-			string database = db_config.GetString("database", "OpenSim");
-			string username = db_config.GetString("username", "root");
-			string password = db_config.GetString("password", "password");
-			string pooling 	= db_config.GetString("pooling",  "false");
-			string port 	= db_config.GetString("port", 	  "3306");
+			string sqlserver  = db_config.GetString("hostname", "localhost");
+			string database   = db_config.GetString("database", "OpenSim");
+			string username   = db_config.GetString("username", "root");
+			string password   = db_config.GetString("password", "password");
+			string pooling 	  = db_config.GetString("pooling",  "false");
+			string port 	  = db_config.GetString("port", 	"3306");
 			MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
-			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
+			connectionString  = "Server=" + sqlserver + ";Port=" + port + ";Database=" + database + ";User ID=" +
+										    username + ";Password=" + password + ";Pooling=" + pooling + ";";
 
 			m_config = moneyConfig.m_config.Configs["MoneyServer"];
 			DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+			HostName  = m_config.GetString("HostName", "localhost");
 		}
 
 
