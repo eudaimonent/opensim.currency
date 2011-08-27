@@ -52,6 +52,7 @@ namespace OpenSim.Forge.Currency
 {
 	//public class MoneyModule : IMoneyModule, IRegionModule
 	public class MoneyModule : IMoneyModule, ISharedRegionModule
+	//public class MoneyModule : IMoneyModule, INonSharedRegionModule
 	{
 		/* Memebers *************************************************************/
 		#region Constant numbers and members.
@@ -135,6 +136,7 @@ namespace OpenSim.Forge.Currency
 		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
+m_log.ErrorFormat("[MONEY]: Init is called");
 			if (source==null) return;
 
 			try
@@ -155,12 +157,12 @@ namespace OpenSim.Forge.Currency
 				if (economyConfig.GetString("EconomyModule").ToString()!=Name)
 				{
 					m_enabled = false;
-					m_log.InfoFormat("[MONEY]: The DTL/NSL Money Module is disabled.");
+					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is disabled.");
 					return;
 				}
 				else
 				{
-					m_log.InfoFormat("[MONEY]: The DTL/NSL Money Module is enabled.");
+					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is enabled.");
 				}
 
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
@@ -199,6 +201,7 @@ namespace OpenSim.Forge.Currency
 		//public void AddRegion(Scene scene)
 		public void AddRegion(IScene scene)
 		{
+m_log.ErrorFormat("[MONEY]: AddRegion is called");
 			if (scene==null) return;
 
 			scene.RegisterModuleInterface<IMoneyModule>(this);
@@ -250,7 +253,6 @@ namespace OpenSim.Forge.Currency
 			//scene.EventManager.OnValidateLandBuy += ValidateLandBuy;
 			scene.EventManager.OnValidateBuyLand += ValidateLandBuy;
 		}
-
 	
 
 		//public void RemoveRegion(Scene scene)
@@ -262,12 +264,14 @@ namespace OpenSim.Forge.Currency
 		//public void RegionLoaded(Scene scene)
 		public void RegionLoaded(IScene scene)
 		{
+m_log.ErrorFormat("[MONEY]: Loaded is called");
 		}
 
 
 		public Type ReplaceableInterface
 		{
-			get { return typeof(IMoneyModule); }
+			//get { return typeof(IMoneyModule); }
+			get { return null; }
 		}
 
 
