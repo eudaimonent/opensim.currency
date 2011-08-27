@@ -7,7 +7,7 @@
 	<target name="build">
 		<csc target="exe" output="${basename}.exe" warnaserror="False">
 			<sources>
-				<include name="Properties/AssemblyInfo.cs "/>
+				<include name="Properties/AssemblyInfo.cs" />
 				<include name="MoneyServerBase.cs" />
 				<include name="MoneyDBService.cs" />
 				<include name="MoneyXmlRpcModule.cs" />
