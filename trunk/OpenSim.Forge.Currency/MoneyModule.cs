@@ -50,8 +50,8 @@ using NSL.XmlRpc;
 
 namespace OpenSim.Forge.Currency
 {
-	//public class MoneyModule : IMoneyModule, IRegionModule
-	public class MoneyModule : IMoneyModule, ISharedRegionModule
+	public class MoneyModule : IMoneyModule, IRegionModule
+	//public class MoneyModule : IMoneyModule, ISharedRegionModule
 	{
 		/* Memebers *************************************************************/
 		#region Constant numbers and members.
@@ -130,7 +130,13 @@ namespace OpenSim.Forge.Currency
 		#region ISharedRegionModule interface
 
 		///
-		//public void Initialise(Scene scene, IConfigSource source)
+		public void Initialise(Scene scene, IConfigSource source)
+		{
+			Initialise(source);
+			AddRegion(scene);
+		}
+
+
 		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
