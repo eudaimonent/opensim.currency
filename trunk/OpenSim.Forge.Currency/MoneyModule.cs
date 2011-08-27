@@ -154,12 +154,12 @@ namespace OpenSim.Forge.Currency
 				if (economyConfig.GetString("EconomyModule").ToString() != Name)
 				{
 					m_enabled = false;
-					m_log.InfoFormat("[MONEY]: The DTLMoneyModule is disabled.");
+					m_log.InfoFormat("[MONEY]: The DTL/NSL Money Module is disabled.");
 					return;
 				}
 				else
 				{
-					m_log.InfoFormat("[MONEY]: The DTLMoneyModule is enabled.");
+					m_log.InfoFormat("[MONEY]: The DTL/NSL Money Module is enabled.");
 				}
 
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
