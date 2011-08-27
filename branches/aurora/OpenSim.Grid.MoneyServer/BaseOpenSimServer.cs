@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
+ * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,16 +84,14 @@ namespace OpenSim.Framework.Servers
 
         protected string m_pidFile = String.Empty;
         
-        /// <summary>
-        /// Random uuid for private data 
-        /// </summary>
-        protected string m_osSecret = String.Empty;
+        //protected string m_osSecret = String.Empty;
 
         protected BaseHttpServer m_httpServer;
         public BaseHttpServer HttpServer
         {
             get { return m_httpServer; }
         }
+
 
         /// <summary>
         /// Holds the non-viewer statistics collection object for this service/server
@@ -106,7 +104,7 @@ namespace OpenSim.Framework.Servers
             m_version = VersionInfo.Version;
             
             // Random uuid for private data
-            m_osSecret = UUID.Random().ToString();
+            //m_osSecret = UUID.Random().ToString();
 
             m_periodicDiagnosticsTimer.Elapsed += new ElapsedEventHandler(LogDiagnostics);
             m_periodicDiagnosticsTimer.Enabled = true;
@@ -171,11 +169,13 @@ namespace OpenSim.Framework.Servers
             }
         }
         
+
         /// <summary>
         /// Should be overriden and referenced by descendents if they need to perform extra shutdown processing
         /// </summary>
         public virtual void ShutdownSpecific() {}
         
+
         /// <summary>
         /// Provides a list of help topics that are available.  Overriding classes should append their topics to the
         /// information returned when the base method is called.
@@ -185,6 +185,7 @@ namespace OpenSim.Framework.Servers
         /// A list of strings that represent different help topics on which more information is available
         /// </returns>
         protected virtual List<string> GetHelpTopics() { return new List<string>(); }
+
 
         /// <summary>
         /// Print statistics to the logfile, if they are active
@@ -205,26 +206,41 @@ namespace OpenSim.Framework.Servers
 
             m_log.Debug(sb);
         }
-/*
+
+
+        public ProcessThreadCollection GetThreads()
+        {
+            Process thisProc = Process.GetCurrentProcess();
+            return thisProc.Threads;
+        }
+
+
         /// <summary>
         /// Get a report about the registered threads in this server.
         /// </summary>
         protected string GetThreadsReport()
         {
             StringBuilder sb = new StringBuilder();
-            Watchdog.ThreadWatchdogInfo[] threads = Watchdog.GetThreads();
 
-            sb.Append(threads.Length + " threads are being tracked:" + Environment.NewLine);
-            foreach (Watchdog.ThreadWatchdogInfo twi in threads)
+            ProcessThreadCollection threads = GetThreads();
+            if (threads == null)
             {
-                Thread t = twi.Thread;
-                
-                sb.Append(
-                    "ID: " + t.ManagedThreadId + ", Name: " + t.Name + ", TimeRunning: " 
-                    + "Pri: " + t.Priority + ", State: " + t.ThreadState);
-                sb.Append(Environment.NewLine);
+                sb.Append("OpenSim thread tracking is only enabled in DEBUG mode.");
             }
-
+            else
+            {
+                sb.Append(threads.Count + " threads are being tracked:" + Environment.NewLine);
+                foreach (ProcessThread t in threads)
+                {
+                    sb.Append("ID: " + t.Id + ", TotalProcessorTime: " + t.TotalProcessorTime + ", TimeRunning: " +
+                        (DateTime.Now - t.StartTime) + ", Pri: " + t.CurrentPriority + ", State: " + t.ThreadState);
+                    if (t.ThreadState == System.Diagnostics.ThreadState.Wait)
+                        sb.Append(", Reason: " + t.WaitReason + Environment.NewLine);
+                    else
+                        sb.Append(Environment.NewLine);
+                }
+            }
+  
             int workers = 0, ports = 0, maxWorkers = 0, maxPorts = 0;
             ThreadPool.GetAvailableThreads(out workers, out ports);
             ThreadPool.GetMaxThreads(out maxWorkers, out maxPorts);
@@ -234,6 +250,7 @@ namespace OpenSim.Framework.Servers
 
             return sb.ToString();
         }
+
 
         /// <summary>
         /// Return a report about the uptime of this server
@@ -247,7 +264,7 @@ namespace OpenSim.Framework.Servers
 
             return sb.ToString();
         }
-*/
+
 
         /// <summary>
         /// Performs initialisation of the scene, such as loading configuration from disk.
@@ -271,6 +288,7 @@ namespace OpenSim.Framework.Servers
             m_log.InfoFormat("[STARTUP]: Startup took {0}m {1}s", timeTaken.Minutes, timeTaken.Seconds);
         }
 
+
         /// <summary>
         /// Should be overriden and referenced by descendents if they need to perform extra shutdown processing
         /// </summary>
@@ -284,11 +302,13 @@ namespace OpenSim.Framework.Servers
             Environment.Exit(0);
         }
 
+
         //private void HandleQuit(string module, string[] args)
         private void HandleQuit(string[] args)
         {
             Shutdown();
         }
+
 
         //private void HandleLogLevel(string module, string[] cmd)
         private void HandleLogLevel(string[] cmd)
@@ -318,6 +338,7 @@ namespace OpenSim.Framework.Servers
             Notice(String.Format("Console log level is {0}", m_consoleAppender.Threshold));
         }
 
+
         /// <summary>
         /// Show help information
         /// </summary>
@@ -343,6 +364,7 @@ namespace OpenSim.Framework.Servers
             }
         }
 
+
         //public virtual void HandleShow(string module, string[] cmd)
         public virtual void HandleShow(string[] cmd)
         {
@@ -364,11 +386,11 @@ namespace OpenSim.Framework.Servers
                     break;
 
                 case "threads":
-                    //Notice(GetThreadsReport());
+                    Notice(GetThreadsReport());
                     break;
 
                 case "uptime":
-                    //Notice(GetUptimeReport());
+                    Notice(GetUptimeReport());
                     break;
 
                 case "version":
@@ -377,6 +399,7 @@ namespace OpenSim.Framework.Servers
             }
         }
         
+
         protected void ShowInfo()
         {
             Notice(GetVersionText());
@@ -385,10 +408,12 @@ namespace OpenSim.Framework.Servers
                 Notice(String.Format("Console log level: {0}", m_consoleAppender.Threshold));              
         }
         
+
         protected string GetVersionText()
         {
             return String.Format("Version: {0} (interface version {1})", m_version, VersionInfo.MajorInterfaceVersion);
         }
+
 
         /// <summary>
         /// Console output is only possible if a console has been established.
@@ -404,6 +429,7 @@ namespace OpenSim.Framework.Servers
             }
         }
         
+
         /// <summary>
         /// Console output is only possible if a console has been established.
         /// That is something that cannot be determined within this class. So
@@ -413,9 +439,10 @@ namespace OpenSim.Framework.Servers
         /// <param name="components"></param>
         protected void Notice(string format, params string[] components)
         {
-            //if (m_console != null)
-            //    m_console.OutputFormat(format, components);
+            if (m_console != null)
+                m_console.Output(string.Format(format, components));
         }
+
 
         /// <summary>
         /// Enhance the version string with extra information if it's available.
@@ -448,7 +475,7 @@ namespace OpenSim.Framework.Servers
             }
             else if (File.Exists(gitRefPointerPath))
             {
-//                m_log.DebugFormat("[OPENSIM]: Found {0}", gitRefPointerPath);
+//               m_log.DebugFormat("[OPENSIM]: Found {0}", gitRefPointerPath);
 
                 string rawPointer = "";
 
@@ -512,6 +539,7 @@ namespace OpenSim.Framework.Servers
                 m_version += string.IsNullOrEmpty(buildVersion) ? "      " : ("." + buildVersion + "     ").Substring(0, 6);
             }
         }
+
         
         protected void CreatePIDFile(string path)
         {
@@ -529,12 +557,16 @@ namespace OpenSim.Framework.Servers
             {
             }
         }
+
         
+/*
         public string osSecret {
             // Secret uuid for the simulator
             get { return m_osSecret; }
             
         }
+*/
+
 
         public string StatReport(OSHttpRequest httpRequest)
         {
@@ -550,6 +582,7 @@ namespace OpenSim.Framework.Servers
                 return "";
             }
         }
+
            
         protected void RemovePIDFile()
         {
