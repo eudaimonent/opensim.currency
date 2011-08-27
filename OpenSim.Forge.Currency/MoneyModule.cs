@@ -128,7 +128,7 @@ namespace OpenSim.Forge.Currency
 
 
 		/* Public ***************************************************************/
-		#region IRegionModule interface
+		#region ISharedRegionModule interface
 
 		///
 		//public void Initialise(Scene scene, IConfigSource source)
@@ -249,7 +249,6 @@ namespace OpenSim.Forge.Currency
 			scene.EventManager.OnMakeChildAgent  += MakeChildAgent;
 			//scene.EventManager.OnValidateLandBuy += ValidateLandBuy;
 			scene.EventManager.OnValidateBuyLand += ValidateLandBuy;
-			//scene.EventManager.OnLandBuy += processLandBuy;
 		}
 
 	
@@ -464,7 +463,6 @@ namespace OpenSim.Forge.Currency
 			LoginMoneyServer(client, out balance);
 			client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance);
 
-			//client.OnEconomyDataRequest  += OnEconomyDataRequest;
 			client.OnMoneyBalanceRequest += OnMoneyBalanceRequest;
 			client.OnRequestPayPrice += OnRequestPayPrice;
 			client.OnObjectBuy += OnObjectBuy;
@@ -589,8 +587,6 @@ namespace OpenSim.Forge.Currency
 						landBuyEvent.economyValidated = true;
 						ret = processLandBuy(landBuyEvent);
 					}
-
-					//processLandBuy(sender, landBuyEvent);
 				}
 			}
 
@@ -607,25 +603,22 @@ namespace OpenSim.Forge.Currency
 
 			if (!m_sellEnabled) return false;
 
-			//lock (landBuyEvent)
-			//{
-				if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
+			if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
+			{
+				landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
+
+				ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
+				UUID  regionID = UUID.Zero;
+				//if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
+
+				if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, (int)TransactionType.LandSale, regionID, parcelID, "Land Purchase"))
 				{
-					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
-
-					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
-					UUID  regionID = UUID.Zero;
-					//if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
-
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, (int)TransactionType.LandSale, regionID, parcelID, "Land Purchase"))
+					lock (landBuyEvent)
 					{
-						lock (landBuyEvent)
-						{
-							landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
-						}
+						landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
 					}
 				}
-			//}
+			}
 
 			return true;
 		}
