@@ -1,4 +1,4 @@
-// * Copyright (c) Contributors, http://opensimulator.org/
+// * Copyright (c) Contributors, http://www.nsl.tuis.a.jp/, http://opensimulator.org/
 // * See CONTRIBUTORS.TXT for a full list of copyright holders.
 // *
 // * Redistribution and use in source and binary forms, with or without
@@ -237,7 +237,7 @@ namespace OpenSim.Forge.Currency
 			scene.EventManager.OnAvatarEnteringNewParcel += AvatarEnteringParcel;
 			scene.EventManager.OnMakeChildAgent  += MakeChildAgent;
 			scene.EventManager.OnValidateLandBuy += ValidateLandBuy;
-			scene.EventManager.OnLandBuy += processLandBuy;
+			//scene.EventManager.OnLandBuy += processLandBuy;
 		}
 
 	
@@ -266,7 +266,7 @@ namespace OpenSim.Forge.Currency
 
 		public string Name
 		{
-			get { return "DTLMoneyModule"; }
+			get { return "DTLNSLMoneyModule"; }
 		}
 
 
@@ -553,13 +553,14 @@ namespace OpenSim.Forge.Currency
 					{
 						landBuyEvent.economyValidated = true;
 					}
+
+					processLandBuy(sender, landBuyEvent);
 				}
 			}
 		}
 
 
 
-		// for OnLandBuy event
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
 			//m_log.ErrorFormat("[MONEY]: processLandBuy:");
