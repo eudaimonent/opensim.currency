@@ -7,7 +7,7 @@
 	<target name="build">
 		<csc target="library" output="${basename}.dll" warnaserror="False">
 			<sources>
-				<include name="Properties/AssemblyInfo.cs "/>
+				<include name="Properties/AssemblyInfo.cs" />
 				<include name="MoneyModule.cs" />
 				<include name="../OpenSim.Grid.MoneyServer/NSLXmlRpc.cs" />
 			</sources>
