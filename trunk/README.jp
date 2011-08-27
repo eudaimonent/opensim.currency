@@ -65,7 +65,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  [Economy]
    SellEnabled = "true"
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
-   EconomyModule  = DTLMoneyModule
+   EconomyModule  = DTLNSLMoneyModule
    UserServer = "http://(MoneyServer's Name or IP):8003"
 
    ;; Money Unit fee to upload textures, animations etc
