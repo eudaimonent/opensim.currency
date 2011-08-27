@@ -1,6 +1,6 @@
 diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/AuroraDotNetEngine/EventManager.cs
---- aurora-/Aurora/AuroraDotNetEngine/EventManager.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/Aurora/AuroraDotNetEngine/EventManager.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -118,53 +118,22 @@
              if (money != null)
              {
@@ -98,8 +98,8 @@ diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/Aurora
  
          public void collision_start (ISceneChildEntity part, ColliderArgs col)
 diff -Nur aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs aurora/Aurora/AuroraDotNetEngine4/EventManager.cs
---- aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -122,53 +122,22 @@
              if (money != null)
              {
@@ -197,8 +197,8 @@ diff -Nur aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs aurora/Aurora/Auror
  
          public void collision_start (ISceneChildEntity part, ColliderArgs col)
 diff -Nur aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs
---- aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -242,7 +242,8 @@
              IMoneyModule money = p.Scene.RequestModuleInterface<IMoneyModule>();
              if (money != null)
@@ -210,8 +210,8 @@ diff -Nur aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs aur
                      remoteClient.SendAlertMessage("You do not have enough money to complete this upload.");
                      return;
 diff -Nur aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs
---- aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -59,6 +59,35 @@
  
          #region IMoneyModule Members
@@ -278,8 +278,8 @@ diff -Nur aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule
          {
              return 0;
 diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMoneyModule.cs
---- aurora-/OpenSim/Framework/IMoneyModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Framework/IMoneyModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Framework/IMoneyModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Framework/IMoneyModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -29,39 +29,48 @@
  
  namespace OpenSim.Framework
@@ -351,8 +351,8 @@ diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMo
      }
  }
 diff -Nur aurora-/OpenSim/Framework/ISceneEntity.cs aurora/OpenSim/Framework/ISceneEntity.cs
---- aurora-/OpenSim/Framework/ISceneEntity.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Framework/ISceneEntity.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Framework/ISceneEntity.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Framework/ISceneEntity.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -2997,5 +2997,54 @@
                  }
              }
@@ -408,118 +408,9 @@ diff -Nur aurora-/OpenSim/Framework/ISceneEntity.cs aurora/OpenSim/Framework/ISc
 +
      }
  }
-diff -Nur aurora-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs aurora/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
---- aurora-/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs	2011-08-27 16:36:32.000000000 +0900
-@@ -32,6 +32,7 @@
- using System.IO;
- using System.Net;
- using System.Net.Sockets;
-+using System.Security.Cryptography.X509Certificates;
- using System.Reflection;
- using System.Globalization;
- using System.Text;
-@@ -41,6 +42,7 @@
- using log4net;
- using Nwc.XmlRpc;
- using OpenMetaverse.StructuredData;
-+using CoolHTTPListener = HttpServer.HttpListener;
- using HttpListener = HttpServer.HttpListener;
- using LogPrio = HttpServer.LogPrio;
- 
-@@ -54,7 +56,8 @@
-         private volatile int NotSocketErrors = 0;
-         public volatile bool HTTPDRunning = false;
- 
--        protected HttpListener m_httpListener;
-+        // protected HttpListener m_httpListener;
-+        protected HttpListener m_httpListener2;
-         protected Dictionary<string, XmlRpcMethod> m_rpcHandlers = new Dictionary<string, XmlRpcMethod>();
-         protected Dictionary<string, bool> m_rpcHandlersKeepAlive = new Dictionary<string, bool>();
-         protected DefaultLLSDMethod m_defaultLlsdHandler = null; // <--   Moving away from the monolithic..  and going to /registered/
-@@ -68,6 +71,7 @@
-         protected uint m_port;
-         protected uint m_sslport;
-         protected bool m_ssl;
-+        private X509Certificate2 m_cert;
-         protected bool m_firstcaps = true;
-         protected string m_SSLCommonName = "";
-         protected string m_hostName;
-@@ -129,6 +133,14 @@
-             m_hostName = hostName;
-         }
- 
-+        public BaseHttpServer(uint port, bool ssl, string CPath, string CPass) : this (port, ssl)
-+        {
-+            if (m_ssl)
-+            {
-+                m_cert = new X509Certificate2(CPath, CPass);
-+            }
-+        }
-+
-         /// <summary>
-         /// Add a stream handler to the http server.  If the handler already exists, then nothing happens.
-         /// </summary>
-@@ -1560,14 +1572,15 @@
-             try
-             {
-                 //m_httpListener = new HttpListener();
-+
-                 NotSocketErrors = 0;
-                 if (!m_ssl)
-                 {
-                     //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
-                     //m_httpListener.Prefixes.Add("http://10.1.1.5:" + m_port + "/");
--                    m_httpListener = HttpListener.Create (m_listenIPAddress, (int)m_port/*, httpserverlog*/);
--                    m_httpListener.ExceptionThrown += httpServerException;
--                    m_httpListener.LogWriter = httpserverlog;
-+                    m_httpListener2 = CoolHTTPListener.Create (m_listenIPAddress, (int)m_port/*, httpserverlog*/);
-+                    m_httpListener2.ExceptionThrown += httpServerException;
-+                    m_httpListener2.LogWriter = httpserverlog;
- 
-                     // Uncomment this line in addition to those in HttpServerLogWriter
-                     // if you want more detailed trace information from the HttpServer
-@@ -1579,15 +1592,13 @@
-                 {
-                     //m_httpListener.Prefixes.Add("https://+:" + (m_sslport) + "/");
-                     //m_httpListener.Prefixes.Add("http://+:" + m_port + "/");
--                    System.Security.Cryptography.X509Certificates.X509Certificate2 cert =
--                        new System.Security.Cryptography.X509Certificates.X509Certificate2("SineWaveCert.pfx", "123");
--                    m_httpListener = HttpListener.Create (IPAddress.Any, (int)m_port, cert/*, httpserverlog*/);
--                    m_httpListener.ExceptionThrown += httpServerException;
--                    m_httpListener.LogWriter = httpserverlog;
-+                    m_httpListener2 = CoolHTTPListener.Create(IPAddress.Any, (int)m_port, m_cert);
-+                    m_httpListener2.ExceptionThrown += httpServerException;
-+                    m_httpListener2.LogWriter = httpserverlog;
-                 }
- 
--                m_httpListener.RequestReceived += OnRequest;
--                m_httpListener.Start(64);
-+                m_httpListener2.RequestReceived += OnRequest;
-+                m_httpListener2.Start(64);
- 
-                 // Long Poll Service Manager with 3 worker threads a 25 second timeout for no events
-                 m_PollServiceManager = new PollServiceRequestManager(this, 3, 25000);
-@@ -1634,12 +1645,12 @@
-             HTTPDRunning = false;
-             try
-             {
--                m_httpListener.ExceptionThrown -= httpServerException;
-+                m_httpListener2.ExceptionThrown -= httpServerException;
-                 //m_httpListener2.DisconnectHandler = null;
- 
--                m_httpListener.LogWriter = null;
--                m_httpListener.RequestReceived -= OnRequest;
--                m_httpListener.Stop();
-+                m_httpListener2.LogWriter = null;
-+                m_httpListener2.RequestReceived -= OnRequest;
-+                m_httpListener2.Stop();
-             }
-             catch (NullReferenceException)
-             {
 diff -Nur aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs
---- aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -306,7 +306,7 @@
  
                  if (mm != null)
@@ -530,8 +421,8 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransac
                          remoteClient.SendAgentAlertMessage("Unable to upload asset. Insufficient funds.", false);
                          return;
 diff -Nur aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs
---- aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -956,7 +956,8 @@
                  try
                  {
@@ -543,8 +434,8 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs auror
                          remoteClient.SendCreateGroupReply (UUID.Zero, false, "You have got issuficient funds to create a group.");
                          return UUID.Zero;
 diff -Nur aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
---- aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -1202,7 +1202,8 @@
  
              IMoneyModule module = m_scene.RequestModuleInterface<IMoneyModule>();
@@ -556,8 +447,8 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.c
                      client.SendAlertMessage("You do not have enough funds to complete this transaction.");
                      return;
 diff -Nur aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
---- aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-08-27 16:37:28.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-08-27 16:36:32.000000000 +0900
+--- aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-08-27 17:02:59.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-08-27 17:02:30.000000000 +0900
 @@ -157,7 +157,8 @@
              IMoneyModule moneyMod = remoteClient.Scene.RequestModuleInterface<IMoneyModule>();
              if (moneyMod != null)
