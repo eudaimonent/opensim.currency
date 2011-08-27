@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
+ * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-//using OpenSim.Grid.Framework;
 using OpenSim.Framework;
 using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
@@ -65,7 +64,6 @@ namespace OpenSim.Grid.MoneyServer
 
 		public MoneyServerBase()
 		{
-			//m_console = new ConsoleBase("Money");
 			m_console = new LocalConsole("Money");
 			MainConsole.Instance = m_console;
 		}
@@ -112,26 +110,6 @@ namespace OpenSim.Grid.MoneyServer
 			//TODO : Add some console commands here
 		}
 
-
-		#region Obsolete method for ini parsing.
-		[Obsolete("Now we put all the configs into MoneyServer.ini,please use ReadIniConfig instead")]
-		/// <summary>
-		/// Read configuration from mysql_connection.ini
-		/// </summary>
-		protected void ReadConfig()
-		{
-			m_log.Info("[MySQL] Reading mysql_connection.ini");
-			IniFile MySqlMoneyConfig = new IniFile("mysql_connection.ini");
-			string hostname = MySqlMoneyConfig.ParseFileReadValue("hostname");
-			string database = MySqlMoneyConfig.ParseFileReadValue("database");
-			string username = MySqlMoneyConfig.ParseFileReadValue("username");
-			string password = MySqlMoneyConfig.ParseFileReadValue("password");
-			string pooling 	= MySqlMoneyConfig.ParseFileReadValue("pooling");
-			string port 	= MySqlMoneyConfig.ParseFileReadValue("port");
-			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
-		}
-		#endregion 
 
 
 		protected void ReadIniConfig()
