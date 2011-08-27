@@ -30,22 +30,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Net;
+using System.Security.Cryptography;
 
 using log4net;
 using Nini.Config;
 using Nwc.XmlRpc;
-using OpenMetaverse;
 
+using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-//using OpenSim.Services.UserAccountService;
-
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.Framework;
 
-using System.Security.Cryptography;
 using NSL.XmlRpc;
 
 
@@ -63,11 +61,22 @@ namespace OpenSim.Forge.Currency
 
 		public enum TransactionType : int
 		{
-			MONEY_TRANS_SYSTEMGENERATED = 0,
-			MONEY_TRANS_REGIONMONEYREQUEST,
-			MONEY_TRANS_GIFT,
-			MONEY_TRANS_PURCHASE,
+			GroupCreate  = 1002,
+			GroupJoin	 = 1004,
+			UploadCharge = 1101,
+			LandAuction  = 1102,
+			ObjectSale   = 5000,
+			Gift		 = 5001,
+			LandSale	 = 5002,
+			ReferBonus   = 5003,
+			InvntorySale = 5004,
+			DwellBonus   = 5007,
+			PayObject	 = 5008,
+			ObjectPays   = 5009,
+			BuyMoney	 = 5010,
+			MoveMoney	 = 5011
 		}
+
 
 		// Private data members.   
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -118,7 +127,7 @@ namespace OpenSim.Forge.Currency
 
 
 		/* Public ***************************************************************/
-		#region IRegionModule interface
+		#region ISharedRegionModule interface
 
 		///
 		//public void Initialise(Scene scene, IConfigSource source)
@@ -237,7 +246,6 @@ namespace OpenSim.Forge.Currency
 			scene.EventManager.OnAvatarEnteringNewParcel += AvatarEnteringParcel;
 			scene.EventManager.OnMakeChildAgent  += MakeChildAgent;
 			scene.EventManager.OnValidateLandBuy += ValidateLandBuy;
-			//scene.EventManager.OnLandBuy += processLandBuy;
 		}
 
 	
@@ -335,13 +343,14 @@ namespace OpenSim.Forge.Currency
 
 			if (sceneObj.OwnerID==fromID)
 			{
+				ulong regionHandle = sceneObj.RegionHandle;
 				if (LocateClientObject(fromID)!=null)
 				{
-					ret = TransferMoney(fromID, toID, amount, 5009, objectID, sceneObj.RegionHandle, description);
+					ret = TransferMoney(fromID, toID, amount, (int)TransactionType.ObjectPays, objectID, regionHandle, description);
 				}
 				else
 				{
-					ret = ForceTransferMoney(fromID, toID, amount, 5009, objectID, sceneObj.RegionHandle, description);
+					ret = ForceTransferMoney(fromID, toID, amount, (int)TransactionType.ObjectPays, objectID, regionHandle, description);
 				}
 			}
 
@@ -366,6 +375,14 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		public bool GroupCreationCovered(IClientAPI client, int amount)
+		{
+			int balance = QueryBalanceFromMoneyServer(client);
+			if (balance<amount) return false;
+			return true;
+		}
+
+
 		public bool AmountCovered(IClientAPI client, int amount)
 		{
 			int balance = QueryBalanceFromMoneyServer(client);
@@ -378,15 +395,24 @@ namespace OpenSim.Forge.Currency
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, 1101, region, text);
+			PayMoneyCharge(agentID, amount, (int)TransactionType.UploadCharge, region, text);
 		}
+
+
+        ///
+        public void ApplyGroupCreationCharge(UUID agentID, int amount, string text)
+        {
+            ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+            PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
+        }
 
 
 		///
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, 1002, region, text);
+			//PayMoneyCharge(agentID, amount, 0, region, text);
+			PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
 		}
 
 
@@ -433,7 +459,6 @@ namespace OpenSim.Forge.Currency
 			LoginMoneyServer(client, out balance);
 			client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance);
 
-			//client.OnEconomyDataRequest  += OnEconomyDataRequest;
 			client.OnMoneyBalanceRequest += OnMoneyBalanceRequest;
 			client.OnRequestPayPrice += OnRequestPayPrice;
 			client.OnObjectBuy += OnObjectBuy;
@@ -480,7 +505,7 @@ namespace OpenSim.Forge.Currency
 			}
 
 			UUID receiver = moneyEvent.receiver;
-			if (moneyEvent.transactiontype==5008)		// Pay for the object.   
+			if (moneyEvent.transactiontype==(int)TransactionType.PayObject)		// Pay for the object.   
 			{
 				SceneObjectPart sceneObj = FindPrim(moneyEvent.receiver);
 				if (sceneObj != null)
@@ -502,7 +527,7 @@ namespace OpenSim.Forge.Currency
 				Scene scene  = (Scene)sender;
 				regionHandle = scene.RegionInfo.RegionHandle;
 
-				if (moneyEvent.transactiontype==5008)
+				if (moneyEvent.transactiontype==(int)TransactionType.PayObject)
 				{
 					objectID = scene.GetSceneObjectPart(moneyEvent.receiver).UUID;
 					m_log.Debug("Paying for object " + objectID.ToString());
@@ -552,9 +577,8 @@ namespace OpenSim.Forge.Currency
 					lock (landBuyEvent)
 					{
 						landBuyEvent.economyValidated = true;
+						processLandBuy(sender, landBuyEvent);
 					}
-
-					processLandBuy(sender, landBuyEvent);
 				}
 			}
 		}
@@ -567,22 +591,19 @@ namespace OpenSim.Forge.Currency
 
 			if (!m_sellEnabled) return;
 
-			lock (landBuyEvent)
+			if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
 			{
-				if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
+				landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
+
+				ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
+				UUID  regionID = UUID.Zero;
+				if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
+
+				if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5002, regionID, parcelID, "Land Purchase"))
 				{
-					landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
-
-					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
-					UUID  regionID = UUID.Zero;
-					if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
-
-					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, landBuyEvent.parcelPrice, 5002, regionID, parcelID, "Land Purchase"))
+					lock (landBuyEvent)
 					{
-						lock (landBuyEvent)
-						{
-							landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
-						}
+						landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
 					}
 				}
 			}
@@ -620,7 +641,8 @@ namespace OpenSim.Forge.Currency
 						UUID receiverId = sceneObj.OwnerID;
 						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
 						{
-							TransferMoney(remoteClient.AgentId, receiverId, salePrice, 5008, sceneObj.UUID, sceneObj.RegionHandle, "Object Buy");
+							ulong regionHandle = sceneObj.RegionHandle;
+							TransferMoney(remoteClient.AgentId, receiverId, salePrice, (int)TransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
 						}
 					}
 				}
@@ -773,7 +795,7 @@ namespace OpenSim.Forge.Currency
 								requestParam.Contains("amount"))
 							{
 								//m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
-								if ((int)requestParam["transactionType"]==5008)	// Pay for the object.
+								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)	// Pay for the object.
 								{
 									// Send notify to the client(viewer) for Money Event Trigger.   
 									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
