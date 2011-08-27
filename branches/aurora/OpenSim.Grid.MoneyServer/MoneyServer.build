@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="OpenSim.Grid.MoneyServer" default="build">
 	<echo message="Project Directory is ${project::get-base-directory()}" />
-	<property name="basename" value="OpenSim.Grid.MoneyServer"/>
+	<property name="basename" value="MoneyServer"/>
 	<property name="referdir" value="../../bin"/>
 
 	<target name="build">
