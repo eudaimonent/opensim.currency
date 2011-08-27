@@ -26,17 +26,19 @@
  */
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
+using System.Timers;
+using System.Security.Authentication;
+using Nini.Config;
+using log4net;
+
 using OpenSim.Framework;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
-using log4net;
-using System.Reflection;
 using OpenSim.Data;
-using System.Timers;
-using Nini.Config;
-using System.IO;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -104,7 +106,8 @@ namespace OpenSim.Grid.MoneyServer
 			m_log.Info("[Money]: Starting HTTP process");
 			ReadIniConfig();
 
-			m_httpServer = new BaseHttpServer(m_moneyServerPort, true, "SineWaveCert.pfx", "123");
+			m_httpServer = new BaseHttpServer(m_moneyServerPort, MainServer.Instance.HostName, true);
+			m_httpServer.SetSecureParams("SineWaveCert.pfx", "123", SslProtocols.Tls);
 			SetupMoneyServices();
 			m_httpServer.Start();
 			base.StartupSpecific();

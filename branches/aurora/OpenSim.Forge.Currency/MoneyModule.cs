@@ -209,7 +209,7 @@ namespace OpenSim.Forge.Currency
 				{
 					if (!string.IsNullOrEmpty(m_moneyServURL))
 					{
-						HttpServer = new BaseHttpServer(9000);
+						HttpServer = new BaseHttpServer(9000, MainServer.Instance.HostName, false);
 						HttpServer.AddStreamHandler(new MoneyServerHandler(scene.RegionInfo));
 
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
