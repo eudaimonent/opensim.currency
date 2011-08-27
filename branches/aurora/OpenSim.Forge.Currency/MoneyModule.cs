@@ -135,7 +135,7 @@ namespace OpenSim.Forge.Currency
 		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
-			if (source == null) return;
+			if (source==null) return;
 
 			try
 			{
@@ -152,7 +152,7 @@ namespace OpenSim.Forge.Currency
 				// [Economy] section
 				IConfig economyConfig = m_config.Configs["Economy"];
 
-				if (economyConfig.GetString("EconomyModule").ToString() != Name)
+				if (economyConfig.GetString("EconomyModule").ToString()!=Name)
 				{
 					m_enabled = false;
 					m_log.InfoFormat("[MONEY]: The DTL/NSL Money Module is disabled.");
@@ -199,13 +199,13 @@ namespace OpenSim.Forge.Currency
 		//public void AddRegion(Scene scene)
 		public void AddRegion(IScene scene)
 		{
-			if (scene == null) return;
+			if (scene==null) return;
 
 			scene.RegisterModuleInterface<IMoneyModule>(this);
 
 			lock (m_sceneList)
 			{
-				if (m_sceneList.Count == 0)
+				if (m_sceneList.Count==0)
 				{
 					if (!string.IsNullOrEmpty(m_moneyServURL))
 					{
@@ -312,7 +312,7 @@ namespace OpenSim.Forge.Currency
 			string avatarName = string.Empty;
 
 			SceneObjectPart sceneObj = FindPrim(objectID);
-			if (sceneObj != null)
+			if (sceneObj!=null)
 			{
 				objName = sceneObj.Name;
 			}
@@ -328,16 +328,16 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 
-			if (scene != null)
+			if (scene!=null)
 			{
 				UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
-				if (account != null)
+				if (account!=null)
 				{
 					avatarName = account.FirstName + " " + account.LastName;
 				}
 
 				//CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(toID);
-				//if (profile != null && profile.UserProfile != null)
+				//if (profile!=null && profile.UserProfile!=null)
 				//{
 				//	avatarName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
 				//}
@@ -475,7 +475,7 @@ namespace OpenSim.Forge.Currency
 		private void ClientClosed(UUID clientID, Scene scene)
 		{
 			IClientAPI client = LocateClientObject(clientID);
-			if (client != null)
+			if (client!=null)
 			{
 				// If the User is just transferred to another region. No need to logoff from money server.
 				// LogoffMoneyServer(client);
@@ -487,7 +487,7 @@ namespace OpenSim.Forge.Currency
 		// for OnClientClosed event
 		private void ClientClosed(IClientAPI client)
 		{
-			if (client != null)
+			if (client!=null)
 			{
 				LogoffMoneyServer(client);
 			}
@@ -503,7 +503,7 @@ namespace OpenSim.Forge.Currency
 			if (!m_sellEnabled) return;
 
 			// Check the money transaction is necessary.   
-			if (moneyEvent.sender == moneyEvent.receiver)
+			if (moneyEvent.sender==moneyEvent.receiver)
 			{
 				return;
 			}
@@ -512,7 +512,7 @@ namespace OpenSim.Forge.Currency
 			if (moneyEvent.transactiontype==(int)TransactionType.PayObject)		// Pay for the object.   
 			{
 				SceneObjectPart sceneObj = FindPrim(moneyEvent.receiver);
-				if (sceneObj != null)
+				if (sceneObj!=null)
 				{
 					receiver = sceneObj.OwnerID;
 				}
@@ -549,7 +549,7 @@ namespace OpenSim.Forge.Currency
 		{
 			//ILandObject obj = avatar.Scene.LandChannel.GetLandObject(avatar.AbsolutePosition.X, avatar.AbsolutePosition.Y);
 
-			if ((obj.LandData.Flags & (uint)RegionFlags.AllowDamage) != 0)
+			if ((obj.LandData.Flags & (uint)RegionFlags.AllowDamage)!=0)
 			{
 				avatar.Invulnerable = false;
 			}
@@ -577,7 +577,7 @@ namespace OpenSim.Forge.Currency
 			bool ret = false;
 			
 			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
-			if (senderClient != null)
+			if (senderClient!=null)
 			{
 				int balance = QueryBalanceFromMoneyServer(senderClient);
 				if (balance >= landBuyEvent.parcelPrice)
@@ -603,7 +603,7 @@ namespace OpenSim.Forge.Currency
 
 			if (!m_sellEnabled) return false;
 
-			if (landBuyEvent.economyValidated == true && landBuyEvent.transactionID == 0)
+			if (landBuyEvent.economyValidated==true && landBuyEvent.transactionID==0)
 			{
 				landBuyEvent.transactionID = Util.UnixTimeSinceEpoch();
 
@@ -645,10 +645,10 @@ namespace OpenSim.Forge.Currency
 			}
 
 			Scene scene = LocateSceneClientIn(remoteClient.AgentId);
-			if (scene != null)
+			if (scene!=null)
 			{
 				SceneObjectPart sceneObj = (SceneObjectPart)scene.GetSceneObjectPart(localID);
-				if (sceneObj != null)
+				if (sceneObj!=null)
 				{
 					IBuySellModule mod = scene.RequestModuleInterface<IBuySellModule>();
 					if (mod!=null)
@@ -692,12 +692,12 @@ namespace OpenSim.Forge.Currency
 				{
 					UUID clientUUID = UUID.Zero;
 					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
-					if (clientUUID != UUID.Zero)
+					if (clientUUID!=UUID.Zero)
 					{
 						IClientAPI client = LocateClientObject(clientUUID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["clientSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["clientSecureSessionID"])
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("Balance"))
 							{
@@ -745,12 +745,12 @@ namespace OpenSim.Forge.Currency
 				{
 					UUID clientUUID = UUID.Zero;
 					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
-					if (clientUUID != UUID.Zero)
+					if (clientUUID!=UUID.Zero)
 					{
 						IClientAPI client = LocateClientObject(clientUUID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["clientSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["clientSecureSessionID"])
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("Description"))
 							{
@@ -798,12 +798,12 @@ namespace OpenSim.Forge.Currency
 					UUID receiverID = UUID.Zero;
 					UUID.TryParse((string)requestParam["senderID"], out senderID);
 					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
-					if (senderID != UUID.Zero)
+					if (senderID!=UUID.Zero)
 					{
 						IClientAPI client = LocateClientObject(senderID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["senderSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["senderSecureSessionID"])
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["senderSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["senderSecureSessionID"])
 						{
 							if (requestParam.Contains("transactionType") &&
 								requestParam.Contains("objectID") &&
@@ -814,7 +814,7 @@ namespace OpenSim.Forge.Currency
 								{
 									// Send notify to the client(viewer) for Money Event Trigger.   
 									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
-									if (handlerOnObjectPaid != null)
+									if (handlerOnObjectPaid!=null)
 									{
 										UUID objectID = UUID.Zero;
 										UUID.TryParse((string)requestParam["objectID"], out objectID);
@@ -857,12 +857,12 @@ namespace OpenSim.Forge.Currency
 				{
 					UUID bankerID = UUID.Zero;
 					UUID.TryParse((string)requestParam["bankerID"], out bankerID);
-					if (bankerID != UUID.Zero)
+					if (bankerID!=UUID.Zero)
 					{
 						IClientAPI client = LocateClientObject(bankerID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["bankerSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["bankerSecureSessionID"])
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["bankerSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["bankerSecureSessionID"])
 						{
 							if (requestParam.Contains("amount"))
 							{
@@ -903,7 +903,7 @@ namespace OpenSim.Forge.Currency
 				{
 					UUID avatarID = UUID.Zero;
 					UUID.TryParse((string)requestParam["avatarID"], out avatarID);
-					if (avatarID != UUID.Zero)
+					if (avatarID!=UUID.Zero)
 					{
 						if (requestParam.Contains("amount"))
 						{
@@ -951,12 +951,12 @@ namespace OpenSim.Forge.Currency
 				{
 					UUID clientID = UUID.Zero;
 					UUID.TryParse((string)requestParam["clientID"], out clientID);
-					if (clientID != UUID.Zero)
+					if (clientID!=UUID.Zero)
 					{
 						IClientAPI client = LocateClientObject(clientID);
-						if (client != null &&
-							client.SessionId.ToString() == (string)requestParam["clientSessionID"] &&
-							client.SecureSessionId.ToString() == (string)requestParam["clientSecureSessionID"])
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							balance = QueryBalanceFromMoneyServer(client);
 						}
@@ -1036,9 +1036,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "TransferMoney");
 
 				// Handle the return values from Money Server.  
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						m_log.DebugFormat("[MONEY]: Money transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
 						ret = true;
@@ -1096,9 +1096,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "ForceTransferMoney");
 
 				// Handle the return values from Money Server.  
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						m_log.DebugFormat("[MONEY]: Money force transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
 						ret = true;
@@ -1149,9 +1149,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
 
 				// Handle the return values from Money Server.  
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						m_log.DebugFormat("[MONEY]: Add the money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
@@ -1204,9 +1204,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "SendMoneyBalance");
 
 				// Handle the return values from Money Server.  
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						m_log.DebugFormat("[MONEY]: Send the money to avatar [{0}] is done.", avatarID.ToString());
 						ret = true;
@@ -1277,9 +1277,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "PayMoneyCharge");
 
 				// Handle the return values from Money Server.  
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						m_log.DebugFormat("[MONEY]: Pay money of charge from [{0}] is done.", sender.ToString());
 						ret = true;
@@ -1326,16 +1326,16 @@ namespace OpenSim.Forge.Currency
 				// Get the username for the login user.
 				if (client.Scene is Scene)
 				{
-					if (scene != null)
+					if (scene!=null)
 					{
 						UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, client.AgentId);
-						if (account != null)
+						if (account!=null)
 						{
 							userName = account.FirstName + " " + account.LastName;
 						}
 
 						//CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
-						//if (profile != null && profile.UserProfile != null)
+						//if (profile!=null && profile.UserProfile!=null)
 						//{
 						//	userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
 						//}
@@ -1356,9 +1356,9 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "ClientLogin");
 
 				// Handle the return result 
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						balance = (int)resultTable["clientBalance"];
 						m_log.InfoFormat("[MONEY]: Client [{0}] login Money Server {1}.", client.AgentId.ToString(), m_moneyServURL);
@@ -1407,9 +1407,9 @@ namespace OpenSim.Forge.Currency
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "ClientLogout");
 				// Handle the return result
-				if (resultTable != null && resultTable.Contains("success"))
+				if (resultTable!=null && resultTable.Contains("success"))
 				{
-					if ((bool)resultTable["success"] == true)
+					if ((bool)resultTable["success"]==true)
 					{
 						ret = true;
 					}
@@ -1488,14 +1488,14 @@ namespace OpenSim.Forge.Currency
 				foreach (Scene _scene in m_sceneList.Values)
 				{
 					tPresence = (ScenePresence)_scene.GetScenePresence(AgentID);
-					if (tPresence != null)
+					if (tPresence!=null)
 					{
 						if (!tPresence.IsChildAgent)
 						{
 							rclient = tPresence.ControllingClient;
 						}
 					}
-					if (rclient != null)
+					if (rclient!=null)
 					{
 						return rclient;
 					}
@@ -1514,7 +1514,7 @@ namespace OpenSim.Forge.Currency
 				foreach (Scene _scene in m_sceneList.Values)
 				{
 					ScenePresence tPresence = (ScenePresence)_scene.GetScenePresence(AgentId);
-					if (tPresence != null)
+					if (tPresence!=null)
 					{
 						if (!tPresence.IsChildAgent)
 						{
@@ -1536,7 +1536,7 @@ namespace OpenSim.Forge.Currency
 				foreach (Scene scene in m_sceneList.Values)
 				{
 					SceneObjectPart part = (SceneObjectPart)scene.GetSceneObjectPart(objectID);
-					if (part != null)
+					if (part!=null)
 					{
 						return part;
 					}
@@ -1554,7 +1554,7 @@ namespace OpenSim.Forge.Currency
 
 			#region Send the request to get the balance from money server for cilent.
 
-			if (client != null)
+			if (client!=null)
 			{
 				if (!string.IsNullOrEmpty(m_moneyServURL))
 				{
@@ -1568,9 +1568,9 @@ namespace OpenSim.Forge.Currency
 					Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "GetBalance");
 
 					// Handle the return result
-					if (resultTable != null && resultTable.Contains("success"))
+					if (resultTable!=null && resultTable.Contains("success"))
 					{
-						if ((bool)resultTable["success"] == true)
+						if ((bool)resultTable["success"]==true)
 						{
 							ret = (int)resultTable["clientBalance"];
 						}
@@ -1604,7 +1604,7 @@ namespace OpenSim.Forge.Currency
 		{
 			//IClientAPI user = LocateClientObject(agentId);
 
-			if (user != null)
+			if (user!=null)
 			{
 				Scene s = LocateSceneClientIn(user.AgentId);
 
@@ -1626,7 +1626,7 @@ namespace OpenSim.Forge.Currency
 		/// <param name="TransactionID"></param>   
 		private void OnMoneyBalanceRequest(IClientAPI client, UUID agentID, UUID SessionID, UUID TransactionID)
 		{
-			if (client.AgentId == agentID && client.SessionId == SessionID)
+			if (client.AgentId==agentID && client.SessionId==SessionID)
 			{
 				int balance = -1;
 				if (!string.IsNullOrEmpty(m_moneyServURL))
@@ -1658,9 +1658,9 @@ namespace OpenSim.Forge.Currency
 		private void OnRequestPayPrice(IClientAPI client, UUID objectID)
 		{
 			Scene scene = LocateSceneClientIn(client.AgentId);
-			if (scene == null) return;
+			if (scene==null) return;
 			SceneObjectPart sceneObj = (SceneObjectPart)scene.GetSceneObjectPart(objectID);
-			if (sceneObj == null) return;
+			if (sceneObj==null) return;
 			SceneObjectGroup group = sceneObj.ParentGroup;
 			SceneObjectPart root = group.RootPart;
 
