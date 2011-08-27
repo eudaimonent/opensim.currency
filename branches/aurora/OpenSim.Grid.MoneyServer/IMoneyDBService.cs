@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
+ * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,8 @@ namespace OpenSim.Grid.MoneyServer
         int getTransactionNum(string userID, int startTime, int endTime);
 
         bool DoTransfer(UUID transactionUUID);
+
+        bool DoAddMoney(UUID transactionUUID);		// Added by Fumi.Iseki
 
         bool TryAddUserInfo(UserInfo user);
 

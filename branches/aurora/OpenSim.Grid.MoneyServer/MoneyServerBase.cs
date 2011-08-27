@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 //using OpenSim.Grid.Framework;
 using OpenSim.Framework;
-using OpenSim.Framework.Console;
+//using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using log4net;
@@ -66,13 +66,9 @@ namespace OpenSim.Grid.MoneyServer
 		public MoneyServerBase()
 		{
 			//m_console = new ConsoleBase("Money");
-			//m_console = new LocalConsole("Money");
 			m_console = new LocalConsole();
-            m_console.DefaultPrompt = "Money";
+			m_console.CmdPrompt("Money");
 			MainConsole.Instance = m_console;
-
-			//OpenSim.Framework.Console.MainConsole.Instance = new LocalConsole();
-            //OpenSim.Framework.Console.MainConsole.Instance.DefaultPrompt = "Money";
 		}
 
 
@@ -109,7 +105,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			m_log.Info("[Money]: Starting HTTP process");
 			ReadIniConfig();
-			m_httpServer = new BaseHttpServer(m_moneyServerPort,true);
+
+			m_httpServer = new BaseHttpServer(m_moneyServerPort, true, "SineWaveCert.pfx", "123");
 			SetupMoneyServices();
 			m_httpServer.Start();
 			base.StartupSpecific();
@@ -125,6 +122,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		protected void ReadConfig()
 		{
+/*
 			m_log.Info("[MySQL] Reading mysql_connection.ini");
 			IniFile MySqlMoneyConfig = new IniFile("mysql_connection.ini");
 			string hostname = MySqlMoneyConfig.ParseFileReadValue("hostname");
@@ -135,6 +133,7 @@ namespace OpenSim.Grid.MoneyServer
 			string port 	= MySqlMoneyConfig.ParseFileReadValue("port");
 			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
 										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
+*/
 		}
 		#endregion 
 
@@ -145,7 +144,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			IConfig s_config = moneyConfig.m_config.Configs["Startup"];
 			string PIDFile = s_config.GetString("PIDFile", "");
-			if (PIDFile!="") CreatePIDFile(PIDFile);
+			if (PIDFile!="") Create_PIDFile(PIDFile);
 
 			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
 			string hostname = db_config.GetString("hostname", "localhost");
@@ -164,7 +163,7 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		// added by skidz
-		protected void CreatePIDFile(string path)
+		protected void Create_PIDFile(string path)
 		{
 			try
 			{
@@ -229,7 +228,6 @@ namespace OpenSim.Grid.MoneyServer
 			string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
 			if (File.Exists(configPath))
 			{
-				//m_config = new IniConfigSource(configPath);
 				m_config = new IniConfigSource(configPath, Nini.Ini.IniFileType.AuroraStyle);
 			}
 			else

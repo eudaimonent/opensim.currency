@@ -7,8 +7,10 @@
 	<target name="build">
 		<csc target="library" output="${basename}.dll" warnaserror="False">
 			<sources>
-				<include name="Properties/AssemblyInfo.cs "/>
+				<include name="Properties/AssemblyInfo.cs" />
+				<include name="MoneyServerHandler.cs" />
 				<include name="MoneyModule.cs" />
+				<include name="../OpenSim.Grid.MoneyServer/NSLXmlRpc.cs" />
 			</sources>
 			<references>
 				<include name="System.dll" />
@@ -28,6 +30,7 @@
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
+				<include name="${referdir}/OpenSim.Region.CoreModules.dll" />
 				<include name="${referdir}/OpenSim.Region.OptionalModules.dll" />
 				<include name="${referdir}/OpenSim.Data.dll" />
 				<include name="${referdir}/OpenSim.Grid.Framework.dll" />
