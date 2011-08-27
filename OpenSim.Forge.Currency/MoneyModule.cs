@@ -275,6 +275,7 @@ namespace OpenSim.Forge.Currency
 		public Type ReplaceableInterface
 		{
 			get { return typeof(IMoneyModule); }
+			//get { return null; }
 		}
 
 
