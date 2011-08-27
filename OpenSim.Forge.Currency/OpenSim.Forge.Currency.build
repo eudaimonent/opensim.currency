@@ -6,6 +6,11 @@
 
 	<target name="build">
 		<csc target="library" output="${basename}.dll" warnaserror="False">
+<!--
+			<resources prefix="OpenSim.Forge.Currency" dynamicprefix="true" >
+				<include name="Resources/MoneyModulePlugin.addin.xml" />
+			</resources>
+-->
 			<sources>
 				<include name="Properties/AssemblyInfo.cs" />
 				<include name="MoneyModule.cs" />
@@ -21,6 +26,7 @@
 				<include name="${referdir}/log4net.dll" />
 				<include name="${referdir}/Nini.dll" />
 				<include name="${referdir}/XMLRPC.dll" />
+				<include name="${referdir}/Mono.Addins.dll"/>
 				<include name="${referdir}/Fadd.Globalization.Yaml.dll" />
 				<include name="${referdir}/Fadd.dll" />
 				<include name="${referdir}/HttpServer.dll" />
