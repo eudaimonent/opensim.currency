@@ -493,10 +493,9 @@ namespace OpenSim.Forge.Currency
 
 			client.OnMoneyBalanceRequest += OnMoneyBalanceRequest;
 			client.OnRequestPayPrice += OnRequestPayPrice;
-			client.OnObjectBuy += OnObjectBuy;
+			client.OnObjectBuy += OnObjectBuy; 		// For Aurora-Sim, OnObjectBuy event is already defined
 			client.OnLogout += ClientClosed;
 		}	   
-
 
 
 		// for OnClientClosed event
@@ -511,7 +510,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		// for OnClientClosed event
 		private void ClientClosed(IClientAPI client)
 		{
@@ -522,11 +520,10 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		// for OnMoneyTransfer event
 		private void MoneyTransferAction(Object sender, EventManager.MoneyTransferArgs moneyEvent)
 		{
-			m_log.ErrorFormat("[MONEY]: MoneyTransferAction. type = {0}", moneyEvent.transactiontype);
+			//m_log.ErrorFormat("[MONEY]: MoneyTransferAction. type = {0}", moneyEvent.transactiontype);
 		
 			if (!m_sellEnabled) return;
 
@@ -570,19 +567,16 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		// for OnAvatarEnteringNewParcel event
 		private void AvatarEnteringParcel(ScenePresence avatar, int localLandID, UUID regionID)
 		{
 		}
 
 
-
 		// for OnMakeChildAgent event
 		private void MakeChildAgent(ScenePresence avatar)
 		{
 		}
-
 
 
 		// for OnValidateLandBuy event
@@ -604,7 +598,6 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 		}
-
 
 
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
@@ -635,8 +628,9 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		// for OnObjectBuy event
+		//		For Aurora-Sim, OnObjectBuy event function is already defined
+		//		in OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
@@ -681,6 +675,7 @@ namespace OpenSim.Forge.Currency
 
 
 		#endregion
+
 
 
 		#region MoneyModule XML-RPC Handler
