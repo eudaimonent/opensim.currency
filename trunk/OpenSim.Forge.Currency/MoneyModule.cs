@@ -493,7 +493,7 @@ namespace OpenSim.Forge.Currency
 
 			client.OnMoneyBalanceRequest += OnMoneyBalanceRequest;
 			client.OnRequestPayPrice += OnRequestPayPrice;
-			client.OnObjectBuy += OnObjectBuy; 		// For Aurora-Sim, OnObjectBuy event is already defined
+			client.OnObjectBuy += OnObjectBuy; 		// at Aurora-Sim, OnObjectBuy event is already defined
 			client.OnLogout += ClientClosed;
 		}	   
 
