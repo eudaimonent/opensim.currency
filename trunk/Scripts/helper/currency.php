@@ -149,7 +149,7 @@ function buy_currency($method_name, $params, $app_data)
 	}
 	else {
 		$response_xml = xmlrpc_encode(array('success'	  => False,
-											'errorMessage'=> "\n\nUnable to process the transaction.  The gateway denied your charge",
+											'errorMessage'=> "\n\nUnable to process the transaction. The gateway denied your charge",
 											'errorURI'	  => "".SYSURL.""));
 	}
 	
