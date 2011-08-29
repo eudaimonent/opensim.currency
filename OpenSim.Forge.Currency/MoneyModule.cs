@@ -371,8 +371,28 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		//
+		public int UploadCharge
+		{
+			get { return PriceUpload; }
+		}
 
-		///
+
+		//
+		public int GroupCreationCharge
+		{
+			get { return PriceGroupCreate; }
+		}
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for Aurora-Sim
+		//
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for OpenSim
+		//
 		public int GetBalance(UUID agentID)
 		{
 			IClientAPI client = LocateClientObject(agentID);
@@ -388,14 +408,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		public bool GroupCreationCovered(IClientAPI client, int amount)
-		{
-			int balance = QueryBalanceFromMoneyServer(client);
-			if (balance<amount) return false;
-			return true;
-		}
-
-
 		public bool AmountCovered(IClientAPI client, int amount)
 		{
 			int balance = QueryBalanceFromMoneyServer(client);
@@ -404,7 +416,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		///
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
@@ -412,39 +423,15 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-        ///
-        public void ApplyGroupCreationCharge(UUID agentID, int amount, string text)
-        {
-            ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-            PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
-        }
-
-
-		///
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			//PayMoneyCharge(agentID, amount, 0, region, text);
 			PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
 		}
 
 
-
-		///
-		public int UploadCharge
-		{
-			get { return PriceUpload; }
-		}
-
-
-		///
-		public int GroupCreationCharge
-		{
-			get { return PriceGroupCreate; }
-		}
-
-
 		#endregion
+
 
 
 		#region MoneyModule event handlers
@@ -555,16 +542,6 @@ namespace OpenSim.Forge.Currency
 		// for OnAvatarEnteringNewParcel event
 		private void AvatarEnteringParcel(ScenePresence avatar, int localLandID, UUID regionID)
 		{
-			ILandObject obj = avatar.Scene.LandChannel.GetLandObject(avatar.AbsolutePosition.X, avatar.AbsolutePosition.Y);
-
-			if ((obj.LandData.Flags & (uint)RegionFlags.AllowDamage)!=0)
-			{
-				avatar.Invulnerable = false;
-			}
-			else
-			{
-				avatar.Invulnerable = true;
-			}
 		}
 
 
