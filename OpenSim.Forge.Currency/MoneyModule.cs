@@ -267,7 +267,6 @@ namespace OpenSim.Forge.Currency
 
 		public Type ReplaceableInterface
 		{
-			//get { return typeof(IMoneyModule); }
 			get { return null; }
 		}
 
@@ -364,8 +363,61 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		//
+		public int UploadCharge
+		{
+			get { return PriceUpload; }
+		}
 
-		///
+
+		//
+		public int GroupCreationCharge
+		{
+			get { return PriceGroupCreate; }
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for Aurora-Sim
+		//
+
+		public int Balance(UUID agentID)
+		{
+			IClientAPI client = LocateClientObject(agentID);
+			return QueryBalanceFromMoneyServer(client);
+		}
+
+
+        bool Charge(IClientAPI client, int amount)    
+		{
+		}
+
+
+        bool Charge(UUID agentID, int amount, string text)
+		{
+		}  
+
+
+        bool Transfer(UUID toID, UUID fromID, int amount, string description)    
+		{
+		}
+
+
+        bool Transfer(UUID toID, UUID fromID, int amount, string description, TransactionType type)
+		{
+		}
+
+
+        bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
+		{
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for OpenSim
+		//
 		public int GetBalance(UUID agentID)
 		{
 			IClientAPI client = LocateClientObject(agentID);
@@ -381,14 +433,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		public bool GroupCreationCovered(IClientAPI client, int amount)
-		{
-			int balance = QueryBalanceFromMoneyServer(client);
-			if (balance<amount) return false;
-			return true;
-		}
-
-
 		public bool AmountCovered(IClientAPI client, int amount)
 		{
 			int balance = QueryBalanceFromMoneyServer(client);
@@ -397,7 +441,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		///
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
@@ -405,38 +448,15 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		///
-		public void ApplyGroupCreationCharge(UUID agentID, int amount, string text)
+		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
 		}
 
 
-		///
-		public void ApplyCharge(UUID agentID, int amount, string text)
-		{
-			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, 0, region, text);
-		}
-
-
-
-		///
-		public int UploadCharge
-		{
-			get { return PriceUpload; }
-		}
-
-
-		///
-		public int GroupCreationCharge
-		{
-			get { return PriceGroupCreate; }
-		}
-
-
 		#endregion
+
 
 
 		#region MoneyModule event handlers
@@ -548,16 +568,7 @@ namespace OpenSim.Forge.Currency
 		//private void AvatarEnteringParcel(ScenePresence avatar, int localLandID, UUID regionID)
 		private void AvatarEnteringParcel(IScenePresence avatar, ILandObject obj)
 		{
-			//ILandObject obj = avatar.Scene.LandChannel.GetLandObject(avatar.AbsolutePosition.X, avatar.AbsolutePosition.Y);
-
-			if ((obj.LandData.Flags & (uint)RegionFlags.AllowDamage)!=0)
-			{
-				avatar.Invulnerable = false;
-			}
-			else
-			{
-				avatar.Invulnerable = true;
-			}
+			//if (obj==null) return;
 		}
 
 
