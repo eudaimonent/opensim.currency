@@ -103,31 +103,31 @@ namespace OpenSim.Forge.Currency
 
 
 		// Price
-		private int   ObjectCount = 0;
-		private int   PriceEnergyUnit = 0;
-		private int   PriceGroupCreate = 0;
-		private int   PriceObjectClaim = 0;
-		private float PriceObjectRent = 0f;
-		private float PriceObjectScaleFactor = 0f;
-		private int   PriceParcelClaim = 0;
-		private float PriceParcelClaimFactor = 0f;
-		private int   PriceParcelRent = 0;
-		private int   PricePublicObjectDecay = 0;
+		private int   ObjectCount 			  = 0;
+		private int   PriceEnergyUnit 		  = 0;
+		private int   PriceGroupCreate 		  = 0;
+		private int   PriceObjectClaim 		  = 0;
+		private int   PriceParcelClaim 		  = 0;
+		private int   PriceParcelRent 		  = 0;
+		private int   PricePublicObjectDecay  = 0;
 		private int   PricePublicObjectDelete = 0;
-		private int   PriceRentLight = 0;
-		private int   PriceUpload = 0;
-		private int   TeleportMinPrice = 0;
-		private float TeleportPriceExponent = 0f;
-		private float EnergyEfficiency = 0f;
+		private int   PriceRentLight 		  = 0;
+		private int   PriceUpload 			  = 0;
+		private int   TeleportMinPrice 		  = 0;
+
+		private float PriceObjectRent		  = 0f;
+		private float PriceObjectScaleFactor  = 0f;
+		private float PriceParcelClaimFactor  = 0f;
+		private float TeleportPriceExponent   = 0f;
+		private float EnergyEfficiency 		  = 0f;
 
 		#endregion
 
 
 
-
 		#region ISharedRegionModule interface
 
-		///
+		//
 		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
@@ -234,14 +234,19 @@ namespace OpenSim.Forge.Currency
 
 			}
 
-			scene.EventManager.OnNewClient       += OnNewClient;
-			scene.EventManager.OnMakeRootAgent   += OnMakeRootAgent;
-			scene.EventManager.OnMakeChildAgent  += MakeChildAgent;
-			//scene.EventManager.OnMoneyTransfer += MoneyTransferAction;	// for OpenSim
-			//scene.EventManager.OnValidateLandBuy += ValidateLandBuy;		// for OpenSim
-			scene.EventManager.OnValidateBuyLand += ValidateLandBuy;		// for Aurora-Sim
-			//scene.EventManager.OnLandBuy += processLandBuy;
-			//scene.OnParcelBuyPass += processLandBuy;
+			scene.EventManager.OnNewClient			+= OnNewClient;
+			scene.EventManager.OnMakeRootAgent		+= OnMakeRootAgent;
+			scene.EventManager.OnMakeChildAgent		+= MakeChildAgent;
+
+			// for OpenSim
+			//scene.EventManager.OnMoneyTransfer	+= MoneyTransferAction;
+			//scene.EventManager.OnValidateLandBuy	+= ValidateLandBuy;
+			//scene.EventManager.OnLandBuy			+= processLandBuy;
+
+			// for Aurora-Sim
+			scene.EventManager.OnValidateBuyLand 	+= ValidateLandBuy;
+			//scene.EventManager.OnLandBuy 			+= processLandBuy;
+			//scene.OnParcelBuyPass 				+= processLandBuy;
 		}
 	
 
@@ -251,11 +256,9 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		public void RegionLoaded(IScene scene)
 		{
 		}
-
 
 
 		public Type ReplaceableInterface
@@ -264,12 +267,10 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		public bool IsSharedModule
 		{
 			get { return true; }
 		}
-
 
 
 		public string Name
@@ -278,11 +279,9 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		public void PostInitialise()
 		{
 		}
-
 
 
 		public void Close()
@@ -353,13 +352,11 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
 		//
 		public int UploadCharge
 		{
 			get { return PriceUpload; }
 		}
-
 
 
 		//
@@ -476,11 +473,11 @@ namespace OpenSim.Forge.Currency
 			LoginMoneyServer(client, out balance);
 			client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance);
 
-			client.OnMoneyBalanceRequest += OnMoneyBalanceRequest;
-			client.OnRequestPayPrice += OnRequestPayPrice;
-			client.OnLogout += ClientClosed;
-			//client.OnObjectBuy += OnObjectBuy;					// at Aurora-Sim, OnObjectBuy event is already defined.
-			client.OnMoneyTransferRequest += MoneyTransferRequest;	// for Aurora-Sim
+			client.OnMoneyBalanceRequest 	+= OnMoneyBalanceRequest;
+			client.OnRequestPayPrice 		+= OnRequestPayPrice;
+			client.OnLogout 				+= ClientClosed;
+			//client.OnObjectBuy 			+= OnObjectBuy;				// at Aurora-Sim, OnObjectBuy event is already defined.
+			client.OnMoneyTransferRequest 	+= MoneyTransferRequest;	// for Aurora-Sim
 		}	   
 
 
@@ -589,7 +586,7 @@ namespace OpenSim.Forge.Currency
 					lock(landBuyEvent)
 					{
 						landBuyEvent.economyValidated = true;
-						processLandBuy(landBuyEvent);
+						//processLandBuy(landBuyEvent);
 					}
 				}
 			}
@@ -617,12 +614,9 @@ namespace OpenSim.Forge.Currency
 					//if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
 
 					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, 
-										landBuyEvent.parcelPrice, (int)TransactionType.LandSale, regionID, parcelID, "Land Purchase"))
+									  landBuyEvent.parcelPrice, (int)TransactionType.LandSale, regionID, parcelID, "Land Purchase"))
 					{
-						//lock (landBuyEvent)
-						//{
-							landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
-						//}	
+						landBuyEvent.amountDebited = landBuyEvent.parcelPrice;
 					}
 				}
 			}
@@ -792,8 +786,8 @@ namespace OpenSim.Forge.Currency
 			#endregion
 
 			// Send the response to money server.
-			XmlRpcResponse resp = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 			if (!ret)
 			{
@@ -846,8 +840,8 @@ namespace OpenSim.Forge.Currency
 			#endregion
 
 			// Send the response to money server.
-			XmlRpcResponse resp = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 
 			resp.Value = paramTable;
@@ -886,8 +880,8 @@ namespace OpenSim.Forge.Currency
 								requestParam.Contains("objectID") &&
 								requestParam.Contains("amount"))
 							{
-								m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
-								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)	// Pay for the object.
+								//m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
+								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)		// Pay for the object.
 								{
 									// Send notify to the client(viewer) for Money Event Trigger.   
 									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
@@ -899,21 +893,15 @@ namespace OpenSim.Forge.Currency
 									}
 									ret = true;
 								}
-								else m_log.ErrorFormat("[MONEY]: ERROR: transaction type is not PayObject(5008)");
 							}
-							else m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 2");
 						}
-						else m_log.ErrorFormat("[MONEY]: ERROR: client is null");
 					}
-					else m_log.ErrorFormat("[MONEY]: ERROR: senderID is Zero.");
 				}
-				else m_log.ErrorFormat("[MONEY]: ERROR: request.Params does not contain require params. case 1");
 			}
-			else m_log.ErrorFormat("[MONEY]: ERROR: request.Params.Count <= 0");
 
 			// Send the response to money server.
-			XmlRpcResponse resp = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 			if (!ret)
 			{
@@ -959,8 +947,8 @@ namespace OpenSim.Forge.Currency
 			}
 
 			// Send the response to caller.
-			XmlRpcResponse resp  = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 			if (!ret) 
 			{
@@ -1005,8 +993,8 @@ namespace OpenSim.Forge.Currency
 			}
 
 			// Send the response to caller.
-			XmlRpcResponse resp  = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 			if (!ret) 
 			{
@@ -1054,8 +1042,8 @@ namespace OpenSim.Forge.Currency
 				ret = false;
 			}
 
-			XmlRpcResponse resp  = new XmlRpcResponse();
-			Hashtable paramTable = new Hashtable();
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 			paramTable["balance"] = balance;
 			resp.Value = paramTable;
@@ -1104,17 +1092,17 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["senderUserServIP"] = m_userServIP;
-				paramTable["senderID"] = sender.ToString();
-				paramTable["receiverUserServIP"] = m_userServIP;
-				paramTable["receiverID"] = receiver.ToString();
-				paramTable["senderSessionID"] = senderClient.SessionId.ToString();
+				paramTable["senderUserServIP"] 		= m_userServIP;
+				paramTable["senderID"] 				= sender.ToString();
+				paramTable["receiverUserServIP"] 	= m_userServIP;
+				paramTable["receiverID"] 			= receiver.ToString();
+				paramTable["senderSessionID"] 		= senderClient.SessionId.ToString();
 				paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
-				paramTable["transactionType"] = type;
-				paramTable["objectID"] = objectID.ToString();
-				paramTable["regionHandle"] = regionHandle.ToString();
-				paramTable["amount"] = amount;
-				paramTable["description"] = description;
+				paramTable["transactionType"] 		= type;
+				paramTable["objectID"] 				= objectID.ToString();
+				paramTable["regionHandle"] 			= regionHandle.ToString();
+				paramTable["amount"] 				= amount;
+				paramTable["description"] 			= description;
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "TransferMoney");
@@ -1128,15 +1116,9 @@ namespace OpenSim.Forge.Currency
 						ret = true;
 					}
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Can not money transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
-				}
+				else m_log.ErrorFormat("[MONEY]: Can not money transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
 			}
-			else // Money server is not available.
-			{
-				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
 
 			#endregion
 
@@ -1166,15 +1148,15 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["senderUserServIP"] = m_userServIP;
-				paramTable["senderID"] = sender.ToString();
+				paramTable["senderUserServIP"]	 = m_userServIP;
+				paramTable["senderID"] 			 = sender.ToString();
 				paramTable["receiverUserServIP"] = m_userServIP;
-				paramTable["receiverID"] = receiver.ToString();
-				paramTable["transactionType"] = type;
-				paramTable["objectID"] = objectID.ToString();
-				paramTable["regionHandle"] = regionHandle.ToString();
-				paramTable["amount"] = amount;
-				paramTable["description"] = description;
+				paramTable["receiverID"] 		 = receiver.ToString();
+				paramTable["transactionType"] 	 = type;
+				paramTable["objectID"] 			 = objectID.ToString();
+				paramTable["regionHandle"] 		 = regionHandle.ToString();
+				paramTable["amount"] 			 = amount;
+				paramTable["description"] 		 = description;
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "ForceTransferMoney");
@@ -1188,15 +1170,9 @@ namespace OpenSim.Forge.Currency
 						ret = true;
 					}
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Can not money force transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
-				}
+				else m_log.ErrorFormat("[MONEY]: Can not money force transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
 			}
-			else // Money server is not available.
-			{
-				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
 
 			#endregion
 
@@ -1222,12 +1198,12 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["bankerUserServIP"] = m_userServIP;
-				paramTable["bankerID"] = bankerID.ToString();
-				paramTable["transactionType"] = 5010;	// BuyMoney
-				paramTable["amount"] = amount;
-				paramTable["regionHandle"] = regionHandle.ToString();;
-				paramTable["description"] = "Add Money to Avatar";
+				paramTable["bankerUserServIP"] 	= m_userServIP;
+				paramTable["bankerID"] 			= bankerID.ToString();
+				paramTable["transactionType"] 	= (int)TransactionType.BuyMoney;
+				paramTable["amount"] 			= amount;
+				paramTable["regionHandle"] 		= regionHandle.ToString();
+				paramTable["description"] 		= "Add Money to Avatar";
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
@@ -1240,20 +1216,11 @@ namespace OpenSim.Forge.Currency
 						m_log.DebugFormat("[MONEY]: Add the money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
 					}
-					else
-					{
-						m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
-					}
+					else m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
-				}
+				else m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
 			}
-			else 
-			{
-				m_log.ErrorFormat("[MONEY]: AddBankerMoney: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: AddBankerMoney: Money Server is not available!!");
 
 			return ret;
 		}
@@ -1277,12 +1244,12 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["avatarUserServIP"] = m_userServIP;
-				paramTable["avatarID"] = avatarID.ToString();
-				paramTable["transactionType"] = 5003;	// ReferBonus
-				paramTable["amount"] = amount;
-				paramTable["secretCode"] = secretCode;
-				paramTable["description"] = "Bonus to Avatar";
+				paramTable["avatarUserServIP"] 	= m_userServIP;
+				paramTable["avatarID"] 			= avatarID.ToString();
+				paramTable["transactionType"] 	= (int)TransactionType.ReferBonus;
+				paramTable["amount"] 			= amount;
+				paramTable["secretCode"] 		= secretCode;
+				paramTable["description"] 		= "Bonus to Avatar";
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "SendMoneyBalance");
@@ -1295,20 +1262,11 @@ namespace OpenSim.Forge.Currency
 						m_log.DebugFormat("[MONEY]: Send the money to avatar [{0}] is done.", avatarID.ToString());
 						ret = true;
 					}
-					else 
-					{
-						m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
-					}
+					else m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
-				}
+				else m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
 			}
-			else 
-			{
-				m_log.ErrorFormat("[MONEY]: SendMoneyBalance: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: SendMoneyBalance: Money Server is not available!!");
 
 			return ret;
 		}
@@ -1348,14 +1306,14 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["senderID"] = sender.ToString();
-				paramTable["senderSessionID"] = senderClient.SessionId.ToString();
+				paramTable["senderID"] 				= sender.ToString();
+				paramTable["senderSessionID"] 		= senderClient.SessionId.ToString();
 				paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
-				paramTable["transactionType"] = type;
-				paramTable["amount"] = amount;
-				paramTable["regionHandle"] = regionHandle.ToString();
-				paramTable["description"] = description;
-				paramTable["senderUserServIP"] = m_userServIP;
+				paramTable["transactionType"] 		= type;
+				paramTable["amount"] 				= amount;
+				paramTable["regionHandle"] 			= regionHandle.ToString();
+				paramTable["description"] 			= description;
+				paramTable["senderUserServIP"] 		= m_userServIP;
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "PayMoneyCharge");
@@ -1369,15 +1327,9 @@ namespace OpenSim.Forge.Currency
 						ret = true;
 					}
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Can not pay money of charge request from [{0}].", sender.ToString());
-				}
+				else m_log.ErrorFormat("[MONEY]: Can not pay money of charge request from [{0}].", sender.ToString());
 			}
-			else // Money server is not available.
-			{
-				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
 
 			#endregion
 
@@ -1417,23 +1369,17 @@ namespace OpenSim.Forge.Currency
 						{
 							userName = account.FirstName + " " + account.LastName;
 						}
-
-						//CachedUserInfo profile = scene.CommsManager.UserProfileCacheService.GetUserDetails(client.AgentId);
-						//if (profile!=null && profile.UserProfile!=null)
-						//{
-						//	userName = profile.UserProfile.FirstName + " " + profile.UserProfile.SurName;
-						//}
 					}
 				}
 
 				// Login the Money Server.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["userServIP"] = m_userServIP;
-				paramTable["openSimServIP"] = scene.RegionInfo.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
-																				 scene.RegionInfo.HttpPort.ToString());
-				paramTable["userName"] = userName;
-				paramTable["clientUUID"] = client.AgentId.ToString();
-				paramTable["clientSessionID"] = client.SessionId.ToString();
+				paramTable["userServIP"] 			= m_userServIP;
+				paramTable["openSimServIP"] 		= scene.RegionInfo.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
+																						 scene.RegionInfo.HttpPort.ToString());
+				paramTable["userName"] 				= userName;
+				paramTable["clientUUID"] 			= client.AgentId.ToString();
+				paramTable["clientSessionID"] 		= client.SessionId.ToString();
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
 
 				// Generate the request for transfer.   
@@ -1449,15 +1395,9 @@ namespace OpenSim.Forge.Currency
 						ret = true;
 					}
 				}
-				else
-				{
-					m_log.ErrorFormat("[MONEY]: Unable to login Money Server {0} for client [{1}].", m_moneyServURL, client.AgentId.ToString());
-				}
+				else m_log.ErrorFormat("[MONEY]: Unable to login Money Server {0} for client [{1}].", m_moneyServURL, client.AgentId.ToString());
 			}
-			else
-			{
-				m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
-			}
+			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
 
 			#endregion
 
@@ -1483,9 +1423,9 @@ namespace OpenSim.Forge.Currency
 			{
 				// Log off from the Money Server.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["userServIP"] = m_userServIP;
-				paramTable["clientUUID"] = client.AgentId.ToString();
-				paramTable["clientSessionID"] = client.SessionId.ToString();
+				paramTable["userServIP"] 			= m_userServIP;
+				paramTable["clientUUID"] 			= client.AgentId.ToString();
+				paramTable["clientSessionID"] 		= client.SessionId.ToString();
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
 
 				// Generate the request for transfer.   
@@ -1524,8 +1464,6 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse moneyServResp = null;
 			try
 			{
-				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
-				//moneyServResp = moneyModuleReq.Send(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
 				moneyServResp = moneyModuleReq.xSend(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
 			}
@@ -1534,9 +1472,9 @@ namespace OpenSim.Forge.Currency
 				m_log.ErrorFormat( "[MONEY]: Unable to connect to Money Server {0}.  Exception {1}", m_moneyServURL, ex);
 
 				Hashtable ErrorHash = new Hashtable();
-				ErrorHash["success"] = false;
+				ErrorHash["success"] 	  = false;
 				ErrorHash["errorMessage"] = "Unable to manage your money at this time. Purchases may be unavailable";
-				ErrorHash["errorURI"] = "";
+				ErrorHash["errorURI"] 	  = "";
 
 				return ErrorHash;
 			}
@@ -1544,15 +1482,65 @@ namespace OpenSim.Forge.Currency
 			if (moneyServResp.IsFault)
 			{
 				Hashtable ErrorHash = new Hashtable();
-				ErrorHash["success"] = false;
+				ErrorHash["success"] 	  = false;
 				ErrorHash["errorMessage"] = "Unable to manage your money at this time. Purchases may be unavailable";
-				ErrorHash["errorURI"] = "";
+				ErrorHash["errorURI"] 	  = "";
 
 				return ErrorHash;
 			}
 			Hashtable moneyRespData = (Hashtable)moneyServResp.Value;
 
 			return moneyRespData;
+		}
+
+
+
+		private int QueryBalanceFromMoneyServer(IClientAPI client)
+		{
+			int ret = -1;
+
+			#region Send the request to get the balance from money server for cilent.
+
+			if (client!=null)
+			{
+				if (!string.IsNullOrEmpty(m_moneyServURL))
+				{
+					Hashtable paramTable = new Hashtable();
+					paramTable["userServIP"] 			= m_userServIP;
+					paramTable["clientUUID"] 			= client.AgentId.ToString();
+					paramTable["clientSessionID"] 		= client.SessionId.ToString();
+					paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
+
+					// Generate the request for transfer.   
+					Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "GetBalance");
+
+					// Handle the return result
+					if (resultTable!=null && resultTable.Contains("success"))
+					{
+						if ((bool)resultTable["success"]==true)
+						{
+							ret = (int)resultTable["clientBalance"];
+						}
+					}
+				}
+				else
+				{
+					if (m_moneyServer.ContainsKey(client.AgentId))
+					{
+						ret = m_moneyServer[client.AgentId];
+					}
+				}
+
+				if (ret < 0)
+				{
+					m_log.ErrorFormat("[MONEY]: Unable to query balance from Money Server {0} for client [{1}].", 
+																					m_moneyServURL, client.AgentId.ToString());
+				}
+			}
+
+			#endregion
+
+			return ret;
 		}
 
 
@@ -1628,56 +1616,6 @@ namespace OpenSim.Forge.Currency
 			}
 
 			return null;
-		}
-
-
-
-		private int QueryBalanceFromMoneyServer(IClientAPI client)
-		{
-			int ret = -1;
-
-			#region Send the request to get the balance from money server for cilent.
-
-			if (client!=null)
-			{
-				if (!string.IsNullOrEmpty(m_moneyServURL))
-				{
-					Hashtable paramTable = new Hashtable();
-					paramTable["userServIP"] = m_userServIP;
-					paramTable["clientUUID"] = client.AgentId.ToString();
-					paramTable["clientSessionID"] = client.SessionId.ToString();
-					paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
-
-					// Generate the request for transfer.   
-					Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "GetBalance");
-
-					// Handle the return result
-					if (resultTable!=null && resultTable.Contains("success"))
-					{
-						if ((bool)resultTable["success"]==true)
-						{
-							ret = (int)resultTable["clientBalance"];
-						}
-					}
-				}
-				else
-				{
-					if (m_moneyServer.ContainsKey(client.AgentId))
-					{
-						ret = m_moneyServer[client.AgentId];
-					}
-				}
-
-				if (ret < 0)
-				{
-					m_log.ErrorFormat("[MONEY]: Unable to query balance from Money Server {0} for client [{1}].", 
-																					m_moneyServURL, client.AgentId.ToString());
-				}
-			}
-
-			#endregion
-
-			return ret;
 		}
 
 
