@@ -136,7 +136,6 @@ namespace OpenSim.Forge.Currency
 		public void Initialise(IConfigSource source)
 		{
 			// Handle the parameters errors.
-m_log.ErrorFormat("[MONEY]: Init is called");
 			if (source==null) return;
 
 			try
@@ -201,7 +200,6 @@ m_log.ErrorFormat("[MONEY]: Init is called");
 		//public void AddRegion(Scene scene)
 		public void AddRegion(IScene scene)
 		{
-m_log.ErrorFormat("[MONEY]: AddRegion is called");
 			if (scene==null) return;
 
 			scene.RegisterModuleInterface<IMoneyModule>(this);
@@ -264,7 +262,6 @@ m_log.ErrorFormat("[MONEY]: AddRegion is called");
 		//public void RegionLoaded(Scene scene)
 		public void RegionLoaded(IScene scene)
 		{
-m_log.ErrorFormat("[MONEY]: Loaded is called");
 		}
 
 
