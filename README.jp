@@ -56,8 +56,8 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  [Economy]
    SellEnabled = "true"
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
-   EconomyModule  = DTLMoneyModule
-   UserServer = "http://(MoneyServer's Name or IP):8003"
+   EconomyModule  = DTLNSLMoneyModule
+   UserServer = "http://(MoneyServer's Name or IP):8003/"
 
  注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
