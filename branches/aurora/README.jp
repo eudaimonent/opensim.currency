@@ -70,7 +70,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
  # cd opensim-0.7.x-source
  # cd bin
- # mono OpenSim.Grid.MoneyServer.exe
+ # mono MoneyServer.exe
 
 
 3-2. Region Server
@@ -105,7 +105,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 7. 謝辞
 
-  このプログラムは DTL Curremcy Processing を改造したものです．
+  このプログラムは DTL Currency Processing を改造したものです．
   http://forge.opensimulator.org/gf/project/currency/ もご覧ください．
 
   ありがとうございました．
