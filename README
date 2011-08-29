@@ -62,7 +62,7 @@
 
  # cd opensim-0.7.x-source
  # cd bin
- # mono OpenSim.Grid.MoneyServer.exe
+ # mono MoneyServer.exe
 
 
 3-2. Region Server
