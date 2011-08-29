@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
+ * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,12 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
     public class MySQLMoneyManager:IMoneyManager
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+		// by Fumi.Iseki
+        private string Table_of_Transaction = "transactions";
+        private string Table_of_Balance     = "balances";
+        //private string Table_of_UserInfo    = "currency_users";	// for AuroraSim
+        private string Table_of_UserInfo    = "userinfo";
 
         private string connectString;
 
@@ -89,7 +95,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             {
                 Dictionary<string,string> tableList = new Dictionary<string,string>();
                 tableList = CheckTables();
-                if (!tableList.ContainsKey("balances"))
+                if (!tableList.ContainsKey(Table_of_Balance))
                 {
                     try
                     {
@@ -101,7 +107,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                 }
 
-                if (!tableList.ContainsKey("userinfo"))
+                if (!tableList.ContainsKey(Table_of_UserInfo))
                 {
                     try
                     {
@@ -109,11 +115,11 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                     catch (Exception e)
                     {
-                        throw new Exception("Unable to create userinfo table: " + e.ToString());
+                        throw new Exception("Unable to create currency userinfo table: " + e.ToString());
                     }
                 }
 
-                if (!tableList.ContainsKey("transactions"))
+                if (!tableList.ContainsKey(Table_of_Transaction))
                 {
                     try
                     {
@@ -128,7 +134,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                 else // check transaction table version
                 {
                     int nVer = 0;
-                    string version = tableList["transactions"].Trim();
+                    string version = tableList[Table_of_Transaction].Trim();
                     Regex _commentPattenRegex = new Regex(
                         @"\w+\.(?<ver>\d+)");
                     Match m = _commentPattenRegex.Match(version);
@@ -163,7 +169,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         private void CreateBalanceTable()
         {
             string sql = string.Empty;
-            sql += "CREATE TABLE `balances`(";
+            sql += "CREATE TABLE `" + Table_of_Balance + "`(";
             sql += "`user` varchar(128) NOT NULL,";
             sql += "`balance` int(10) NOT NULL,";
             sql += "`status` tinyint(2) default NULL,";
@@ -176,7 +182,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         private void CreateTransactionTable()
         {
             string sql = string.Empty;
-            sql += "CREATE TABLE `transactions`(";
+            sql += "CREATE TABLE `" + Table_of_Transaction + "`(";
             sql += "`UUID` varchar(36) NOT NULL,";
             sql += "`sender` varchar(128) NOT NULL,";
             sql += "`receiver` varchar(128) NOT NULL,";
@@ -197,7 +203,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         private void CreateUserTable()
         {
             string sql = string.Empty;
-            sql += "CREATE TABLE `userinfo`(";
+            sql += "CREATE TABLE `" + Table_of_UserInfo + "`(";
             sql += "`user` varchar(128) NOT NULL,";
             sql += "`simip` varchar(64) NOT NULL,";
             sql += "`avatar` varchar(50) NOT NULL,";
@@ -218,7 +224,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             sql += "BEGIN;";
-            sql += "ALTER TABLE `transactions`";
+            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
             sql += "ADD(`objectUUID` varchar(36) DEFAULT NULL),";
             sql += "ADD(`secure` varchar(36) NOT NULL),";
             sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
@@ -235,7 +241,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             sql += "BEGIN;";
-            sql += "ALTER TABLE `transactions`";
+            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
             sql += "ADD(`secure` varchar(36) NOT NULL),";
             sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
             sql += "COMMENT = 'Rev.5';";
@@ -251,7 +257,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             sql += "BEGIN;";
-            sql += "ALTER TABLE `transactions`";
+            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
             sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
             sql += "COMMENT = 'Rev.5';";
             sql += "COMMIT;";
@@ -322,7 +328,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             int retValue = -1;
-            sql += "SELECT balance FROM balances WHERE user = ?userid";
+            sql += "SELECT balance FROM " + Table_of_Balance + " WHERE user = ?userid";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?userid", userID);
             try
@@ -351,7 +357,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql = string.Empty;
-            sql += "INSERT INTO balances (`user`,`balance`,`status`) VALUES ";
+            sql += "INSERT INTO " + Table_of_Balance +" (`user`,`balance`,`status`) VALUES ";
             sql += "(?userID,?balance,?status);";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?userID", userID);
@@ -370,7 +376,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         private void addUser(string userID)
         {
             string sql = string.Empty;
-            sql += "INSERT INTO balances (`user`,`balance`) VALUES ";
+            sql += "INSERT INTO " + Table_of_Balance + " (`user`,`balance`) VALUES ";
             sql += "(?userID,?balance)";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?userID", userID);
@@ -390,8 +396,8 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             sql += "BEGIN;";
-            sql += "UPDATE balances SET balance = balance - ?amount where user = ?userid;";
-            sql += " UPDATE transactions SET status = ?status where UUID  = ?tranid;";
+            sql += "UPDATE " + Table_of_Balance + " SET balance = balance - ?amount where user = ?userid;";
+            sql += "UPDATE " + Table_of_Transaction + " SET status = ?status where UUID  = ?tranid;";
             sql += "COMMIT;";
             bool bRet = false;
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
@@ -426,8 +432,8 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             string sql = string.Empty;
             sql += "BEGIN;";
-            sql += "UPDATE balances SET balance = balance + ?amount where user = ?userid;";
-            sql += " UPDATE transactions SET status = ?status where UUID  = ?tranid;";
+            sql += "UPDATE " + Table_of_Balance + " SET balance = balance + ?amount where user = ?userid;";
+            sql += "UPDATE " + Table_of_Transaction + " SET status = ?status where UUID  = ?tranid;";
             sql += "COMMIT;";
             bool bRet = false;
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
@@ -454,8 +460,9 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql = string.Empty;
-            sql += "INSERT INTO transactions (`UUID`,`sender`,`receiver`,`amount`,`objectUUID`,`regionHandle`,`type`,`time`,`secure`,`status`,`description`) VALUES";
-            sql += "(?transID,?sender,?receiver,?amount,?objID,?regionHandle,?type,?time,?secure,?status,?desc)";
+            sql += "INSERT INTO " + Table_of_Transaction;
+            sql += " (`UUID`,`sender`,`receiver`,`amount`,`objectUUID`,`regionHandle`,`type`,`time`,`secure`,`status`,`description`) VALUES";
+            sql += " (?transID,?sender,?receiver,?amount,?objID,?regionHandle,?type,?time,?secure,?status,?desc)";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?transID", transaction.TransUUID.ToString());
             cmd.Parameters.AddWithValue("?sender", transaction.Sender);
@@ -486,7 +493,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql  = string.Empty;
-            sql += "UPDATE transactions SET status = ?status,description = ?desc where UUID  = ?tranid;";
+            sql += "UPDATE " + Table_of_Transaction + " SET status = ?status,description = ?desc where UUID  = ?tranid;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?status", status);
             cmd.Parameters.AddWithValue("?desc", description);
@@ -509,7 +516,8 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql = string.Empty;
-            sql += "UPDATE transactions SET status = ?failedstatus,description = ?desc where time <= ?deadTime and status = ?pendingstatus;";
+            sql += "UPDATE " + Table_of_Transaction;
+            sql += " SET status = ?failedstatus,description = ?desc where time <= ?deadTime and status = ?pendingstatus;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?failedstatus", (int)Status.FAILED_STATUS);
             cmd.Parameters.AddWithValue("?desc", "expired");
@@ -542,7 +550,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             bool bRet = false;
             string secure = string.Empty;
             string sql = string.Empty;
-            sql += "SELECT secure from transactions where UUID = ?transID;";
+            sql += "SELECT secure from " + Table_of_Transaction + " where UUID = ?transID;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?transID", transactionID.ToString());
             using (MySqlDataReader r = cmd.ExecuteReader())
@@ -573,7 +581,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             TransactionData transactionData = new TransactionData();
             transactionData.TransUUID = transactionID;
             string sql = string.Empty;
-            sql += "SELECT * from transactions where UUID = ?transID;";
+            sql += "SELECT * from " + Table_of_Transaction + " where UUID = ?transID;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?transID", transactionID.ToString());
             using (MySqlDataReader r = cmd.ExecuteReader())
@@ -612,7 +620,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             List<TransactionData> rows = new List<TransactionData>();
             string sql = string.Empty;
-            sql += "SELECT * from transactions where time>=?start AND time<=?end ";
+            sql += "SELECT * from " + Table_of_Transaction + " where time>=?start AND time<=?end ";
             sql += "AND (sender=?user or receiver=?user) order by time asc limit ?index,?num;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?start", startTime);
@@ -674,7 +682,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
            
             if (userInfo.Avatar==null) return false;
 
-            sql += "INSERT INTO userinfo(`user`,`simip`,`avatar`,`pass`) VALUES";
+            sql += "INSERT INTO " + Table_of_UserInfo +"(`user`,`simip`,`avatar`,`pass`) VALUES";
             sql += "(?user,?simip,?avatar,?password);";
 
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
@@ -702,7 +710,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             UserInfo userInfo = new UserInfo();
             userInfo.UserID = userID;
             string sql = string.Empty;
-            sql += "SELECT * from userinfo WHERE user = ?userID;";
+            sql += "SELECT * from " + Table_of_UserInfo + " WHERE user = ?userID;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?userID", userID);
             using (MySqlDataReader r = cmd.ExecuteReader())
@@ -736,7 +744,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             bool bRet = false;
             string sql = string.Empty;
-            sql += "UPDATE userinfo SET simip=?simip,avatar=?avatar,pass=?pass WHERE user=?user;";
+            sql += "UPDATE " + Table_of_UserInfo + " SET simip=?simip,avatar=?avatar,pass=?pass WHERE user=?user;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?simip", user.SimIP);
             cmd.Parameters.AddWithValue("?avatar", user.Avatar);
@@ -754,7 +762,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         {
             int iRet = -1;
             string sql = string.Empty;
-            sql += "SELECT COUNT(*) AS number FROM transactions WHERE time>=?start AND time<=?end ";
+            sql += "SELECT COUNT(*) AS number FROM " + Table_of_Transaction + " WHERE time>=?start AND time<=?end ";
             sql += "AND (sender=?user OR receiver=?user);";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?start", startTime);
