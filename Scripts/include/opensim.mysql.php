@@ -1847,7 +1847,12 @@ function  opensim_check_secure_session($uuid, $regionid, $secure, &$db=null)
 	}
 	else if ($db->exist_table("agents")) {
 		$sql = "SELECT UUID FROM agents WHERE UUID='".$uuid."' AND secureSessionID='".$secure."' AND agentOnline='1'";
-		if (isGUID($regionid)) $sql = $sql." AND  currentRegion='".$regionid."'";
+		if (isGUID($regionid)) $sql = $sql." AND currentRegion='".$regionid."'";
+	}
+	// Aurora-Sim
+	else if ($db->exist_table("tokens") and $db->exist_field("userinfo", "UserID")) {
+		$sql = "SELECT UUID FROM tokens,userinfo WHERE UUID='".$uuid."' AND UUID=UserID AND token='".$secure."' AND IsOnline='1'";
+		if (isGUID($regionid)) $sql = $sql." AND CurrentRegionID='".$regionid."'";
 	}
 	else { 
 		return false;
