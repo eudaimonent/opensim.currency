@@ -180,19 +180,19 @@ namespace OpenSim.Forge.Currency
 				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
 
 				// Price
-				PriceEnergyUnit 		= economyConfig.GetInt("PriceEnergyUnit", 100);
-				PriceObjectClaim 		= economyConfig.GetInt("PriceObjectClaim", 10);
-				PricePublicObjectDecay 	= economyConfig.GetInt("PricePublicObjectDecay", 4);
-				PricePublicObjectDelete = economyConfig.GetInt("PricePublicObjectDelete", 4);
-				PriceParcelClaim 		= economyConfig.GetInt("PriceParcelClaim", 1);
+				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 100);
+				PriceObjectClaim 		= economyConfig.GetInt	("PriceObjectClaim", 10);
+				PricePublicObjectDecay 	= economyConfig.GetInt	("PricePublicObjectDecay", 4);
+				PricePublicObjectDelete = economyConfig.GetInt	("PricePublicObjectDelete", 4);
+				PriceParcelClaim 		= economyConfig.GetInt	("PriceParcelClaim", 1);
 				PriceParcelClaimFactor 	= economyConfig.GetFloat("PriceParcelClaimFactor", 1f);
-				PriceUpload 			= economyConfig.GetInt("PriceUpload", 0);
-				PriceRentLight 			= economyConfig.GetInt("PriceRentLight", 5);
+				PriceUpload 			= economyConfig.GetInt	("PriceUpload", 0);
+				PriceRentLight 			= economyConfig.GetInt	("PriceRentLight", 5);
 				PriceObjectRent 		= economyConfig.GetFloat("PriceObjectRent", 1);
 				PriceObjectScaleFactor 	= economyConfig.GetFloat("PriceObjectScaleFactor", 10);
-				PriceParcelRent 		= economyConfig.GetInt("PriceParcelRent", 1);
-				PriceGroupCreate 		= economyConfig.GetInt("PriceGroupCreate", 0);
-				TeleportMinPrice 		= economyConfig.GetInt("TeleportMinPrice", 2);
+				PriceParcelRent 		= economyConfig.GetInt	("PriceParcelRent", 1);
+				PriceGroupCreate 		= economyConfig.GetInt  ("PriceGroupCreate", 0);
+				TeleportMinPrice 		= economyConfig.GetInt  ("TeleportMinPrice", 2);
 				TeleportPriceExponent 	= economyConfig.GetFloat("TeleportPriceExponent", 2f);
 				EnergyEfficiency 		= economyConfig.GetFloat("EnergyEfficiency", 1);
 
@@ -517,7 +517,6 @@ namespace OpenSim.Forge.Currency
 			Scene scene = null;
 			if (m_sceneList.Count>0)
 			{
-				//scene = m_sceneList[0];
 				foreach (Scene _scene in m_sceneList.Values)
 				{
 					scene = _scene;
