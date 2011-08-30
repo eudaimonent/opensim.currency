@@ -112,17 +112,16 @@ namespace OpenSim.Forge.Currency
 		private int   PriceEnergyUnit 		  = 0;
 		private int   PriceGroupCreate 		  = 0;
 		private int   PriceObjectClaim 		  = 0;
+		private float PriceObjectRent 		  = 0f;
+		private float PriceObjectScaleFactor  = 0f;
 		private int   PriceParcelClaim 		  = 0;
 		private int   PriceParcelRent 		  = 0;
+		private float PriceParcelClaimFactor  = 0f;
 		private int   PricePublicObjectDecay  = 0;
 		private int   PricePublicObjectDelete = 0;
 		private int   PriceRentLight 		  = 0;
 		private int   PriceUpload 			  = 0;
 		private int   TeleportMinPrice 		  = 0;
-
-		private float PriceObjectRent 		  = 0f;
-		private float PriceObjectScaleFactor  = 0f;
-		private float PriceParcelClaimFactor  = 0f;
 		private float TeleportPriceExponent   = 0f;
 		private float EnergyEfficiency 		  = 0f;
 
