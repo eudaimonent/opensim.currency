@@ -58,22 +58,22 @@ namespace OpenSim.Forge.Currency
 		private const int MONEYMODULE_REQUEST_TIMEOUT = 50000;
 /*
 		public enum TransactionType : int
-    	{
-        	GroupCreate  = 1002,
-        	GroupJoin    = 1004,
-        	UploadCharge = 1101,
-        	LandAuction  = 1102,
-        	ObjectSale   = 5000,
-        	Gift         = 5001,
-        	LandSale     = 5002,
-        	ReferBonus   = 5003,
-        	InvntorySale = 5004,
-        	DwellBonus   = 5007,
-        	PayObject    = 5008,
-        	ObjectPays   = 5009,
-        	BuyMoney     = 5010,
-        	MoveMoney    = 5011
-    	}
+		{
+			GroupCreate  = 1002,
+			GroupJoin	= 1004,
+			UploadCharge = 1101,
+			LandAuction  = 1102,
+			ObjectSale   = 5000,
+			Gift		 = 5001,
+			LandSale	 = 5002,
+			ReferBonus   = 5003,
+			InvntorySale = 5004,
+			DwellBonus   = 5007,
+			PayObject	= 5008,
+			ObjectPays   = 5009,
+			BuyMoney	 = 5010,
+			MoveMoney	= 5011
+		}
 */
 
 		// Private data members.   
@@ -375,32 +375,32 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-        public bool Charge(IClientAPI client, int amount)    
+		public bool Charge(IClientAPI client, int amount)	
 		{
 			return UploadCovered(client, amount);
 		}
 
 
-        public bool Charge(UUID agentID, int amount, string text)
+		public bool Charge(UUID agentID, int amount, string text)
 		{
 			IClientAPI client = LocateClientObject(agentID);
 			return AmountCovered(client, amount);
 		}  
 
 
-        public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)    
+		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)	
 		{
-        	return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
+			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
 		}
 
 
-        public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
+		public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
 		{
 			SceneObjectPart sceneObj = FindPrim(toObjectID);
 			if (sceneObj==null) return false;
 
 			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
-        	return TransferMoney(fromID, toID, amount, (int)type, toObjectID, regionHandle, description);
+			return TransferMoney(fromID, toID, amount, (int)type, toObjectID, regionHandle, description);
 		}
 
 
@@ -1630,25 +1630,32 @@ namespace OpenSim.Forge.Currency
 	}
 
 
-        //
-        public class MoneyTransferArgs : EventArgs
-        {
-            public UUID sender;
-            public UUID receiver;
-            // Always false. The SL protocol sucks.
-            public bool authenticated = false;
-            public int amount;
-            public int transactiontype;
-            public string description;
 
-            public MoneyTransferArgs(UUID asender, UUID areceiver, int aamount, int atransactiontype, string adescription)
-            {
-                sender = asender;
-                receiver = areceiver;
-                amount = aamount;
-                transactiontype = atransactiontype;
-                description = adescription;
-            }
-        }
+
+
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// for Aurora-Sim
+	//
+
+	public class MoneyTransferArgs : EventArgs
+	{
+		public UUID sender;
+		public UUID receiver;
+		public bool authenticated = false;
+		public int  amount;
+		public int  transactiontype;
+		public string description;
+
+		public MoneyTransferArgs(UUID asender, UUID areceiver, int aamount, int atransactiontype, string adescription)
+		{
+			sender = asender;
+			receiver = areceiver;
+			amount = aamount;
+			transactiontype = atransactiontype;
+			description = adescription;
+		}
+	}
 
 }
