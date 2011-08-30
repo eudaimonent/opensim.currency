@@ -106,18 +106,17 @@ namespace OpenSim.Forge.Currency
 		private int   ObjectCount 			  = 0;
 		private int   PriceEnergyUnit 		  = 0;
 		private int   PriceGroupCreate 		  = 0;
+		private float PriceObjectRent		  = 0f;
+		private float PriceObjectScaleFactor  = 0f;
 		private int   PriceObjectClaim 		  = 0;
 		private int   PriceParcelClaim 		  = 0;
 		private int   PriceParcelRent 		  = 0;
+		private float PriceParcelClaimFactor  = 0f;
 		private int   PricePublicObjectDecay  = 0;
 		private int   PricePublicObjectDelete = 0;
 		private int   PriceRentLight 		  = 0;
 		private int   PriceUpload 			  = 0;
 		private int   TeleportMinPrice 		  = 0;
-
-		private float PriceObjectRent		  = 0f;
-		private float PriceObjectScaleFactor  = 0f;
-		private float PriceParcelClaimFactor  = 0f;
 		private float TeleportPriceExponent   = 0f;
 		private float EnergyEfficiency 		  = 0f;
 
@@ -167,19 +166,19 @@ namespace OpenSim.Forge.Currency
 				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
 
 				// Price
-				PriceEnergyUnit 		= economyConfig.GetInt("PriceEnergyUnit", 100);
-				PriceObjectClaim 		= economyConfig.GetInt("PriceObjectClaim", 10);
-				PricePublicObjectDecay 	= economyConfig.GetInt("PricePublicObjectDecay", 4);
-				PricePublicObjectDelete = economyConfig.GetInt("PricePublicObjectDelete", 4);
-				PriceParcelClaim 		= economyConfig.GetInt("PriceParcelClaim", 1);
+				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 100);
+				PriceObjectClaim 		= economyConfig.GetInt	("PriceObjectClaim", 10);
+				PricePublicObjectDecay 	= economyConfig.GetInt	("PricePublicObjectDecay", 4);
+				PricePublicObjectDelete = economyConfig.GetInt	("PricePublicObjectDelete", 4);
+				PriceParcelClaim 		= economyConfig.GetInt	("PriceParcelClaim", 1);
 				PriceParcelClaimFactor 	= economyConfig.GetFloat("PriceParcelClaimFactor", 1f);
-				PriceUpload 			= economyConfig.GetInt("PriceUpload", 0);
-				PriceRentLight 			= economyConfig.GetInt("PriceRentLight", 5);
+				PriceUpload 			= economyConfig.GetInt	("PriceUpload", 0);
+				PriceRentLight 			= economyConfig.GetInt	("PriceRentLight", 5);
 				PriceObjectRent 		= economyConfig.GetFloat("PriceObjectRent", 1);
 				PriceObjectScaleFactor 	= economyConfig.GetFloat("PriceObjectScaleFactor", 10);
-				PriceParcelRent 		= economyConfig.GetInt("PriceParcelRent", 1);
-				PriceGroupCreate 		= economyConfig.GetInt("PriceGroupCreate", 0);
-				TeleportMinPrice 		= economyConfig.GetInt("TeleportMinPrice", 2);
+				PriceParcelRent 		= economyConfig.GetInt	("PriceParcelRent", 1);
+				PriceGroupCreate 		= economyConfig.GetInt	("PriceGroupCreate", 0);
+				TeleportMinPrice 		= economyConfig.GetInt	("TeleportMinPrice", 2);
 				TeleportPriceExponent 	= economyConfig.GetFloat("TeleportPriceExponent", 2f);
 				EnergyEfficiency 		= economyConfig.GetFloat("EnergyEfficiency", 1);
 
@@ -503,7 +502,6 @@ namespace OpenSim.Forge.Currency
 			Scene scene = null;
 			if (m_sceneList.Count>0)
 			{ 
-				//scene = m_sceneList[0];
 				foreach (Scene _scene in m_sceneList.Values)
 				{
 					scene = _scene;
@@ -611,7 +609,16 @@ namespace OpenSim.Forge.Currency
 
 					ulong parcelID = (ulong)landBuyEvent.parcelLocalID;
 					UUID  regionID = UUID.Zero;
-					//if (sender is Scene) regionID = ((Scene)sender).RegionInfo.RegionID;
+					Scene scene = null;
+					if (m_sceneList.Count>0)
+					{ 
+						foreach (Scene _scene in m_sceneList.Values)
+						{
+							scene = _scene;
+							break;
+						}
+					}
+					if (scene!=null) regionID = scene.RegionInfo.RegionID;
 
 					if (TransferMoney(landBuyEvent.agentId, landBuyEvent.parcelOwnerID, 
 									  landBuyEvent.parcelPrice, (int)TransactionType.LandSale, regionID, parcelID, "Land Purchase"))
