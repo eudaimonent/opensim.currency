@@ -95,6 +95,15 @@
 
 
 
+define('OPENSIM_V06',	'opnesim_0.6');
+define('OPENSIM_V07',	'opnesim_0.7');
+define('AURORASIM',		'aurora-sim');
+
+$OpenSimVersion = null;
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 // Load Function
@@ -124,15 +133,22 @@ function  opensim_new_db($timeout=60)
 
 function  opensim_get_db_version(&$db=null)
 {
+	global $OpenSimVersion;
+
 	if (!is_object($db)) $db = & opensim_new_db();
 
 	$ver = null;
-	if ($db->exist_table('GridUser'))  $ver = '0.7';
-	else {
-		if ($db->Errno!=0) return null;
-		if ($db->exist_table('users')) $ver = '0.6';
+	if ($db->exist_table('GridUser')) {
+		$ver = OPENSIM_V07;
+	}
+	else if ($db->exist_table('users')) {
+		$ver = OPENSIM_V06;
+	}
+	else if ($db->exist_field('userinfo', 'UserID')) {
+		$ver = AURORASIM;
 	}
 
+	$OpenSimVersion = $ver;
 	return $ver;
 }
 
@@ -186,7 +202,6 @@ function  opensim_check_db(&$db=null)
 	if ($db->exist_table('GridUser')) {				// 0.7
 		$db->query('SELECT COUNT(*) FROM UserAccounts');
 		list($ret['user_count']) = $db->next_record();
-		//$db->query("SELECT COUNT(*) FROM GridUser WHERE Online='True' and Login>(unix_timestamp(from_unixtime(unix_timestamp(now())-86400)))");
 		if ($db->exist_table('Presence')) {			// 0.7
 			$db->query("SELECT COUNT(DISTINCT Presence.UserID) FROM GridUser,Presence ".
 							"WHERE Online='True' and GridUser.UserID=Presence.UserID and RegionID!='00000000-0000-0000-0000-000000000000'");
@@ -202,7 +217,6 @@ function  opensim_check_db(&$db=null)
 	else if ($db->exist_table('users')) {			// 0.6.x
 		$db->query('SELECT COUNT(*) FROM users');
 		list($ret['user_count']) = $db->next_record();
-		//$db->query("SELECT COUNT(*) FROM agents WHERE agentOnline='1' and logintime>(unix_timestamp(from_unixtime(unix_timestamp(now())-86400)))");
 		$db->query("SELECT COUNT(*) FROM agents WHERE agentOnline='1'");
 		list($ret['now_online']) = $db->next_record();
 		$db->query('SELECT COUNT(*) FROM agents WHERE logintime>unix_timestamp(from_unixtime(unix_timestamp(now())-2419200))');
@@ -305,23 +319,30 @@ function  opensim_get_avatar_uuid($name, &$db=null)
 
 function  opensim_get_avatar_session($uuid, &$db=null)
 {
+	global $OpenSimVersion;
+
 	if (!isGUID($uuid)) return null;
-
 	if (!is_object($db)) $db = & opensim_new_db();
+	if ($OpenSimVersion==null) opensim_get_db_version($db);
 
-	if ($db->exist_table('Presence')) {			// 0.7
+	if ($OpenSimVersion==OPENSIM_V07) {
 		$sql = "SELECT RegionID,SessionID,SecureSessionID FROM Presence WHERE UserID='".$uuid."'";
 	}
-	else if ($db->exist_table('agents')) {		// 0.6.x
+	else if ($OpenSimVersion==OPENSIM_V06) {
 		$sql = "SELECT currentRegion,sessionID,secureSessionID FROM agents WHERE UUID='".$uuid."'";
+	}
+	else if ($OpenSimVersion==AURORASIM) {
+		$sql = "SELECT RegionUUID,SessionID,token FROM tokens,userinfo,gridregions ";
+		$sql.= "WHERE UUID='".$uuid."' AND UUID=UserID AND CurrentRegionID=RegionUUID AND IsOnline='1'";
 	}
 	else {
 		return null;
 	}
 
 	$db->query($sql);
-	list($RegionID, $SessionID, $SecureSessionID) = $db->next_record();
+	while (list($RegionID, $SessionID, $SecureSessionID) = $db->next_record());	// Get Last Record
 
+error_log($RegionID." ".$SessionID." ".$SecureSessionID);
 	$avssn['regionID']  = $RegionID;
 	$avssn['sessionID'] = $SessionID;
 	$avssn['secureID']  = $SecureSessionID;
@@ -1783,20 +1804,28 @@ function  opensim_get_servers_ip(&$db=null)
 
 function  opensim_get_server_info($userid, &$db=null)
 {
+	global $OpenSimVersion;
 	$ret = array();
 
 	if (!isGUID($userid)) return $ret;
+	if (!is_object($db))  $db = & opensim_new_db();
+	if ($OpenSimVersion==null) opensim_get_db_version($db);
 
-	if (!is_object($db)) $db = & opensim_new_db();
-
-	if ($db->exist_table("GridUser")) {
+	if ($OpenSimVersion==OPENSIM_V07) {
 		$sql = "SELECT serverIP,serverHttpPort,serverURI,regionSecret FROM GridUser".
 					" INNER JOIN regions ON regions.uuid=GridUser.LastRegionID WHERE GridUser.UserID='".$userid."'";
 	}
-	else {
+	else if ($OpenSimVersion==OPENSIM_V06) {
 		$sql = "SELECT serverIP,serverHttpPort,serverURI,regionSecret FROM agents".
 					" INNRT JOIN regions ON regions.uuid=agents.currentRegion WHERE agents.UUID='".$userid."'";
 	}
+	else if ($OpenSimVersion==AURORASIM) {
+
+	}
+	else {
+		return $ret;
+	}
+
 	$db->query($sql);
 
 	if ($db->Errno==0) {
@@ -1837,20 +1866,22 @@ function  opensim_is_access_from_region_server()
 //
 function  opensim_check_secure_session($uuid, $regionid, $secure, &$db=null)
 {
+	global $OpenSimVersion;
+
 	if (!isGUID($uuid) or !isGUID($secure)) return false;
 
 	if (!is_object($db)) $db = & opensim_new_db();
+	if ($OpenSimVersion==null) opensim_get_db_version($db);
 
-	if ($db->exist_table("Presence")) {
+	if ($OpenSimVersion==OPENSIM_V07) {
 		$sql = "SELECT UserID FROM Presence WHERE UserID='".$uuid."' AND SecureSessionID='".$secure."'";
 		if (isGUID($regionid)) $sql = $sql." AND RegionID='".$regionid."'";
 	}
-	else if ($db->exist_table("agents")) {
+	else if ($OpenSimVersion==OPENSIM_V07) {
 		$sql = "SELECT UUID FROM agents WHERE UUID='".$uuid."' AND secureSessionID='".$secure."' AND agentOnline='1'";
 		if (isGUID($regionid)) $sql = $sql." AND currentRegion='".$regionid."'";
 	}
-	// Aurora-Sim
-	else if ($db->exist_table("tokens") and $db->exist_field("userinfo", "UserID")) {
+	else if ($OpenSimVersion==AURORASIM) {
 		$sql = "SELECT UUID FROM tokens,userinfo WHERE UUID='".$uuid."' AND UUID=UserID AND token='".$secure."' AND IsOnline='1'";
 		if (isGUID($regionid)) $sql = $sql." AND CurrentRegionID='".$regionid."'";
 	}
