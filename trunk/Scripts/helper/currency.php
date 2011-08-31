@@ -217,7 +217,7 @@ function region_move_money($method_name, $params, $app_data)
 	$description			= $req['description'];
 	$ipAddress			  	= $_SERVER['REMOTE_ADDR'];
 
-	$ret = opensim_check_secret_region($regionid, $secret);
+	$ret = opensim_check_region_secret($regionid, $secret);
 
 	if ($ret) {
 		$ret = opensim_check_secure_session($agentid, $regionid, $sessionid);
@@ -279,7 +279,7 @@ function claimUser_func($method_name, $params, $app_data)
 	$regionid  = $req['regionId'];
 	$secret	   = $req['secret'];
 	
-	$ret = opensim_check_secret_region($regionid, $secret);
+	$ret = opensim_check_region_secret($regionid, $secret);
 
 	if ($ret) {
 		$ret = opensim_check_secure_session($agentid, null, $sessionid);
