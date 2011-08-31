@@ -358,7 +358,7 @@ function  opensim_get_avatar_session($uuid, &$db=null)
 	}
 
 	else if ($OpenSimVersion==AURORASIM) {
-		$sql = "SELECT RegionUUID,token FROM tokens,userinfo WHERE UUID='".$uuid."' AND UUID=UserID AND IsOnline='1'";
+		$sql = "SELECT CurrentRegionID,token FROM tokens,userinfo WHERE UUID='".$uuid."' AND UUID=UserID AND IsOnline='1'";
 		$db->query($sql);
 		if ($db->Errno==0) {
 			while (list($rg, $ss) = $db->next_record()) {		// Get Last Record
