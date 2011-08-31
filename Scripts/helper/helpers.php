@@ -209,6 +209,7 @@ function  add_money($agentID, $amount, $secureID=null)
 	$req	  = array('bankerID'=>$agentID, 'bankerSessionID'=>$sessionID, 'bankerSecureSessionID'=>$secureID, 'amount'=>$amount);
 	$params   = array($req);
 	$request  = xmlrpc_encode_request('AddBankerMoney', $params);
+
 	$response = do_call($serverip, $httpport, $serveruri, $request);
 
 	return $response;

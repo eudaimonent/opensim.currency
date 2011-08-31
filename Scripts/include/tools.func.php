@@ -16,6 +16,8 @@
  function  isAlphabetNumericSpecial($str, $nullok=false)
  function  isGUID($uuid, $nullok=false)
  
+ function  split_key_value($str)
+
  function  make_random_hash()
  function  make_random_guid()
  
@@ -80,13 +82,90 @@ function  make_random_hash()
 function  make_random_guid()
 {
 	$uuid = sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-					mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
-        			mt_rand( 0, 0x0fff ) | 0x4000,
-        			mt_rand( 0, 0x3fff ) | 0x8000,   
-           			mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) );
+					  mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+					  mt_rand( 0, 0x0fff ) | 0x4000,
+					  mt_rand( 0, 0x3fff ) | 0x8000,   
+		   			  mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ) );
 	return $uuid;
 }
  
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// String Tools
+//
+
+// parse {"key1":"value1","key2":{"key3":"value3"}}
+//
+//    	--> [key1] => value1
+//    		[key2] => Array
+//        		(
+//            		[key3] => value3
+//        		)
+//
+
+function  split_key_value($str)
+{
+	$info = array();
+	$str  = trim($str);
+
+	if (substr($str, 0, 1)=='{' and substr($str, -1)=='}') {
+		$str = substr($str, 1, -1);
+		$inbrkt = 0;
+		$inquot = false;
+		$inkkko = false;
+		$isakey = true;
+		$key    = "";
+		$val    = "";
+
+		for ($i=0; $i<strlen($str); $i++) {
+			$cc = substr($str, $i, 1);
+
+			if ($inbrkt==0 and !$inquot and ($cc=='"' or $cc=='\'')) {
+				$inquot = true;
+			}
+			else if ($inbrkt==0 and $inquot and ($cc=='"' or $cc=='\'')) {
+				$inquot = false;
+			}
+			else if ($inbrkt==0 and $isakey  and !$inquot and !$inkkko and $cc==':') {
+				$isakey = false;
+			}		
+			else if ($inbrkt==0 and !$isakey and !$inquot and !$inkkko and $cc==',') {
+				if (substr($val, 0, 1)=='{' and substr($val, -1)=='}') {
+					$info[$key] = split_key_value($val);
+				}
+				else $info[$key] = $val;
+
+				$isakey = true;
+				$key    = "";
+				$val    = "";
+			}
+			else {
+				if      ($cc=='{') $inbrkt++;
+				else if ($cc=='}') $inbrkt--;
+				else {
+					if      ($inbrkt==0 and !$inkkko and $cc=='[') $inkkko = true;
+					else if ($inbrkt==0 and $inkkko  and $cc==']') $inkkko = false;
+				}
+
+				if ($isakey) $key .= $cc;	
+				else         $val .= $cc;
+			}
+		}
+
+		//
+		if ($key!="") {
+			if (substr($val, 0, 1)=='{' and substr($val, -1)=='}') {
+				$info[$key] = split_key_value($val);
+			}
+			else $info[$key] = $val;
+		}
+	}
+
+	return $info;
+}
 
 
 
@@ -156,6 +235,8 @@ function  find_command_path($command)
 
 	return $path.$command;
 }
+
+
 
 
 ?>
