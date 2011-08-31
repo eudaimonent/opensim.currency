@@ -242,7 +242,7 @@ function send_money($agentID, $amount, $secretCode=null)
 
 	$serverip = gethostbyname($serverip);
 	if ($secretCode!=null) {
-		$secretCode = md5($secretCode + "_" + $serverip);
+		$secretCode = md5($secretCode."_".$serverip);
 	}
 	else {
 		$secretCode = get_confirm_value($serverip);
