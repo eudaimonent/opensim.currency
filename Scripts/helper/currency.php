@@ -326,7 +326,7 @@ function claimUser_func($method_name, $params, $app_data)
 #
 
 $request_xml = $HTTP_RAW_POST_DATA;
-//error_log("currency.php: ".$request_xml);
+error_log("currency.php: ".$request_xml);
 
 xmlrpc_server_call_method($xmlrpc_server, $request_xml, '');
 xmlrpc_server_destroy($xmlrpc_server);
