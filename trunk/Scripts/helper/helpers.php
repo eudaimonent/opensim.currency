@@ -203,7 +203,7 @@ function  add_money($agentID, $amount, $secureID=null)
 
 	$results = opensim_get_avatar_session($agentID);
 	$sessionID = $results["sessionID"];
-	if ($sessionID=="")  return false;
+	//if ($sessionID=="")  return false;
 	if ($secureID==null) $secureID = $results["secureID"];
 	
 	$req	  = array('bankerID'=>$agentID, 'bankerSessionID'=>$sessionID, 'bankerSecureSessionID'=>$secureID, 'amount'=>$amount);
