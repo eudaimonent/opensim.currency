@@ -1,4 +1,4 @@
-// * Copyright (c) Contributors, http://www.nsl.tuis.a.jp/, http://opensimulator.org/
+// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
 // * See CONTRIBUTORS.TXT for a full list of copyright holders.
 // *
 // * Redistribution and use in source and binary forms, with or without
@@ -179,21 +179,21 @@ namespace OpenSim.Forge.Currency
 				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
 
 				// Price
-				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 100);
-				PriceObjectClaim 		= economyConfig.GetInt	("PriceObjectClaim", 10);
-				PricePublicObjectDecay 	= economyConfig.GetInt	("PricePublicObjectDecay", 4);
+				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 		100);
+				PriceObjectClaim 		= economyConfig.GetInt	("PriceObjectClaim", 		10);
+				PricePublicObjectDecay 	= economyConfig.GetInt	("PricePublicObjectDecay", 	4);
 				PricePublicObjectDelete = economyConfig.GetInt	("PricePublicObjectDelete", 4);
-				PriceParcelClaim 		= economyConfig.GetInt	("PriceParcelClaim", 1);
-				PriceParcelClaimFactor 	= economyConfig.GetFloat("PriceParcelClaimFactor", 1f);
-				PriceUpload 			= economyConfig.GetInt	("PriceUpload", 0);
-				PriceRentLight 			= economyConfig.GetInt	("PriceRentLight", 5);
-				PriceObjectRent 		= economyConfig.GetFloat("PriceObjectRent", 1);
-				PriceObjectScaleFactor 	= economyConfig.GetFloat("PriceObjectScaleFactor", 10);
-				PriceParcelRent 		= economyConfig.GetInt	("PriceParcelRent", 1);
-				PriceGroupCreate 		= economyConfig.GetInt  ("PriceGroupCreate", 0);
-				TeleportMinPrice 		= economyConfig.GetInt  ("TeleportMinPrice", 2);
-				TeleportPriceExponent 	= economyConfig.GetFloat("TeleportPriceExponent", 2f);
-				EnergyEfficiency 		= economyConfig.GetFloat("EnergyEfficiency", 1);
+				PriceParcelClaim 		= economyConfig.GetInt	("PriceParcelClaim", 		1);
+				PriceParcelClaimFactor 	= economyConfig.GetFloat("PriceParcelClaimFactor", 	1f);
+				PriceUpload 			= economyConfig.GetInt	("PriceUpload", 			0);
+				PriceRentLight 			= economyConfig.GetInt	("PriceRentLight", 			5);
+				PriceObjectRent 		= economyConfig.GetFloat("PriceObjectRent", 		1);
+				PriceObjectScaleFactor 	= economyConfig.GetFloat("PriceObjectScaleFactor", 	10);
+				PriceParcelRent 		= economyConfig.GetInt	("PriceParcelRent", 		1);
+				PriceGroupCreate 		= economyConfig.GetInt  ("PriceGroupCreate", 		0);
+				TeleportMinPrice 		= economyConfig.GetInt  ("TeleportMinPrice", 		2);
+				TeleportPriceExponent 	= economyConfig.GetFloat("TeleportPriceExponent", 	2f);
+				EnergyEfficiency 		= economyConfig.GetFloat("EnergyEfficiency", 		1);
 
 			}
 			catch
@@ -309,7 +309,7 @@ namespace OpenSim.Forge.Currency
 
 		#region IMoneyModule interface.
 
-		// for LSL ObjectGiveMoney() function
+		// for LSL llGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
 			//m_log.ErrorFormat("[MONEY]: LSL ObjectGiveMoney. UUID = ", objectID.ToString());
@@ -379,50 +379,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
-		//////////////////////////////////////////////////////////////////////
-		// for Aurora-Sim
-		//
-		public int Balance(IClientAPI client)
-		{
-			return QueryBalanceFromMoneyServer(client);
-		}
-
-
-		public bool Charge(IClientAPI client, int amount)
-		{
-			return UploadCovered(client, amount);
-		}
-
-
-		public bool Charge(UUID agentID, int amount, string text)
-		{
-			IClientAPI client = LocateClientObject(agentID);
-			return AmountCovered(client, amount);
-		}
-
-
-		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)
-		{
-			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
-		}
-
-
-		public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
-		{
-			SceneObjectPart sceneObj = FindPrim(toObjectID);
-			if (sceneObj==null) return false;
-
-			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
-			return TransferMoney(fromID, toID, amount, (int)type, toObjectID, regionHandle, description);
-		}
-
-
-
-		//////////////////////////////////////////////////////////////////////
-		// for OpenSim
-		//
-
 		public int GetBalance(UUID agentID)
 		{
 			IClientAPI client = LocateClientObject(agentID);
@@ -453,10 +409,40 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		//////////////////////////////////////////////////////////////////////
+		// for OpenSim
+		//
+
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
+			ApplyCharge(agentID, amount, TransactionType.GroupCreate, text);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for Aurora-Sim
+		//
+
+		public void ApplyCharge(UUID agentID, int amount, TransactionType type, string text)
+		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
+			PayMoneyCharge(agentID, amount, (int)type, region, text);
+		}
+
+
+		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)
+		{
+			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
+		}
+
+
+		public bool Transfer(UUID toID, UUID fromID, UUID objectID, int amount, string description, TransactionType type)
+		{
+			SceneObjectPart sceneObj = FindPrim(objectID);
+			if (sceneObj==null) return false;
+
+			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
+			return TransferMoney(fromID, toID, amount, (int)type, objectID, regionHandle, description);
 		}
 
 
@@ -586,7 +572,7 @@ namespace OpenSim.Forge.Currency
 		// for OnValidateLandBuy event
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: ValidateLandBuy:");
+			m_log.ErrorFormat("[MONEY]: ValidateLandBuy:");
 			
 			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
 			if (senderClient!=null)
@@ -605,7 +591,7 @@ namespace OpenSim.Forge.Currency
 
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: processLandBuy:");
+			m_log.ErrorFormat("[MONEY]: processLandBuy:");
 
 			if (!m_sellEnabled) return;
 
@@ -687,6 +673,8 @@ namespace OpenSim.Forge.Currency
 		/// <param name="TransactionID"></param>   
 		private void OnMoneyBalanceRequest(IClientAPI client, UUID agentID, UUID SessionID, UUID TransactionID)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnMoneyBalanceRequest:");
+
 			if (client.AgentId==agentID && client.SessionId==SessionID)
 			{
 				int balance = -1;
@@ -714,6 +702,8 @@ namespace OpenSim.Forge.Currency
 
 		private void OnRequestPayPrice(IClientAPI client, UUID objectID)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnRequestPayPrice:");
+
 			Scene scene = LocateSceneClientIn(client.AgentId);
 			if (scene==null) return;
 			SceneObjectPart sceneObj = scene.GetSceneObjectPart(objectID);
@@ -729,6 +719,8 @@ namespace OpenSim.Forge.Currency
 		//
 		private void OnEconomyDataRequest(UUID agentId)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnEconomyDataRequest:");
+
 			IClientAPI user = LocateClientObject(agentId);
 
 			if (user!=null)
@@ -1624,4 +1616,35 @@ namespace OpenSim.Forge.Currency
 
 		#endregion
 	}
+
+
+
+
+
+
+	////////////////////////////////////////////////////////////////////////
+	//
+	// for Aurora-Sim
+	//
+	/*
+	public class MoneyTransferArgs : EventArgs
+	{
+		public UUID sender;
+		public UUID receiver;
+		public bool authenticated = false;
+		public int  amount;
+		public int  transactiontype;
+		public string description;
+
+		public MoneyTransferArgs(UUID asender, UUID areceiver, int aamount, int atransactiontype, string adescription)
+		{
+			sender = asender;
+			receiver = areceiver;
+			amount = aamount;
+			transactiontype = atransactiontype;
+			description = adescription;
+		}
+	}
+*/
+
 }
