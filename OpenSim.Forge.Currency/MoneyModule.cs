@@ -60,7 +60,7 @@ namespace OpenSim.Forge.Currency
 		public enum TransactionType : int
 		{
 			GroupCreate  = 1002,
-			GroupJoin	= 1004,
+			GroupJoin	 = 1004,
 			UploadCharge = 1101,
 			LandAuction  = 1102,
 			ObjectSale   = 5000,
@@ -69,10 +69,10 @@ namespace OpenSim.Forge.Currency
 			ReferBonus   = 5003,
 			InvntorySale = 5004,
 			DwellBonus   = 5007,
-			PayObject	= 5008,
+			PayObject	 = 5008,
 			ObjectPays   = 5009,
 			BuyMoney	 = 5010,
-			MoveMoney	= 5011
+			MoveMoney	 = 5011
 		}
 */
 
@@ -106,9 +106,9 @@ namespace OpenSim.Forge.Currency
 		private int   ObjectCount 			  = 0;
 		private int   PriceEnergyUnit 		  = 0;
 		private int   PriceGroupCreate 		  = 0;
+		private int   PriceObjectClaim 		  = 0;
 		private float PriceObjectRent		  = 0f;
 		private float PriceObjectScaleFactor  = 0f;
-		private int   PriceObjectClaim 		  = 0;
 		private int   PriceParcelClaim 		  = 0;
 		private int   PriceParcelRent 		  = 0;
 		private float PriceParcelClaimFactor  = 0f;
@@ -245,7 +245,7 @@ namespace OpenSim.Forge.Currency
 			// for Aurora-Sim
 			scene.EventManager.OnValidateBuyLand 	+= ValidateLandBuy;
 			//scene.EventManager.OnLandBuy 			+= processLandBuy;
-			//scene.OnParcelBuyPass 				+= processLandBuy;
+			//scene.OnParcelBuyPass 					+= processLandBuyx;
 		}
 	
 
@@ -295,7 +295,7 @@ namespace OpenSim.Forge.Currency
 
 		#region IMoneyModule interface.
 
-		// for LSL ObjectGiveMoney() function
+		// for LSL llGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
 			//m_log.ErrorFormat("[MONEY]: LSL ObjectGiveMoney. UUID = ", objectID.ToString());
@@ -365,50 +365,6 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-
-		//////////////////////////////////////////////////////////////////////
-		// for Aurora-Sim
-		//
-		public int Balance(IClientAPI client)
-		{
-			return QueryBalanceFromMoneyServer(client);
-		}
-
-
-		public bool Charge(IClientAPI client, int amount)	
-		{
-			return UploadCovered(client, amount);
-		}
-
-
-		public bool Charge(UUID agentID, int amount, string text)
-		{
-			IClientAPI client = LocateClientObject(agentID);
-			return AmountCovered(client, amount);
-		}  
-
-
-		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)	
-		{
-			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
-		}
-
-
-		public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
-		{
-			SceneObjectPart sceneObj = FindPrim(toObjectID);
-			if (sceneObj==null) return false;
-
-			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
-			return TransferMoney(fromID, toID, amount, (int)type, toObjectID, regionHandle, description);
-		}
-
-
-
-		//////////////////////////////////////////////////////////////////////
-		// for OpenSim
-		//
-
 		public int GetBalance(UUID agentID)
 		{
 			IClientAPI client = LocateClientObject(agentID);
@@ -439,10 +395,40 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		//////////////////////////////////////////////////////////////////////
+		// for OpenSim
+		//
+
 		public void ApplyCharge(UUID agentID, int amount, string text)
 		{
+			ApplyCharge(agentID, amount, TransactionType.GroupCreate, text);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////
+		// for Aurora-Sim
+		//
+
+		public void ApplyCharge(UUID agentID, int amount, TransactionType type, string text)
+		{
 			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
-			PayMoneyCharge(agentID, amount, (int)TransactionType.GroupCreate, region, text);
+			PayMoneyCharge(agentID, amount, (int)type, region, text);
+		}
+
+
+		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)	
+		{
+			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
+		}
+
+
+		public bool Transfer(UUID toID, UUID fromID, UUID objectID, int amount, string description, TransactionType type)
+		{
+			SceneObjectPart sceneObj = FindPrim(objectID);
+			if (sceneObj==null) return false;
+
+			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
+			return TransferMoney(fromID, toID, amount, (int)type, objectID, regionHandle, description);
 		}
 
 
@@ -572,7 +558,7 @@ namespace OpenSim.Forge.Currency
 		// for OnValidateLandBuy event
 		private bool ValidateLandBuy(EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: ValidateLandBuy:");
+			m_log.ErrorFormat("[MONEY]: ValidateLandBuy:");
 			bool ret = false;
 			
 			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
@@ -584,7 +570,7 @@ namespace OpenSim.Forge.Currency
 					lock(landBuyEvent)
 					{
 						landBuyEvent.economyValidated = true;
-						//processLandBuy(landBuyEvent);
+						processLandBuy(landBuyEvent);
 					}
 				}
 			}
@@ -597,7 +583,7 @@ namespace OpenSim.Forge.Currency
 		// for LandBuy event
 		private bool processLandBuy(EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: processLandBuy:");
+			m_log.ErrorFormat("[MONEY]: processLandBuy:");
 
 			if (!m_sellEnabled) return false;
 
@@ -692,6 +678,8 @@ namespace OpenSim.Forge.Currency
 		/// <param name="TransactionID"></param>   
 		private void OnMoneyBalanceRequest(IClientAPI client, UUID agentID, UUID SessionID, UUID TransactionID)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnMoneyBalanceRequest:");
+
 			if (client.AgentId==agentID && client.SessionId==SessionID)
 			{
 				int balance = -1;
@@ -719,6 +707,8 @@ namespace OpenSim.Forge.Currency
 
 		private void OnRequestPayPrice(IClientAPI client, UUID objectID)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnRequestPayPrice:");
+
 			Scene scene = LocateSceneClientIn(client.AgentId);
 			if (scene==null) return;
 			SceneObjectPart sceneObj = (SceneObjectPart)scene.GetSceneObjectPart(objectID);
@@ -734,6 +724,8 @@ namespace OpenSim.Forge.Currency
 		//
 		private void OnEconomyDataRequest(IClientAPI user)
 		{
+			//m_log.ErrorFormat("[MONEY]: OnEconomyDataRequest:");
+
 			if (user!=null)
 			{
 				Scene s = LocateSceneClientIn(user.AgentId);
@@ -765,7 +757,7 @@ namespace OpenSim.Forge.Currency
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
-					requestParam.Contains("clientSessionID") &&
+					//requestParam.Contains("clientSessionID") &&	// unable for Aurora-Sim
 					requestParam.Contains("clientSecureSessionID"))
 				{
 					UUID clientUUID = UUID.Zero;
@@ -774,7 +766,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = LocateClientObject(clientUUID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							//client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&	// unable for Aurora-Sim
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("Balance"))
@@ -818,7 +810,7 @@ namespace OpenSim.Forge.Currency
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
-					requestParam.Contains("clientSessionID") &&
+					//requestParam.Contains("clientSessionID") &&	// unable for Aurora-Sim
 					requestParam.Contains("clientSecureSessionID"))
 				{
 					UUID clientUUID = UUID.Zero;
@@ -827,7 +819,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = LocateClientObject(clientUUID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							//client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&	// unable for Aurora-Sim
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("Description"))
@@ -869,7 +861,7 @@ namespace OpenSim.Forge.Currency
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("senderID") &&
 					requestParam.Contains("receiverID") &&
-					requestParam.Contains("senderSessionID") &&
+					//requestParam.Contains("senderSessionID") &&	// unable for Aurora-Sim
 					requestParam.Contains("senderSecureSessionID"))
 				{
 					UUID senderID = UUID.Zero;
@@ -880,7 +872,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = LocateClientObject(senderID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["senderSessionID"] &&
+							//client.SessionId.ToString()==(string)requestParam["senderSessionID"] &&	// unable for Aurora-Sim
 							client.SecureSessionId.ToString()==(string)requestParam["senderSecureSessionID"])
 						{
 							if (requestParam.Contains("transactionType") &&
@@ -930,7 +922,7 @@ namespace OpenSim.Forge.Currency
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("bankerID") &&
-					requestParam.Contains("bankerSessionID") &&
+					//requestParam.Contains("bankerSessionID") &&	// unable for Aurora-Sim
 					requestParam.Contains("bankerSecureSessionID"))
 				{
 					UUID bankerID = UUID.Zero;
@@ -939,7 +931,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = LocateClientObject(bankerID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["bankerSessionID"] &&
+							//client.SessionId.ToString()==(string)requestParam["bankerSessionID"] &&	// unable for Aurora-Sim
 							client.SecureSessionId.ToString()==(string)requestParam["bankerSecureSessionID"])
 						{
 							if (requestParam.Contains("amount"))
@@ -1024,7 +1016,7 @@ namespace OpenSim.Forge.Currency
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientID") &&
-					requestParam.Contains("clientSessionID") &&
+					//requestParam.Contains("clientSessionID") &&	// unable for Aurora-Sim
 					requestParam.Contains("clientSecureSessionID"))
 				{
 					UUID clientID = UUID.Zero;
@@ -1033,7 +1025,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = LocateClientObject(clientID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							//client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&	// unable for Aurora-Sim
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							balance = QueryBalanceFromMoneyServer(client);
@@ -1657,5 +1649,6 @@ namespace OpenSim.Forge.Currency
 			description = adescription;
 		}
 	}
+
 
 }
