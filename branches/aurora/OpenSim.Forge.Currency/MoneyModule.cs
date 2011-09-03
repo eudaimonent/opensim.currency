@@ -50,33 +50,37 @@ using NSL.XmlRpc;
 
 namespace OpenSim.Forge.Currency
 {
+	//
+	/*
+	public enum TransactionType : int
+	{
+		GroupCreate  	= 1002,
+		GroupJoin	 	= 1004,
+		UploadCharge 	= 1101,
+		LandAuction  	= 1102,
+		ObjectSale   	= 5000,
+		Gift		 	= 5001,
+		LandSale	 	= 5002,
+		ReferBonus   	= 5003,
+		InvntorySale 	= 5004,
+		RefundPurchase	= 5005,
+		LandPassSale	= 5006,
+		DwellBonus		= 5007,
+		PayObject	 	= 5008,
+		ObjectPays   	= 5009,
+		BuyMoney	 	= 5010,
+		MoveMoney	 	= 5011
+	}
+	*/
+
+
+
 	public class MoneyModule : IMoneyModule, ISharedRegionModule
 	{
 		#region Constant numbers and members.
 
 		// Constant memebers   
 		private const int MONEYMODULE_REQUEST_TIMEOUT = 50000;
-/*
-		public enum TransactionType : int
-		{
-			GroupCreate  	= 1002,
-			GroupJoin	 	= 1004,
-			UploadCharge 	= 1101,
-			LandAuction  	= 1102,
-			ObjectSale   	= 5000,
-			Gift		 	= 5001,
-			LandSale	 	= 5002,
-			ReferBonus   	= 5003,
-			InvntorySale 	= 5004,
-			RefundPurchase	= 5005,
-			LandPassSale	= 5006,
-			DwellBonus		= 5007,
-			PayObject	 	= 5008,
-			ObjectPays   	= 5009,
-			BuyMoney	 	= 5010,
-			MoveMoney	 	= 5011
-		}
-*/
 
 		// Private data members.   
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
