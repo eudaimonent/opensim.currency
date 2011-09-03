@@ -64,20 +64,22 @@ namespace OpenSim.Forge.Currency
 
 		public enum TransactionType : int
 		{
-			GroupCreate  = 1002,
-			GroupJoin	 = 1004,
-			UploadCharge = 1101,
-			LandAuction  = 1102,
-			ObjectSale   = 5000,
-			Gift		 = 5001,
-			LandSale	 = 5002,
-			ReferBonus   = 5003,
-			InvntorySale = 5004,
-			DwellBonus   = 5007,
-			PayObject	 = 5008,
-			ObjectPays   = 5009,
-			BuyMoney	 = 5010,
-			MoveMoney	 = 5011
+			GroupCreate  	= 1002,
+			GroupJoin	 	= 1004,
+			UploadCharge 	= 1101,
+			LandAuction  	= 1102,
+			ObjectSale   	= 5000,
+			Gift		 	= 5001,
+			LandSale	 	= 5002,
+			ReferBonus   	= 5003,
+			InvntorySale 	= 5004,
+			RefundPurchase	= 5005,
+			LandPassSale	= 5006,
+			DwellBonus   	= 5007,
+			PayObject	 	= 5008,
+			ObjectPays   	= 5009,
+			BuyMoney	 	= 5010,
+			MoveMoney	 	= 5011
 		}
 
 
@@ -254,11 +256,6 @@ namespace OpenSim.Forge.Currency
 			scene.EventManager.OnMoneyTransfer		+= MoneyTransferAction;
 			scene.EventManager.OnValidateLandBuy	+= ValidateLandBuy;
 			scene.EventManager.OnLandBuy 			+= processLandBuy;
-
-			// for Aurora-Sim
-			//scene.EventManager.OnValidateBuyLand	+= ValidateLandBuy;	 
-			//scene.EventManager.OnLandBuy			+= processLandBuy;
-			//scene.OnParcelBuyPass					+= processLandBuy;
 		}
 
 	
@@ -430,19 +427,19 @@ namespace OpenSim.Forge.Currency
 		}
 
 
-		public bool Transfer(UUID toID, UUID fromID, int id, int amount, string description, TransactionType type)
+		public bool Transfer(UUID fromID, UUID toID, int regionHandle, int amount, TransactionType type, string text)
 		{
-			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)id, description);
+			return TransferMoney(fromID, toID, amount, (int)type, UUID.Zero, (ulong)regionHandle, text);
 		}
 
 
-		public bool Transfer(UUID toID, UUID fromID, UUID objectID, int amount, string description, TransactionType type)
+		public bool Transfer(UUID fromID, UUID toID, UUID objectID, int amount, TransactionType type, string text)
 		{
 			SceneObjectPart sceneObj = FindPrim(objectID);
 			if (sceneObj==null) return false;
 
 			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
-			return TransferMoney(fromID, toID, amount, (int)type, objectID, regionHandle, description);
+			return TransferMoney(fromID, toID, amount, (int)type, objectID, regionHandle, text);
 		}
 
 
@@ -475,7 +472,7 @@ namespace OpenSim.Forge.Currency
 			client.OnMoneyBalanceRequest 	+= OnMoneyBalanceRequest;
 			client.OnRequestPayPrice 		+= OnRequestPayPrice;
 			client.OnLogout 				+= ClientClosed;
-			client.OnObjectBuy				+= OnObjectBuy;				// for OpenSim   at Aurora-Sim, OnObjectBuy event is already defined.
+			client.OnObjectBuy				+= OnObjectBuy;				// for OpenSim 
 			//client.OnMoneyTransferRequest	+= MoneyTransferRequest;	// for Aurora-Sim
 		}	   
 
@@ -589,9 +586,11 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+
+		// for LandBuy even
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			m_log.ErrorFormat("[MONEY]: processLandBuy:");
+			//m_log.ErrorFormat("[MONEY]: processLandBuy:");
 
 			if (!m_sellEnabled) return;
 
@@ -617,8 +616,6 @@ namespace OpenSim.Forge.Currency
 
 
 		// for OnObjectBuy event
-		//		For Aurora-Sim, OnObjectBuy event function is already defined
-		//		in OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
@@ -1616,35 +1613,5 @@ namespace OpenSim.Forge.Currency
 
 		#endregion
 	}
-
-
-
-
-
-
-	////////////////////////////////////////////////////////////////////////
-	//
-	// for Aurora-Sim
-	//
-	/*
-	public class MoneyTransferArgs : EventArgs
-	{
-		public UUID sender;
-		public UUID receiver;
-		public bool authenticated = false;
-		public int  amount;
-		public int  transactiontype;
-		public string description;
-
-		public MoneyTransferArgs(UUID asender, UUID areceiver, int aamount, int atransactiontype, string adescription)
-		{
-			sender = asender;
-			receiver = areceiver;
-			amount = aamount;
-			transactiontype = atransactiontype;
-			description = adescription;
-		}
-	}
-*/
 
 }
