@@ -20,7 +20,7 @@ define('OPENSIM_DB_USER',	  'aurora_user');
 define('OPENSIM_DB_PASS',	  'aurora_pass');
 
 
-// Please set key that is same at OpenSim.ini and user(robust) server's URL
+// Please set same key with in OpenSim.ini and set user(robust) server's URL
 define('CURRENCY_SCRIPT_KEY', '123456789');
 define('USER_SERVER_URI',     'http://star-light.nsl.tuis.ac.jp:8002/');	// not use localhost or 127.0.0.1
 
