@@ -28,16 +28,19 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using log4net;
-using Nwc.XmlRpc;
-using OpenSim.Framework.Servers;
-using OpenSim.Framework.Servers.HttpServer;
 using System.Reflection;
 using System.Collections;
 using System.Net;
-using OpenMetaverse;
-using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
+using log4net;
 using Nini.Config;
+using Nwc.XmlRpc;
+
+using OpenMetaverse;
+using OpenSim.Framework;
+using OpenSim.Framework.Servers;
+using OpenSim.Framework.Servers.HttpServer;
+using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
+using OpenSim.Forge.Currency;
 
 using System.Security.Cryptography;
 using NSL.XmlRpc;
@@ -65,6 +68,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		// Update Balance Messages
 		private string m_BalanceMessageLandSale 	= "Paid the Money L${0} for Land.";
+		private string m_BalanceMessageRcvLandSale 	= "";
 		private string m_BalanceMessageSendGift 	= "Sent Gift L${0} to {1}.";
 		private string m_BalanceMessageReceiveGift	= "Received Gift L${0} from {1}.";
 		private string m_BalanceMessagePayCharge 	= "";
@@ -125,6 +129,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			// Update Balance Messages
 			m_BalanceMessageLandSale	 = m_config.GetString("BalanceMessageLandSale", 	m_BalanceMessageLandSale);
+			m_BalanceMessageRcvLandSale	 = m_config.GetString("BalanceMessageRcvLandSale", 	m_BalanceMessageRcvLandSale);
 			m_BalanceMessageSendGift	 = m_config.GetString("BalanceMessageSendGift",		m_BalanceMessageSendGift);
 			m_BalanceMessageReceiveGift  = m_config.GetString("BalanceMessageReceiveGift",	m_BalanceMessageReceiveGift);
 			m_BalanceMessagePayCharge    = m_config.GetString("BalanceMessagePayCharge",	m_BalanceMessagePayCharge);
@@ -372,17 +377,18 @@ namespace OpenSim.Grid.MoneyServer
 									string snd_message = "";
 									string rcv_message = "";
 
-									if (transaction.Type==5001) {			// Gift
+									if (transaction.Type==(int)TransactionType.Gift) {
 										snd_message = m_BalanceMessageSendGift;
 										rcv_message = m_BalanceMessageReceiveGift;
 									}
-									else if (transaction.Type==5002) {		// LandSale
+									else if (transaction.Type==(int)TransactionType.LandSale) {
 										snd_message = m_BalanceMessageLandSale;
+										rcv_message = m_BalanceMessageRcvLandSale;
 									}
-									else if (transaction.Type==5008) {		// PayObject
+									else if (transaction.Type==(int)TransactionType.PayObject) {
 										snd_message = m_BalanceMessageBuyObject;
 									}
-									else if (transaction.Type==5009) {		// ObjectGiveMoney
+									else if (transaction.Type==(int)TransactionType.ObjectPays) {		// ObjectGiveMoney
 										rcv_message = m_BalanceMessageGetMoney;
 									}
 						
@@ -511,17 +517,18 @@ namespace OpenSim.Grid.MoneyServer
 							string snd_message = "";
 							string rcv_message = "";
 
-							if (transaction.Type==5001) {			// Gift
+							if (transaction.Type==(int)TransactionType.Gift) {
 								snd_message = m_BalanceMessageSendGift;
 								rcv_message = m_BalanceMessageReceiveGift;
 							}
-							else if (transaction.Type==5002) {		// LandSale
+							else if (transaction.Type==(int)TransactionType.LandSale) {
 								snd_message = m_BalanceMessageLandSale;
+								snd_message = m_BalanceMessageRcvLandSale;
 							}
-							else if (transaction.Type==5008) {		// PayObject
+							else if (transaction.Type==(int)TransactionType.PayObject) {
 								snd_message = m_BalanceMessageBuyObject;
 							}
-							else if (transaction.Type==5009) {		// ObjectGiveMoney
+							else if (transaction.Type==(int)TransactionType.ObjectPays) {		// ObjectGiveMoney
 								rcv_message = m_BalanceMessageGetMoney;
 							}
 						
@@ -948,7 +955,7 @@ namespace OpenSim.Grid.MoneyServer
 						}
 
 						// Notify to sender?
-						if (transaction.Type==5008)
+						if (transaction.Type==(int)TransactionType.PayObject)
 						{
 							m_log.InfoFormat("[Money RPC] Now notify opensim to give object to customer:{0} ", transaction.Sender);
 							Hashtable requestTable = new Hashtable();
