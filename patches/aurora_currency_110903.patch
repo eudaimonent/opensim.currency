@@ -1,6 +1,6 @@
 diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/AuroraDotNetEngine/EventManager.cs
 --- aurora-/Aurora/AuroraDotNetEngine/EventManager.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -118,53 +118,22 @@
              if (money != null)
              {
@@ -99,7 +99,7 @@ diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/Aurora
          public void collision_start (ISceneChildEntity part, ColliderArgs col)
 diff -Nur aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs aurora/Aurora/AuroraDotNetEngine4/EventManager.cs
 --- aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -122,53 +122,22 @@
              if (money != null)
              {
@@ -198,7 +198,7 @@ diff -Nur aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs aurora/Aurora/Auror
          public void collision_start (ISceneChildEntity part, ColliderArgs col)
 diff -Nur aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs
 --- aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -242,7 +242,8 @@
              IMoneyModule money = p.Scene.RequestModuleInterface<IMoneyModule>();
              if (money != null)
@@ -211,7 +211,7 @@ diff -Nur aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs aur
                      return;
 diff -Nur aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs
 --- aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -71,29 +71,55 @@
  #pragma warning disable 67
  
@@ -318,7 +318,7 @@ diff -Nur aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule
  }
 diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMoneyModule.cs
 --- aurora-/OpenSim/Framework/IMoneyModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/OpenSim/Framework/IMoneyModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/OpenSim/Framework/IMoneyModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -25,43 +25,74 @@
   * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   */
@@ -417,7 +417,7 @@ diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMo
 +
 diff -Nur aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs
 --- aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -306,7 +306,7 @@
  
                  if (mm != null)
@@ -429,7 +429,7 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransac
                          return;
 diff -Nur aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs
 --- aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -956,7 +956,8 @@
                  try
                  {
@@ -440,9 +440,17 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs auror
                      {
                          remoteClient.SendCreateGroupReply (UUID.Zero, false, "You have got issuficient funds to create a group.");
                          return UUID.Zero;
+@@ -967,6 +968,7 @@
+                     remoteClient.SendCreateGroupReply (UUID.Zero, false, "A money related exception occured, please contact your grid administrator.");
+                     return UUID.Zero;
+                 }
++                money.ApplyCharge(remoteClient.AgentId, money.GroupCreationCharge, TransactionType.GroupCreate, "Group Creation");
+             }
+             UUID groupID = m_groupData.CreateGroup(GetRequestingAgentID(remoteClient), name, charter, showInList, insigniaID, membershipFee, openEnrollment, allowPublish, maturePublish, GetRequestingAgentID(remoteClient));
+ 
 diff -Nur aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
 --- aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -1202,7 +1202,8 @@
  
              IMoneyModule module = m_scene.RequestModuleInterface<IMoneyModule>();
@@ -480,7 +488,7 @@ diff -Nur aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.c
          }
 diff -Nur aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
 --- aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-09-02 21:05:25.000000000 +0900
-+++ aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-09-03 12:19:36.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-09-03 23:23:56.000000000 +0900
 @@ -157,7 +157,7 @@
              IMoneyModule moneyMod = remoteClient.Scene.RequestModuleInterface<IMoneyModule>();
              if (moneyMod != null)
