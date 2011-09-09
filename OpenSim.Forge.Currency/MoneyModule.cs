@@ -83,7 +83,7 @@ namespace OpenSim.Forge.Currency
 		#region Constant numbers and members.
 
 		// Constant memebers   
-		private const int MONEYMODULE_REQUEST_TIMEOUT = 50000;
+		private const int MONEYMODULE_REQUEST_TIMEOUT = 6000;
 
 		// Private data members.   
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -167,12 +167,12 @@ namespace OpenSim.Forge.Currency
 				if (economyConfig.GetString("EconomyModule").ToString()!=Name)
 				{
 					m_enabled = false;
-					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is disabled.");
+					m_log.InfoFormat("[MONEY] The DTL/NSL MoneyModule is disabled.");
 					return;
 				}
 				else
 				{
-					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is enabled.");
+					m_log.InfoFormat("[MONEY] The DTL/NSL MoneyModule is enabled.");
 				}
 
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
@@ -202,7 +202,7 @@ namespace OpenSim.Forge.Currency
 			}
 			catch
 			{
-				m_log.ErrorFormat("[MONEY]: Faile to read configuration file.");
+				m_log.ErrorFormat("[MONEY] Initialise: Faile to read configuration file.");
 			}
 		}
 
@@ -229,6 +229,8 @@ namespace OpenSim.Forge.Currency
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);				// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);			// added by Fumi.Iseki
 						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);						// added by Fumi.Iseki
+						//HttpServer.AddXmlRPCHandler("UploadCovered", UploadCoveredHandler);				// added by Fumi.Iseki for Aurora-Sim
+						//HttpServer.AddXmlRPCHandler("UploadCharge",  UploadChargeHandler);				// added by Fumi.Iseki for Aurora-Sim
 
 						MainServer.Instance.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
@@ -236,6 +238,8 @@ namespace OpenSim.Forge.Currency
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);		// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);	// added by Fumi.Iseki
 						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);				// added by Fumi.Iseki
+						//MainServer.Instance.AddXmlRPCHandler("UploadCovered", UploadCoveredHandler);		// added by Fumi.Iseki for Aurora-Sim
+						//MainServer.Instance.AddXmlRPCHandler("UploadCharge",  UploadChargeHandler);		// added by Fumi.Iseki for Aurora-Sim
 					}
 				}
 
@@ -311,30 +315,20 @@ namespace OpenSim.Forge.Currency
 		// for LSL llGiveMoney() function
 		public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
 		{
-			//m_log.ErrorFormat("[MONEY]: LSL ObjectGiveMoney. UUID = ", objectID.ToString());
+			//m_log.InfoFormat("[MONEY] ObjectGiveMoney: LSL ObjectGiveMoney. UUID = {0}", objectID.ToString());
 
 			if (!m_sellEnabled) return false;
 
 			string objName = string.Empty;
 			string avatarName = string.Empty;
 
-			SceneObjectPart sceneObj = FindPrim(objectID);
+			SceneObjectPart sceneObj = GetLocatePrim(objectID);
 			if (sceneObj!=null)
 			{
 				objName = sceneObj.Name;
 			}
 
-			Scene scene = null;
-			if (m_sceneList.Count>0)
-			{
-				//scene = m_sceneList[0];
-				foreach (Scene _scene in m_sceneList.Values)
-				{
-					scene = _scene;
-					break;
-				}
-			}
-
+			Scene scene = GetLocateScene(toID);
 			if (scene!=null)
 			{
 				UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
@@ -350,7 +344,7 @@ namespace OpenSim.Forge.Currency
 			if (sceneObj.OwnerID==fromID)
 			{
 				ulong regionHandle = sceneObj.RegionHandle;
-				if (LocateClientObject(fromID)!=null)
+				if (GetLocateClient(fromID)!=null)
 				{
 					ret = TransferMoney(fromID, toID, amount, (int)TransactionType.ObjectPays, objectID, regionHandle, description);
 				}
@@ -380,7 +374,7 @@ namespace OpenSim.Forge.Currency
 
 		public int GetBalance(UUID agentID)
 		{
-			IClientAPI client = LocateClientObject(agentID);
+			IClientAPI client = GetLocateClient(agentID);;
 			return QueryBalanceFromMoneyServer(client);
 		}
 
@@ -403,7 +397,7 @@ namespace OpenSim.Forge.Currency
 
 		public void ApplyUploadCharge(UUID agentID, int amount, string text)
 		{
-			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+			ulong region = GetLocateScene(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, amount, (int)TransactionType.UploadCharge, region, text);
 		}
 
@@ -424,7 +418,7 @@ namespace OpenSim.Forge.Currency
 
 		public void ApplyCharge(UUID agentID, int amount, TransactionType type, string text)
 		{
-			ulong region = LocateSceneClientIn(agentID).RegionInfo.RegionHandle;
+			ulong region = GetLocateScene(agentID).RegionInfo.RegionHandle;
 			PayMoneyCharge(agentID, amount, (int)type, region, text);
 		}
 
@@ -437,11 +431,11 @@ namespace OpenSim.Forge.Currency
 
 		public bool Transfer(UUID fromID, UUID toID, UUID objectID, int amount, TransactionType type, string text)
 		{
-			SceneObjectPart sceneObj = FindPrim(objectID);
+			SceneObjectPart sceneObj = GetLocatePrim(objectID);
 			if (sceneObj==null) return false;
 
 			ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
-			return TransferMoney(fromID, toID, amount, (int)type, objectID, regionHandle, text);
+			return TransferMoney(fromID, toID, amount, (int)type, objectID, (ulong)regionHandle, text);
 		}
 
 
@@ -463,7 +457,7 @@ namespace OpenSim.Forge.Currency
 		// added by Fumi.Iseki for OnMakeRootAgent event
 		public void OnMakeRootAgent(ScenePresence agent)
 		{
-			//m_log.Debug("[MONEY]: OnMakeRootAgent.");
+			//m_log.Debug("[MONEY] OnMakeRootAgent.");
 
 			int balance = 0;
 			IClientAPI client = agent.ControllingClient;
@@ -494,20 +488,11 @@ namespace OpenSim.Forge.Currency
 		// for OnMoneyTransferRequest event  (for Aurora-Sim)
 		private void MoneyTransferRequest(UUID sourceID, UUID destID, int amount, int transactionType, string description)
 		{
-			//m_log.ErrorFormat("[MONEY]: MoneyTransferRequest. type = {0} {1} {2}", transactionType, amount, description);
+			//m_log.InfoFormat("[MONEY] MoneyTransferRequest: type = {0} {1} {2}", transactionType, amount, description);
 
+			//if (transactionType==(int)TransactionType.UploadCharge) return;
 			EventManager.MoneyTransferArgs moneyEvent = new EventManager.MoneyTransferArgs(sourceID, destID, amount, transactionType, description);
-
-			Scene scene = null;
-			if (m_sceneList.Count>0)
-			{
-				foreach (Scene _scene in m_sceneList.Values)
-				{
-					scene = _scene;
-					break;
-				}
-			}
-
+			Scene scene = GetLocateScene(sourceID);
 			MoneyTransferAction(scene, moneyEvent);
 		}
 
@@ -516,7 +501,7 @@ namespace OpenSim.Forge.Currency
 		// for OnMoneyTransfer event  (for OpenSim)
 		private void MoneyTransferAction(Object sender, EventManager.MoneyTransferArgs moneyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: MoneyTransferAction. type = {0}", moneyEvent.transactiontype);
+			//m_log.InfoFormat("[MONEY] MoneyTransferAction: type = {0}", moneyEvent.transactiontype);
 		
 			if (!m_sellEnabled) return;
 
@@ -529,7 +514,7 @@ namespace OpenSim.Forge.Currency
 			UUID receiver = moneyEvent.receiver;
 			if (moneyEvent.transactiontype==(int)TransactionType.PayObject)		// Pay for the object.   
 			{
-				SceneObjectPart sceneObj = FindPrim(moneyEvent.receiver);
+				SceneObjectPart sceneObj = GetLocatePrim(moneyEvent.receiver);
 				if (sceneObj!=null)
 				{
 					receiver = sceneObj.OwnerID;
@@ -571,9 +556,9 @@ namespace OpenSim.Forge.Currency
 		// for OnValidateLandBuy event
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			m_log.ErrorFormat("[MONEY]: ValidateLandBuy:");
+			//m_log.InfoFormat("[MONEY] ValidateLandBuy:");
 			
-			IClientAPI senderClient = LocateClientObject(landBuyEvent.agentId);
+			IClientAPI senderClient = GetLocateClient(landBuyEvent.agentId);
 			if (senderClient!=null)
 			{
 				int balance = QueryBalanceFromMoneyServer(senderClient);
@@ -592,7 +577,7 @@ namespace OpenSim.Forge.Currency
 		// for LandBuy even
 		private void processLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
-			//m_log.ErrorFormat("[MONEY]: processLandBuy:");
+			//m_log.InfoFormat("[MONEY] processLandBuy:");
 
 			if (!m_sellEnabled) return;
 
@@ -621,7 +606,7 @@ namespace OpenSim.Forge.Currency
 		public void OnObjectBuy(IClientAPI remoteClient, UUID agentID, UUID sessionID, 
 								UUID groupID, UUID categoryID, uint localID, byte saleType, int salePrice)
 		{
-			//m_log.ErrorFormat("[MONEY]: OnObjectBuy: agent = {0}, {1}", agentID, remoteClient.AgentId);
+			//m_log.InfoFormat("[MONEY] OnObjectBuy: agent = {0}, {1}", agentID, remoteClient.AgentId);
 
 			// Handle the parameters error.   
 			if (!m_sellEnabled) return;
@@ -635,7 +620,7 @@ namespace OpenSim.Forge.Currency
 				return;
 			}
 
-			Scene scene = LocateSceneClientIn(remoteClient.AgentId);
+			Scene scene = GetLocateScene(remoteClient.AgentId);
 			if (scene!=null)
 			{
 				SceneObjectPart sceneObj = scene.GetSceneObjectPart(localID);
@@ -672,7 +657,7 @@ namespace OpenSim.Forge.Currency
 		/// <param name="TransactionID"></param>   
 		private void OnMoneyBalanceRequest(IClientAPI client, UUID agentID, UUID SessionID, UUID TransactionID)
 		{
-			//m_log.ErrorFormat("[MONEY]: OnMoneyBalanceRequest:");
+			//m_log.InfoFormat("[MONEY] OnMoneyBalanceRequest:");
 
 			if (client.AgentId==agentID && client.SessionId==SessionID)
 			{
@@ -701,9 +686,9 @@ namespace OpenSim.Forge.Currency
 
 		private void OnRequestPayPrice(IClientAPI client, UUID objectID)
 		{
-			//m_log.ErrorFormat("[MONEY]: OnRequestPayPrice:");
+			//m_log.InfoFormat("[MONEY] OnRequestPayPrice:");
 
-			Scene scene = LocateSceneClientIn(client.AgentId);
+			Scene scene = GetLocateScene(client.AgentId);
 			if (scene==null) return;
 			SceneObjectPart sceneObj = scene.GetSceneObjectPart(objectID);
 			if (sceneObj==null) return;
@@ -718,13 +703,13 @@ namespace OpenSim.Forge.Currency
 		//
 		private void OnEconomyDataRequest(UUID agentId)
 		{
-			//m_log.ErrorFormat("[MONEY]: OnEconomyDataRequest:");
+			//m_log.InfoFormat("[MONEY] OnEconomyDataRequest:");
 
-			IClientAPI user = LocateClientObject(agentId);
+			IClientAPI user = GetLocateClient(agentId);
 
 			if (user!=null)
 			{
-				Scene s = LocateSceneClientIn(user.AgentId);
+				Scene s = GetLocateScene(user.AgentId);
 
 				user.SendEconomyData(EnergyEfficiency, s.RegionInfo.ObjectCapacity, ObjectCount, PriceEnergyUnit, PriceGroupCreate,
 									 PriceObjectClaim, PriceObjectRent, PriceObjectScaleFactor, PriceParcelClaim, PriceParcelClaimFactor,
@@ -744,6 +729,8 @@ namespace OpenSim.Forge.Currency
 		// 		Money Server -> Region Server -> Viewer
 		public XmlRpcResponse BalanceUpdateHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
+			//m_log.InfoFormat("[MONEY] BalanceUpdateHandler:");
+
 			bool ret = false;
 
 			#region Update the balance from money server.
@@ -759,7 +746,7 @@ namespace OpenSim.Forge.Currency
 					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
 					if (clientUUID!=UUID.Zero)
 					{
-						IClientAPI client = LocateClientObject(clientUUID);
+						IClientAPI client = GetLocateClient(clientUUID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
@@ -783,9 +770,10 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
+
 			if (!ret)
 			{
-				m_log.ErrorFormat("[MONEY]: Cannot update client balance from MoneyServer.");
+				m_log.ErrorFormat("[MONEY] BalanceUpdateHandler: Cannot update client balance from MoneyServer.");
 			}
 			resp.Value = paramTable;
 
@@ -797,6 +785,8 @@ namespace OpenSim.Forge.Currency
 		// for UserAlert RPC
 		public XmlRpcResponse UserAlertHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
+			//m_log.InfoFormat("[MONEY] UserAlertHandler:");
+
 			bool ret = false;
 
 			#region confirm the request and show the notice from money server.
@@ -812,7 +802,7 @@ namespace OpenSim.Forge.Currency
 					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
 					if (clientUUID!=UUID.Zero)
 					{
-						IClientAPI client = LocateClientObject(clientUUID);
+						IClientAPI client = GetLocateClient(clientUUID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
@@ -847,7 +837,7 @@ namespace OpenSim.Forge.Currency
 		// for OnMoneyTransfered RPC from Money Server
 		public XmlRpcResponse OnMoneyTransferedHandlered(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
-			//m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: in");
+			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandlered:");
 
 			bool ret = false;
 
@@ -865,7 +855,7 @@ namespace OpenSim.Forge.Currency
 					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
 					if (senderID!=UUID.Zero)
 					{
-						IClientAPI client = LocateClientObject(senderID);
+						IClientAPI client = GetLocateClient(senderID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["senderSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["senderSecureSessionID"])
@@ -874,7 +864,7 @@ namespace OpenSim.Forge.Currency
 								requestParam.Contains("objectID") &&
 								requestParam.Contains("amount"))
 							{
-								//m_log.ErrorFormat("[MONEY]: OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
+								//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
 								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)		// Pay for the object.
 								{
 									// Send notify to the client(viewer) for Money Event Trigger.   
@@ -897,9 +887,10 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
+
 			if (!ret)
 			{
-				m_log.ErrorFormat("[MONEY]: ERROR: Transaction is failed. MoneyServer will rollback.");
+				m_log.ErrorFormat("[MONEY] OnMoneyTransferedHandlered: Transaction is failed. MoneyServer will rollback.");
 			}
 			resp.Value = paramTable;
 
@@ -911,6 +902,8 @@ namespace OpenSim.Forge.Currency
 		// for AddBankerMoney RPC
 		public XmlRpcResponse AddBankerMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
+			//m_log.InfoFormat("[MONEY] AddBankerMoneyHandler:");
+
 			bool ret = false;
 
 			if (request.Params.Count>0)
@@ -924,7 +917,7 @@ namespace OpenSim.Forge.Currency
 					UUID.TryParse((string)requestParam["bankerID"], out bankerID);
 					if (bankerID!=UUID.Zero)
 					{
-						IClientAPI client = LocateClientObject(bankerID);
+						IClientAPI client = GetLocateClient(bankerID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["bankerSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["bankerSecureSessionID"])
@@ -944,9 +937,10 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
+
 			if (!ret) 
 			{
-				m_log.ErrorFormat("[MONEY]: Add Banker Money transaction is failed.");
+				m_log.ErrorFormat("[MONEY] AddBankerMoneyHandler: Add Banker Money transaction is failed.");
 			}
 			resp.Value = paramTable;
 
@@ -958,6 +952,8 @@ namespace OpenSim.Forge.Currency
 		// for SendMoneyBalance RPC
 		public XmlRpcResponse SendMoneyBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
+			//m_log.InfoFormat("[MONEY] SendMoneyBalanceHandler:");
+
 			bool ret = false;
 
 			if (request.Params.Count>0)
@@ -979,7 +975,7 @@ namespace OpenSim.Forge.Currency
 							MD5 md5 = MD5.Create();
 							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
 							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
-							//m_log.ErrorFormat("[MONEY]: SecretCode: {0} + {1} = {2}", secretCode, scriptIP, hash);
+							//m_log.InfoFormat("[MONEY] SendMoneyBalanceHandler: SecretCode: {0} + {1} = {2}", secretCode, scriptIP, hash);
 							ret = SendMoneyBalance(avatarID, amount, hash);
 						}
 					}
@@ -990,9 +986,10 @@ namespace OpenSim.Forge.Currency
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
+
 			if (!ret) 
 			{
-				m_log.ErrorFormat("[MONEY]: Send Money transaction is failed.");
+				m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Send Money transaction is failed.");
 			}
 			resp.Value = paramTable;
 
@@ -1004,6 +1001,8 @@ namespace OpenSim.Forge.Currency
 		// for GetBalance RPC
 		public XmlRpcResponse GetBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
+			//m_log.InfoFormat("[MONEY] GetBalanceHandler:");
+
 			bool ret = false;
 			int  balance = -1;
 
@@ -1018,7 +1017,7 @@ namespace OpenSim.Forge.Currency
 					UUID.TryParse((string)requestParam["clientID"], out clientID);
 					if (clientID!=UUID.Zero)
 					{
-						IClientAPI client = LocateClientObject(clientID);
+						IClientAPI client = GetLocateClient(clientID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
@@ -1032,7 +1031,7 @@ namespace OpenSim.Forge.Currency
 			// Send the response to caller.
 			if (balance<0) 
 			{
-				m_log.ErrorFormat("[MONEY]: GetBlance transaction is failed.");
+				m_log.ErrorFormat("[MONEY] GetBalanceHandler: GetBlance transaction is failed.");
 				ret = false;
 			}
 
@@ -1044,6 +1043,24 @@ namespace OpenSim.Forge.Currency
 
 			return resp;
 		}
+
+
+
+		// UploadCovered RPC for Aurora-Sim
+		/*
+		public XmlRpcResponse UploadCoveredHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{  
+		}
+		*/
+
+
+
+		// UploadCovered RPC for Aurora-Sim
+		/*
+		public XmlRpcResponse UploadCoveredHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{ 
+		}
+		*/
 
 
 		#endregion
@@ -1064,19 +1081,21 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool TransferMoney(UUID sender, UUID receiver, int amount, int type, UUID objectID, ulong regionHandle, string description)
 		{
+			//m_log.InfoFormat("[MONEY] TransferMoney:");
+
 			bool ret = false;
-			IClientAPI senderClient = LocateClientObject(sender);
+			IClientAPI senderClient = GetLocateClient(sender);
 
 			// Handle the illegal transaction.   
 			if (senderClient==null) // receiverClient could be null.
 			{
-				m_log.ErrorFormat("[MONEY]: Client {0} not found", sender.ToString());
+				m_log.InfoFormat("[MONEY] TransferMoney: Client {0} not found", sender.ToString());
 				return false;
 			}
 
 			if (QueryBalanceFromMoneyServer(senderClient)<amount)
 			{
-				m_log.ErrorFormat("[MONEY]: No insufficient balance in client [{0}].", sender.ToString());
+				m_log.InfoFormat("[MONEY] TransferMoney: No insufficient balance in client [{0}].", sender.ToString());
 				return false;
 			}
 
@@ -1106,13 +1125,13 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"]==true)
 					{
-						m_log.DebugFormat("[MONEY]: Money transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
+						m_log.DebugFormat("[MONEY] TransferMoney: Money transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
 						ret = true;
 					}
 				}
-				else m_log.ErrorFormat("[MONEY]: Can not money transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
+				else m_log.ErrorFormat("[MONEY] TransferMoney: Can not money transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
 			}
-			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] TransferMoney: Money Server is not available!!");
 
 			#endregion
 
@@ -1134,6 +1153,8 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool ForceTransferMoney(UUID sender, UUID receiver, int amount, int type, UUID objectID, ulong regionHandle, string description)
 		{
+			//m_log.InfoFormat("[MONEY] ForceTransferMoney:");
+
 			bool ret = false;
 
 			#region Force send transaction request to money server and parse the resultes.
@@ -1160,13 +1181,13 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"]==true)
 					{
-						m_log.DebugFormat("[MONEY]: Money force transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
+						m_log.DebugFormat("[MONEY] ForceTransferMoney: Money force transfer from [{0}] to [{1}] is done.", sender.ToString(), receiver.ToString());
 						ret = true;
 					}
 				}
-				else m_log.ErrorFormat("[MONEY]: Can not money force transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
+				else m_log.ErrorFormat("[MONEY] ForceTransferMoney: Can not money force transfer request from [{0}] to [{1}].", sender.ToString(), receiver.ToString());
 			}
-			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] ForceTransferMoney: Money Server is not available!!");
 
 			#endregion
 
@@ -1186,6 +1207,8 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool AddBankerMoney(UUID bankerID, int amount, ulong regionHandle)
 		{
+			//m_log.InfoFormat("[MONEY] AddBankerMoney:");
+
 			bool ret = false;
 
 			if (!string.IsNullOrEmpty(m_moneyServURL))
@@ -1207,14 +1230,14 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"]==true)
 					{
-						m_log.DebugFormat("[MONEY]: Add the money to banker [{0}] is done.", bankerID.ToString());
+						m_log.DebugFormat("[MONEY] AddBankerMoney: Add the money to banker [{0}] is done.", bankerID.ToString());
 						ret = true;
 					}
-					else m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
+					else m_log.ErrorFormat("[MONEY] AddBankerMoney: Fail Message: {0}", resultTable["message"]);
 				}
-				else m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
+				else m_log.ErrorFormat("[MONEY] AddBankerMoney: Money Server is not responce.");
 			}
-			else m_log.ErrorFormat("[MONEY]: AddBankerMoney: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] AddBankerMoney: Money Server is not available!!");
 
 			return ret;
 		}
@@ -1232,6 +1255,8 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool SendMoneyBalance(UUID avatarID, int amount, string secretCode)
 		{
+			//m_log.InfoFormat("[MONEY] SendMoneyBalance:");
+
 			bool ret = false;
 
 			if (!string.IsNullOrEmpty(m_moneyServURL))
@@ -1253,14 +1278,14 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"]==true)
 					{
-						m_log.DebugFormat("[MONEY]: Send the money to avatar [{0}] is done.", avatarID.ToString());
+						m_log.DebugFormat("[MONEY] SendMoneyBalance: Send the money to avatar [{0}] is done.", avatarID.ToString());
 						ret = true;
 					}
-					else m_log.ErrorFormat("[MONEY]: Fail Message: {0}", resultTable["message"]);
+					else m_log.ErrorFormat("[MONEY] SendMoneyBalance: Fail Message is {0}", resultTable["message"]);
 				}
-				else m_log.ErrorFormat("[MONEY]: Money Server is not responce.");
+				else m_log.ErrorFormat("[MONEY] SendMoneyBalance: Money Server is not responce.");
 			}
-			else m_log.ErrorFormat("[MONEY]: SendMoneyBalance: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] SendMoneyBalance: Money Server is not available!!");
 
 			return ret;
 		}
@@ -1278,19 +1303,21 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool PayMoneyCharge(UUID sender, int amount, int type, ulong regionHandle, string description)
 		{
+			//m_log.InfoFormat("[MONEY] PayMoneyCharge:");
+
 			bool ret = false;
-			IClientAPI senderClient = LocateClientObject(sender);
+			IClientAPI senderClient = GetLocateClient(sender);
 
 			// Handle the illegal transaction.   
 			if (senderClient==null) // receiverClient could be null.
 			{
-				m_log.ErrorFormat("[MONEY]: Client {0} not found", sender.ToString());
+				m_log.ErrorFormat("[MONEY] PayMoneyCharge: Client {0} not found", sender.ToString());
 				return false;
 			}
 
 			if (QueryBalanceFromMoneyServer(senderClient)<amount)
 			{
-				m_log.ErrorFormat("[MONEY]: No insufficient balance in client [{0}].", sender.ToString());
+				m_log.ErrorFormat("[MONEY] PayMoneyCharge: No insufficient balance in client [{0}].", sender.ToString());
 				return false;
 			}
 
@@ -1317,13 +1344,13 @@ namespace OpenSim.Forge.Currency
 				{
 					if ((bool)resultTable["success"]==true)
 					{
-						m_log.DebugFormat("[MONEY]: Pay money of charge from [{0}] is done.", sender.ToString());
+						m_log.DebugFormat("[MONEY] PayMoneyCharge: Pay money of charge from [{0}] is done.", sender.ToString());
 						ret = true;
 					}
 				}
-				else m_log.ErrorFormat("[MONEY]: Can not pay money of charge request from [{0}].", sender.ToString());
+				else m_log.ErrorFormat("[MONEY] PayMoneyCharge: Can not pay money of charge request from [{0}].", sender.ToString());
 			}
-			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] PayMoneyCharge: Money Server is not available!!");
 
 			#endregion
 
@@ -1343,6 +1370,8 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool LoginMoneyServer(IClientAPI client, out int balance)
 		{
+			//m_log.InfoFormat("[MONEY] LoginMoneyServer:");
+
 			bool ret = false;
 			balance = 0;
 
@@ -1385,13 +1414,13 @@ namespace OpenSim.Forge.Currency
 					if ((bool)resultTable["success"]==true)
 					{
 						balance = (int)resultTable["clientBalance"];
-						m_log.InfoFormat("[MONEY]: Client [{0}] login Money Server {1}.", client.AgentId.ToString(), m_moneyServURL);
+						m_log.InfoFormat("[MONEY] LoginMoneyServer: Client [{0}] login Money Server {1}.", client.AgentId.ToString(), m_moneyServURL);
 						ret = true;
 					}
 				}
-				else m_log.ErrorFormat("[MONEY]: Unable to login Money Server {0} for client [{1}].", m_moneyServURL, client.AgentId.ToString());
+				else m_log.ErrorFormat("[MONEY] LoginMoneyServer: Unable to login Money Server {0} for client [{1}].", m_moneyServURL, client.AgentId.ToString());
 			}
-			else m_log.ErrorFormat("[MONEY]: Money Server is not available!!");
+			else m_log.ErrorFormat("[MONEY] LoginMoneyServer: Money Server is not available!!");
 
 			#endregion
 
@@ -1411,6 +1440,8 @@ namespace OpenSim.Forge.Currency
 		/// </returns>   
 		private bool LogoffMoneyServer(IClientAPI client)
 		{
+			//m_log.InfoFormat("[MONEY] LogoffMoneyServer:");
+
 			bool ret = false;
 
 			if (!string.IsNullOrEmpty(m_moneyServURL))
@@ -1447,6 +1478,8 @@ namespace OpenSim.Forge.Currency
 		/// <returns>Hashtable with success=>bool and other values</returns>   
 		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method)
 		{
+			//m_log.InfoFormat("[MONEY] genericCurrencyXMLRPCRequest:");
+
 			// Handle the error in parameter list.   
 			if (reqParams.Count<=0 || string.IsNullOrEmpty(method) || string.IsNullOrEmpty(m_moneyServURL))
 			{
@@ -1463,7 +1496,7 @@ namespace OpenSim.Forge.Currency
 			}
 			catch (Exception ex)
 			{
-				m_log.ErrorFormat( "[MONEY]: Unable to connect to Money Server {0}.  Exception {1}", m_moneyServURL, ex);
+				m_log.ErrorFormat( "[MONEY] genericCurrencyXMLRPCRequest: Unable to connect to Money Server {0}.  Exception {1}", m_moneyServURL, ex);
 
 				Hashtable ErrorHash = new Hashtable();
 				ErrorHash["success"] 	  = false;
@@ -1491,6 +1524,8 @@ namespace OpenSim.Forge.Currency
 
 		private int QueryBalanceFromMoneyServer(IClientAPI client)
 		{
+			//m_log.InfoFormat("[MONEY] QueryBalanceFromMoneyServer:");
+
 			int ret = -1;
 
 			#region Send the request to get the balance from money server for cilent.
@@ -1527,7 +1562,7 @@ namespace OpenSim.Forge.Currency
 
 				if (ret < 0)
 				{
-					m_log.ErrorFormat("[MONEY]: Unable to query balance from Money Server {0} for client [{1}].", 
+					m_log.ErrorFormat("[MONEY] QueryBalanceFromMoneyServer: Unable to query balance from Money Server {0} for client [{1}].", 
 																					m_moneyServURL, client.AgentId.ToString());
 				}
 			}
@@ -1539,77 +1574,138 @@ namespace OpenSim.Forge.Currency
 
 
 
-		/// <summary>   
+		//
+		private EventManager.MoneyTransferArgs GetTransactionInfo(IClientAPI client, string transactionID)
+		{
+			//m_log.InfoFormat("[MONEY] GetTransactionInfo:");
+
+			EventManager.MoneyTransferArgs args = null;
+
+			if (!string.IsNullOrEmpty(m_moneyServURL))
+			{
+				Hashtable paramTable = new Hashtable();
+				paramTable["userServIP"]			= m_userServIP;
+				paramTable["clientUUID"]			= client.AgentId.ToString();
+				paramTable["clientSessionID"]       = client.SessionId.ToString();		    
+				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
+				paramTable["transactionID"]			= transactionID;
+
+				// Generate the request for transfer.   
+				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "GetTransaction");
+
+				// Handle the return result
+				if (resultTable!=null && resultTable.Contains("success"))
+				{
+					if ((bool)resultTable["success"]==true)
+					{
+						int amount  = (int)resultTable["amount"];
+						int type    = (int)resultTable["type"];
+						string desc = (string)resultTable["description"];
+						UUID sender = UUID.Zero;
+						UUID recver = UUID.Zero;
+						UUID.TryParse((string)resultTable["sender"],   out sender);
+						UUID.TryParse((string)resultTable["receiver"], out recver);
+						args = new EventManager.MoneyTransferArgs(sender, recver, amount, type, desc);
+					}
+					else 
+					{
+						m_log.ErrorFormat("[MONEY] GetTransactionInfo: GetTransactionInfo: Fail to Request. {0}", (string)resultTable["description"]);
+					}
+				}
+				else 
+				{
+					m_log.ErrorFormat("[MONEY] GetTransactionInfo: Invalid Response");
+				}
+			}
+			else
+			{
+				m_log.ErrorFormat("[MONEY] GetTransactionInfo: Invalid Money Server URL");
+			}
+
+			return args;
+		}
+
+
+
 		/// Locates a IClientAPI for the client specified   
 		/// </summary>   
 		/// <param name="AgentID"></param>   
 		/// <returns></returns>   
-		private IClientAPI LocateClientObject(UUID AgentID)
+		private IClientAPI GetLocateClient(UUID AgentID)
 		{
-			ScenePresence tPresence = null;
-			IClientAPI rclient = null;
+			IClientAPI client = null;
 
 			lock (m_sceneList)
 			{
-				foreach (Scene _scene in m_sceneList.Values)
+				if (m_sceneList.Count>0)
 				{
-					tPresence = _scene.GetScenePresence(AgentID);
-					if (tPresence!=null)
+					foreach (Scene _scene in m_sceneList.Values)
 					{
-						if (!tPresence.IsChildAgent)
+						ScenePresence tPresence = (ScenePresence)_scene.GetScenePresence(AgentID);
+						if (tPresence!=null && !tPresence.IsChildAgent)
 						{
-							rclient = tPresence.ControllingClient;
-						}
-					}
-					if (rclient!=null)
-					{
-						return rclient;
-					}
-				}
-			}
-
-			return null;
-		}
-
-
-
-		private Scene LocateSceneClientIn(UUID AgentId)
-		{
-			lock (m_sceneList)
-			{
-				foreach (Scene _scene in m_sceneList.Values)
-				{
-					ScenePresence tPresence = _scene.GetScenePresence(AgentId);
-					if (tPresence!=null)
-					{
-						if (!tPresence.IsChildAgent)
-						{
-							return _scene;
+							IClientAPI rclient = tPresence.ControllingClient;
+							if (rclient!=null)
+							{
+								client = rclient;
+								break;
+							}
 						}
 					}
 				}
 			}
 
-			return null;
+			return client;
 		}
 
 
 
-		private SceneObjectPart FindPrim(UUID objectID)
+		private Scene GetLocateScene(UUID AgentId)
 		{
+			Scene scene = null;
+
 			lock (m_sceneList)
 			{
-				foreach (Scene scene in m_sceneList.Values)
+				if (m_sceneList.Count>0)
 				{
-					SceneObjectPart part = scene.GetSceneObjectPart(objectID);
-					if (part!=null)
+					foreach (Scene _scene in m_sceneList.Values)
 					{
-						return part;
+						ScenePresence tPresence = (ScenePresence)_scene.GetScenePresence(AgentId);
+						if (tPresence!=null && !tPresence.IsChildAgent)
+						{
+							scene = _scene;
+							break;
+						}
 					}
 				}
 			}
 
-			return null;
+			return scene;
+		}
+
+
+
+		private SceneObjectPart GetLocatePrim(UUID objectID)
+		{
+			SceneObjectPart sceneObj = null;
+
+			lock (m_sceneList)
+			{
+				if (m_sceneList.Count>0)
+				{
+					foreach (Scene _scene in m_sceneList.Values)
+					{
+						SceneObjectPart part = (SceneObjectPart)_scene.GetSceneObjectPart(objectID);
+						if (part!=null)
+						{
+							sceneObj = part;
+							break;
+						}
+					}
+				}
+			}
+
+			return sceneObj;
 		}
 
 
