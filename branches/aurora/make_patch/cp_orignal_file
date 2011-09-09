@@ -12,3 +12,7 @@ cp -f ../../OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs aurora-/Ope
 cp -f ../../OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
 cp -f ../../OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs
 cp -f ../../OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
+
+cp -f ../../OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs aurora-/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs
+cp -f ../../OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs
+
