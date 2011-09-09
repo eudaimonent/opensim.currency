@@ -174,7 +174,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			m_log.Info("[DATA]: Connecting to Money Storage Server");
 			m_moneyDBService = new MoneyDBService();
-			m_moneyDBService.Initialise(connectionString,MAX_DB_CONNECTION);
+			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
 			m_moneyXmlRpcModule.Initialise(m_version,m_config, m_moneyDBService, this);
 			m_moneyXmlRpcModule.PostInitialise();

@@ -7,8 +7,11 @@ mkdir -p aurora/OpenSim/Region/CoreModules/Avatar/Groups
 mkdir -p aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction
 mkdir -p aurora/OpenSim/Region/CoreModules/World/Land
 mkdir -p aurora/OpenSim/Region/CoreModules/World/Objects/BuySell
+mkdir -p aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction
+mkdir -p aurora/OpenSim/Services/CapsService/CAPModules
 mkdir -p aurora/Aurora/Modules/World/SampleCurrencyModule
 mkdir -p aurora/Aurora/Modules/Avatar/AuroraProfile
+
 
 mkdir -p aurora-/Aurora/AuroraDotNetEngine
 mkdir -p aurora-/Aurora/AuroraDotNetEngine4
@@ -17,5 +20,7 @@ mkdir -p aurora-/OpenSim/Region/CoreModules/Avatar/Groups
 mkdir -p aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction
 mkdir -p aurora-/OpenSim/Region/CoreModules/World/Land
 mkdir -p aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell
+mkdir -p aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction
+mkdir -p aurora-/OpenSim/Services/CapsService/CAPModules
 mkdir -p aurora-/Aurora/Modules/World/SampleCurrencyModule
 mkdir -p aurora-/Aurora/Modules/Avatar/AuroraProfile
