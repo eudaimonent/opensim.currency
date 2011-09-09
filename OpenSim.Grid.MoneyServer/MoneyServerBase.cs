@@ -117,23 +117,32 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
 
-			IConfig s_config = moneyConfig.m_config.Configs["Startup"];
-			string PIDFile = s_config.GetString("PIDFile", "");
-			if (PIDFile!="") Create_PIDFile(PIDFile);
+			try {
+				// [Startup]
+				IConfig s_config = moneyConfig.m_config.Configs["Startup"];
+				string PIDFile = s_config.GetString("PIDFile", "");
+				if (PIDFile!="") Create_PIDFile(PIDFile);
 
-			IConfig db_config = moneyConfig.m_config.Configs["MySql"];
-			string hostname = db_config.GetString("hostname", "localhost");
-			string database = db_config.GetString("database", "OpenSim");
-			string username = db_config.GetString("username", "root");
-			string password = db_config.GetString("password", "password");
-			string pooling 	= db_config.GetString("pooling",  "false");
-			string port 	= db_config.GetString("port", 	  "3306");
-			MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
-			connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
+				// [MySql]
+				IConfig db_config = moneyConfig.m_config.Configs["MySql"];
+				string hostname = db_config.GetString("hostname", "localhost");
+				string database = db_config.GetString("database", "OpenSim");
+				string username = db_config.GetString("username", "root");
+				string password = db_config.GetString("password", "password");
+				string pooling 	= db_config.GetString("pooling",  "false");
+				string port 	= db_config.GetString("port", 	  "3306");
+				MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
+				connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
 										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
-
-			m_config = moneyConfig.m_config.Configs["MoneyServer"];
-			DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+				// [MoneyServer]
+				m_config = moneyConfig.m_config.Configs["MoneyServer"];
+				DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+			}
+			catch (Exception)
+			{
+				m_log.Error("[Config] Fail to setup configure. Please check MoneyServer.ini");
+				Environment.Exit(1);
+			}
 		}
 
 
@@ -160,7 +169,7 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			m_log.Info("[DATA]: Connecting to Money Storage Server");
 			m_moneyDBService = new MoneyDBService();
-			m_moneyDBService.Initialise(connectionString,MAX_DB_CONNECTION);
+			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
 			m_moneyXmlRpcModule.Initialise(m_version,m_config, m_moneyDBService, this);
 			m_moneyXmlRpcModule.PostInitialise();
