@@ -1,7 +1,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Money Server for Aurora-Sim 0.4.x for Linux/Unix
+//  DTL/NSL Money Server for Aurora-Sim 0.4.x for Linux/Unix
 //                                                        by Fumi.Iseki and NSL  9/10 2011
 //                                                        http://www.nsl.tuis.ac.jp
 
@@ -27,7 +27,10 @@
  # ./build.sh
  # cd ../bin
  # vi MoneyServer.ini       (modify [MySql] section)
-
+ ........
+ # cd Configuration/Modules
+ # cp Economy.ini.example Economy.ini
+ # vi Economy.ini
 
 
 2. Setting
@@ -37,9 +40,8 @@
  # cd aurora/bin
  # vi MoneyServer.ini 
 
-  - Plese set hostname, database, username and password of MySQL at [MySql] section.
-  - If you want to normally use llGiveMoney() function even when payer doesn't login to Aurora-Sim,
-	you must set "true" to enableForceTransfer in MoneyServer.ini.
+ - Plese set hostname, database, username and password of MySQL at [MySql] section.
+ - Please see aloso http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
 
 
 2-2. Region Server
@@ -58,10 +60,11 @@
     PriceUpload = 10
     PriceGroupCreate = 20
 
- Attention) 
-   Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
-   identification of user on Money Server.
+ - Attention) 
+     Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
+     identification of user on Money Server.
 
+ - Please see also http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
 
 
 3. Execution
@@ -74,11 +77,13 @@
 
 3-2. Money Server
 
+ # cd aurora/bin
  # mono MoneyServer.exe
 
 
 3-3. Region Server
 
+ # cd aurora/bin
  # mono Aurora.exe
 
 

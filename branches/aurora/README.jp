@@ -1,7 +1,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Aurora 0.4.x用 Money Servefor Linux/Unix
+//  Aurora 0.4.x用 DTL/NSL Money Servefor Linux/Unix
 //                                                        by Fumi.Iseki and NSL '11 9/10
 //                                                        http://www.nsl.tuis.ac.jp
 
@@ -10,9 +10,9 @@
 0. はじめに
 
 　これは DTL Currency Processing Project (http://forge.opensimulator.org/gf/project/currency/) 
-から WEB Monitor を取り外して，いくつかのバグフィックスと 0.7.xで動作するようにパッチを充てた物
-です．WEB Monitor を取り外したのは，我々のターゲットが主にLinuxであるのに対して，これが ASP.NET
-で作動しており，Linux上で動作させるのが困難だったためです．
+から WEB Monitor を取り外して，いくつかのバグフィックスと Aurora-Sim で動作するようにパッチを
+充てた物です．WEB Monitor を取り外したのは，我々のターゲットが主にLinuxであるのに対して，
+これが ASP.NET で作動しており，Linux上で動作させるのが困難だったためです．
 
 　従って，セキュリティ的には本来の DTL Money Serverよりも低下していると思われます．実際，この
 Money Serverを誤魔化すことも不可能ではありません．つまり，このシステムについては厳密に仮想通貨
@@ -23,12 +23,19 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 1. インストール
 
- # cd opensim-0.7.x-source
- # tar xzfv opensim.currency-0.7.x.tar.gz 
- # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
- # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-0.7.x
+ # git clone git://github.com/MatrixSmythe/Aurora.git aurora
+ # cd aurora
+ # svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.currency/branches/aurora aurora.currency
+ # patch -p1 < aurora.currency/aurora_currency_latest.patch
+ # ./runprebuild.sh && xbuild
+ # cd aurora.currency
  # ./build.sh
+ # cd ../bin
+ # vi MoneyServer.ini       (modify [MySql] section)
+ ........
+ # cd Configuration/Modules
+ # cp Economy.ini.example Economy.ini
+ # vi Economy.ini
 
 
 
@@ -37,48 +44,65 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 2-1. Money Server
   bin/MoneyServer.ini の [MySql] に MySQLサーバにアクセスするための情報を追加する
 
- # cd opensim-0.7.x-source
- # vi bin/MoneyServer.ini 
+ # cd aurora/bin
+ # vi MoneyServer.ini 
 
   1. [MySql]セクションの hostname, database, username, password を設定する．
      OpenSim のMySQLの設定と同じものを指定すれば良い．
   2. 支払い者がログインしていない状態でも，llGiveMoney()を正常に動かす場合は
      [MoneyServer]セクションの enableForceTransfer を trueにする．
 
+  - 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
+
 
 2-2. Region Server
   bin/OpenSim.ini に MoneyServerに接続するための設定を行う．Money Serverには HTTPS
 を使用して接続を行う．この際に使用するポート番号は 8008である．
 
- # cd opensim-0.7.x-source
- # vi bin/OpenSim.ini 
+ # cd aurora/bin/Configuration/Modules
+ # cp Economy.ini.example Economy.ini
+ # vi Economy.ini 
 
  [Economy]
-   SellEnabled = "true"
-   CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
-   EconomyModule  = DTLNSLMoneyModule
-   UserServer = "http://(MoneyServer's Name or IP):8003/"
+    SellEnabled = true
+
+    EconomyModule = DTLNSLMoneyModule
+    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
+    UserServer = "http://(UserServer's Name or IP):8003/"
+
+    PriceUpload = 10
+    PriceGroupCreate = 20
 
  注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
 
 
+  - 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
+
+  - Attention) 
+       Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
+       identification of user on Money Server.
+
+
 
 3. 起動
 
-3-1. Money Server
+3-1. Aurora Server
 
- # cd opensim-0.7.x-source
- # cd bin
+ # cd aurora/bin
+ # mono Aurora.Server.exe
+
+
+3-2. Money Server
+
+ # cd aurora/bin
  # mono MoneyServer.exe
 
 
-3-2. Region Server
-  Region Server は通常と同様に起動する．
+3-3. Region Server
 
- # cd opensim-0.7.x-source
- # cd bin
- # mono OpenSim.exe
+ # cd aurora/bin
+ # mono Aurora.exe
 
 
 
