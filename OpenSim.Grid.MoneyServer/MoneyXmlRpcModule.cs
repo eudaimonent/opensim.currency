@@ -235,7 +235,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			try
 			{
-				//m_log.InfoFormat("[MONEY RPC] handleClientLogin: user {0} has logged in, getting balance...", userID);
+				//m_log.InfoFormat("[MONEY RPC] handleClientLogin: User {0} has logged in, getting balance...", userID);
 				balance = m_moneyDBService.getBalance(userID);
 				//add user if not exist
 				if (balance==-1)
@@ -994,20 +994,20 @@ namespace OpenSim.Grid.MoneyServer
 									//User not online or failed to get object ?
 									if (!(bool)responseTable["success"])
 									{
-										m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: user {0} can't get the object, rolling back", transaction.Sender);
+										m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: User {0} can't get the object, rolling back", transaction.Sender);
 										if (RollBackTransaction(transaction))
 										{
-											m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: transaction {0} failed but roll back succeeded", transactionUUID.ToString());
+											m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: Transaction {0} failed but roll back succeeded", transactionUUID.ToString());
 										}
 										else
 										{
-											m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: transaction {0} failed and roll back failed as well", 
+											m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: Transaction {0} failed and roll back failed as well", 
 																														transactionUUID.ToString());
 										}
 									}
 									else
 									{
-										m_log.InfoFormat("[MONEY RPC] NotifyTransfer: transaction {0} finished successfully",transactionUUID.ToString());
+										m_log.InfoFormat("[MONEY RPC] NotifyTransfer: Transaction {0} finished successfully",transactionUUID.ToString());
 										return true;
 									}
 								}
@@ -1018,7 +1018,7 @@ namespace OpenSim.Grid.MoneyServer
 					}
 					
 				}
-				m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: transaction {0} failed", transactionUUID.ToString());
+				m_log.ErrorFormat("[MONEY RPC] NotifyTransfer: Transaction {0} failed", transactionUUID.ToString());
 			}
 			catch (Exception e)
 			{
@@ -1256,7 +1256,7 @@ namespace OpenSim.Grid.MoneyServer
 			{
 				if(m_moneyDBService.giveMoney(transaction.TransUUID,transaction.Sender,transaction.Amount))
 				{
-					m_log.InfoFormat("[MONEY RPC] RollBackTransaction: transaction {0} successfully", transaction.TransUUID.ToString());
+					m_log.InfoFormat("[MONEY RPC] RollBackTransaction: Transaction {0} successfully", transaction.TransUUID.ToString());
 					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS, 
 																	"The buyer failed to get the object,roll back the transaction");
 
@@ -1447,7 +1447,7 @@ namespace OpenSim.Grid.MoneyServer
 				else m_webSessionDic[userID] = webSessionID;
 			}
 
-			m_log.InfoFormat("[MONEY RPC] handleWebLogin: user {0} has logged in from web", userID);
+			m_log.InfoFormat("[MONEY RPC] handleWebLogin: User {0} has logged in from web", userID);
 			responseData["success"] = true;
 			return response;
 		}
@@ -1486,7 +1486,7 @@ namespace OpenSim.Grid.MoneyServer
 				}
 			}
 
-			m_log.InfoFormat("[MONEY RPC] handleWebLogout: user {0} has logged out from web", userID);
+			m_log.InfoFormat("[MONEY RPC] handleWebLogout: User {0} has logged out from web", userID);
 			responseData["success"] = true;
 			return response;
 
