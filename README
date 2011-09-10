@@ -37,7 +37,7 @@
   - If you use Banker Avatar, please set UUID of Banker Avatar to "BankerAvatar" in MoneyServer.ini.
     Banker Avatar can buy money from system with no cost.
 	When 00000000-0000-0000-0000-000000000000 is specified as UUID, all avatars can get money from system.
-  - If you want to normally use llGiveMoney() function even when payer doesn't login to Opensim,
+  - If you want to normally use llGiveMoney() function even when payer doesn't login to OpenSim,
 	you must set "true" to "enableForceTransfer" in MoneyServer.ini.
   - If you want to send money to anotger avatar by PHP script, you must set "true" to "enableScriptSendMoney"
 	And please set "MoneyScriptAccessKey" and "MoneyScriptIPaddress", too.
