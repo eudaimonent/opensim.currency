@@ -34,7 +34,7 @@ if [ "$SHOW_HELP" = "YES" ]; then
     echo
     echo "usage... $COMMAND [-c/--copy] [-d/--download] [-a/--all] [-h/--help]"
     echo "-c or --copy     : not symbolic link but copy files"
-    echo "-d or --download : only download"
+    echo "-d or --download : download only"
     echo "-a or --all      : treat all scripts include optional scripts"
     echo "-h or --help     : show this help"
     echo
@@ -115,7 +115,7 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
 fi
 
 
-# download opensum.phplib
+# download opensim.phplib
 if [ -d opensim.phplib ]; then
     svn update opensim.phplib
 else
