@@ -1,8 +1,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  Money Server for OpenSim 0.7.x for Linux/Unix
-//                                                        by Fumi.Iseki and NSL '10 8/21
+//  Money Server for Aurora-Sim 0.4.x for Linux/Unix
+//                                                        by Fumi.Iseki and NSL  9/10 2011
 //                                                        http://www.nsl.tuis.ac.jp
 
 
@@ -10,7 +10,7 @@
 0. Outline
 
  This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
- As for this, some bug fixes are done. And this can be operated by OpenSim 0.7.x. 
+ As for this, some bug fixes are done. And this can be operated by Aurora-Sim 0.4.x. 
  But, WEB Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
  version!! Please use this at your own risk!!
 
@@ -18,12 +18,15 @@
 
 1. Install
 
- # cd opensim-0.7.x-source
- # tar xzfv opensim.currency-0.7.x.tar.gz 
- # patch -p1 < opensim.currency-0.7.x/opensim_currency_0.7.x.patch
- # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-0.7.x
+ # git clone git://github.com/MatrixSmythe/Aurora.git aurora
+ # cd aurora
+ # svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.currency/branches/aurora aurora.currency
+ # patch -p1 < aurora.currency/aurora_currency_latest.patch
+ # ./runprebuild.sh && xbuild
+ # cd aurora.currency
  # ./build.sh
+ # cd ../bin
+ # vi MoneyServer.ini       (modify [MySql] section)
 
 
 
@@ -31,45 +34,52 @@
 
 2-1. Money Server
 
- # cd opensim-0.7.x-source
- # vi bin/MoneyServer.ini 
+ # cd aurora/bin
+ # vi MoneyServer.ini 
 
   - Plese set hostname, database, username and password of MySQL at [MySql] section.
-  - If you want to normally use llGiveMoney() function even when payer doesn't login to Opensim,
+  - If you want to normally use llGiveMoney() function even when payer doesn't login to Aurora-Sim,
 	you must set "true" to enableForceTransfer in MoneyServer.ini.
 
 
 2-2. Region Server
 
- # cd opensim-0.7.x-source
- # vi bin/OpenSim.ini 
+ # cd aurora/bin/Configuration/Modules
+ # cp Economy.ini.example Economy.ini
+ # vi Economy.ini 
 
  [Economy]
-   SellEnabled = "true"
-   CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
-   EconomyModule  = DTLNSLMoneyModule
-   UserServer = "http://(MoneyServer's Name or IP):8003/"
+    SellEnabled = true
+
+    EconomyModule = DTLNSLMoneyModule
+    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
+    UserServer = "http://(UserServer's Name or IP):8003/"
+
+    PriceUpload = 10
+    PriceGroupCreate = 20
 
  Attention) 
-   Not use 127.0.0.1 or localhost for UserServer's address. This address is used for 
+   Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
    identification of user on Money Server.
 
 
 
 3. Execution
 
-3-1. Money Server
+3-1. Aurora Server
 
- # cd opensim-0.7.x-source
- # cd bin
+ # cd aurora/bin
+ # mono Aurora.Server.exe
+
+
+3-2. Money Server
+
  # mono MoneyServer.exe
 
 
-3-2. Region Server
+3-3. Region Server
 
- # cd opensim-0.7.x-source
- # cd bin
- # mono OpenSim.exe
+ # mono Aurora.exe
 
 
 
@@ -82,7 +92,7 @@
 
 5. Attention.
 
- This is unofficial software. Please do not inquire to OpenSim development team or DTL Currency Processing 
+ This is unofficial software. Please do not inquire to Aurora-Sim development team or DTL Currency Processing 
  development team about this software. 
 
 
