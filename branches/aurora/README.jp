@@ -67,7 +67,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
     SellEnabled = true
 
     CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
-    UserServer = "http://(UserServer's Name or IP):8003/"
+    UserServer = "http://(UserServer's Name or IP):8002/"
     EconomyModule = DTLNSLMoneyModule
 
     PriceUpload = 10
