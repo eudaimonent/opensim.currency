@@ -52,7 +52,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   2. 支払い者がログインしていない状態でも，llGiveMoney()を正常に動かす場合は
      [MoneyServer]セクションの enableForceTransfer を trueにする．
 
-  - 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
+  参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
 
 
 2-2. Region Server
@@ -66,38 +66,42 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  [Economy]
     SellEnabled = true
 
-    EconomyModule = DTLNSLMoneyModule
     CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
     UserServer = "http://(UserServer's Name or IP):8003/"
+    EconomyModule = DTLNSLMoneyModule
 
     PriceUpload = 10
     PriceGroupCreate = 20
 
- 注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
-     これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
 
-  - 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
+  注）モジュールの名前が DTLNSLMoneyNodule に変更になりました．
+      なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
+      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
+
+  参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
 
 
-2-3. Helper Script  
-
-  - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
-  - Please copy Scripts/* to any Web contents directory, and execute setup_sripts.sh shell script.
-    And next, edit include/config.php to rewrite ENV_HELPER_URL, ENV_HELPER_PATH, DB information, and etc.etc.
-  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
+2-3. Helper スクリプト
  
- ex.)
-  # mkdir /var/www/currency
-  # cp -R Scripts/* /var/www/currency
-  # cd /var/www/currency
-  # ./setup_sripts.sh
-  # chown -R www-data.www-data .
-  # vi include/config.php
+  Webインターフェイスの XoopenSimまたは Modlosを使用しない場合，ヘルパースクリプトを手動で設置
+なければならない．ヘルパースクリプトは Scriptsディレクトリにあるので，これを適当なディレクトリ
+にコピーし，inculde/helper.php の内容（主に ENV_HELPER_URL, ENV_HELPER_PATH, DB関連）をシステム
+に合わせて変更する．
 
-  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option.
-    Here, ENV_HELPER_URL is helper directory url in include/config.php.
-  - ex.) -helperuri http://localhost/currency/helper/   need last '/'
- 
+ コマンド例)
+ # mkdir /var/www/currency
+ # cp -R Scripts/* /var/www/currency
+ # cd /var/www/currency
+ # ./setup_scripts.sh
+ # chown -R www-data.www-data .
+ # vi include/config.php
+
+  Viewerは "-helperuri [ENV_HELPER_URL/]" オプション付きで起動しなければならない．ここで ENV_HELPER_URL
+ヘルパースクリプトの helperディレクトリのURLである．
+  例) -helperuri http://localhost/currency/helper/      最後の / は必ず必要!!
+
+  参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
+
 
 
 3. 起動
@@ -148,4 +152,5 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   http://forge.opensimulator.org/gf/project/currency/ もご覧ください．
 
   ありがとうございました．
+
 
