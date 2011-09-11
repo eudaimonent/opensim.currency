@@ -31,6 +31,7 @@ using System.Text;
 using System.Reflection;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 using log4net;
 using Nini.Config;
@@ -83,7 +84,7 @@ namespace OpenSim.Forge.Currency
 		#region Constant numbers and members.
 
 		// Constant memebers   
-		private const int MONEYMODULE_REQUEST_TIMEOUT = 6000;
+		private const int MONEYMODULE_REQUEST_TIMEOUT = 10000;
 
 		// Private data members.   
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -93,9 +94,14 @@ namespace OpenSim.Forge.Currency
 
 		private IConfigSource m_config;
 
-		private string m_moneyServURL = string.Empty;
-		private string m_userServIP   = string.Empty;
+		private string m_moneyServURL	 = string.Empty;
+		private string m_userServIP		 = string.Empty;
 		public BaseHttpServer HttpServer;
+
+		private string m_certFilename	 = "";
+		private string m_certPassword	 = "";
+		private bool   m_checkServerCert = false;
+		private X509Certificate2 m_cert	 = null;
 
 		/// <summary>   
 		/// Scene dictionary indexed by Region Handle   
@@ -181,6 +187,16 @@ namespace OpenSim.Forge.Currency
 					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
 				}
 				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
+
+				string checkcert = economyConfig.GetString("CheckServerCert", "false");
+				if (checkcert.ToLower()=="true") m_checkServerCert = true;
+
+				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
+				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
+				if (m_certFilename!="" && m_certPassword!="")
+				{
+					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+				}
 
 				// Price
 				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 		100);
@@ -1474,11 +1490,25 @@ namespace OpenSim.Forge.Currency
 		{
 			//m_log.InfoFormat("[MONEY] genericCurrencyXMLRPCRequest:");
 
-			// Handle the error in parameter list.   
-			if (reqParams.Count<=0 || string.IsNullOrEmpty(method) || string.IsNullOrEmpty(m_moneyServURL))
+			if (reqParams.Count<=0 || string.IsNullOrEmpty(method)) return null;
+
+			if (m_checkServerCert)
 			{
-				return null;
+				if (!m_moneyServURL.StartsWith("https://"))
+				{
+					m_log.ErrorFormat("[MONEY] genericCurrencyXMLRPCRequest: CheckServerCert is true, but protocol is not HTTPS. Please check INI file");
+					return null;
+				}
 			}
+			else
+			{
+				if (!m_moneyServURL.StartsWith("https://") && !m_moneyServURL.StartsWith("http://"))
+				{
+					m_log.ErrorFormat("[MONEY] genericCurrencyXMLRPCRequest: Invalid Money Server URL: {0}", m_moneyServURL);
+					return null;
+				}
+			}
+
 
 			ArrayList arrayParams = new ArrayList();
 			arrayParams.Add(reqParams);
@@ -1486,31 +1516,30 @@ namespace OpenSim.Forge.Currency
 			try
 			{
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.xSend(m_moneyServURL, MONEYMODULE_REQUEST_TIMEOUT);
+				moneyServResp = moneyModuleReq.certSend(m_moneyServURL, m_cert, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{
-				m_log.ErrorFormat( "[MONEY] genericCurrencyXMLRPCRequest: Unable to connect to Money Server {0}.  Exception {1}", m_moneyServURL, ex);
+				m_log.ErrorFormat("[MONEY] genericCurrencyXMLRPCRequest: Unable to connect to Money Server {0}", m_moneyServURL);
+				m_log.ErrorFormat("[MONEY] genericCurrencyXMLRPCRequest: {0}", ex);
 
 				Hashtable ErrorHash = new Hashtable();
-				ErrorHash["success"] 	  = false;
+				ErrorHash["success"] = false;
 				ErrorHash["errorMessage"] = "Unable to manage your money at this time. Purchases may be unavailable";
-				ErrorHash["errorURI"] 	  = "";
-
+				ErrorHash["errorURI"] = "";
 				return ErrorHash;
 			}
 
 			if (moneyServResp.IsFault)
 			{
 				Hashtable ErrorHash = new Hashtable();
-				ErrorHash["success"] 	  = false;
+				ErrorHash["success"] = false;
 				ErrorHash["errorMessage"] = "Unable to manage your money at this time. Purchases may be unavailable";
-				ErrorHash["errorURI"] 	  = "";
-
+				ErrorHash["errorURI"] = "";
 				return ErrorHash;
 			}
-			Hashtable moneyRespData = (Hashtable)moneyServResp.Value;
 
+			Hashtable moneyRespData = (Hashtable)moneyServResp.Value;
 			return moneyRespData;
 		}
 
@@ -1580,7 +1609,7 @@ namespace OpenSim.Forge.Currency
 				Hashtable paramTable = new Hashtable();
 				paramTable["userServIP"]			= m_userServIP;
 				paramTable["clientUUID"]			= client.AgentId.ToString();
-				paramTable["clientSessionID"]       = client.SessionId.ToString();		    
+				paramTable["clientSessionID"]	   = client.SessionId.ToString();			
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
 				paramTable["transactionID"]			= transactionID;
 
@@ -1593,7 +1622,7 @@ namespace OpenSim.Forge.Currency
 					if ((bool)resultTable["success"]==true)
 					{
 						int amount  = (int)resultTable["amount"];
-						int type    = (int)resultTable["type"];
+						int type	= (int)resultTable["type"];
 						string desc = (string)resultTable["description"];
 						UUID sender = UUID.Zero;
 						UUID recver = UUID.Zero;

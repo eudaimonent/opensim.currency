@@ -26,28 +26,38 @@
  */
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
+using System.Timers;
+using System.Security.Authentication;
+//using System.Security.Cryptography.X509Certificates;
+
+using Nini.Config;
+using log4net;
+
 using OpenSim.Framework;
 using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
-using log4net;
-using System.Reflection;
 using OpenSim.Data;
-using System.Timers;
-using Nini.Config;
-using System.IO;
 
 
 namespace OpenSim.Grid.MoneyServer
 {
-	class MoneyServerBase : BaseOpenSimServer,IMoneyServiceCore
+	class MoneyServerBase : BaseOpenSimServer, IMoneyServiceCore
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private string connectionString = string.Empty;
 		private uint m_moneyServerPort = 8008;
+		private string m_hostName = "localhost";
+
+		private string m_certFilename	 = "";
+		private string m_certPassword	 = "";
+		private bool   m_checkClientCert = false;
+		//private X509Certificate2 m_cert  = null;
 
 		private int DEAD_TIME;
 		private int MAX_DB_CONNECTION;
@@ -87,7 +97,7 @@ namespace OpenSim.Grid.MoneyServer
 
 
 		/// <summary>
-		/// Check the transactions table,set expired transaction state to failed
+		/// Check the transactions table, set expired transaction state to failed
 		/// </summary>
 		private void CheckTransaction(object sender, ElapsedEventArgs e)
 		{
@@ -100,13 +110,31 @@ namespace OpenSim.Grid.MoneyServer
 
 		protected override void StartupSpecific()
 		{
-			m_log.Info("[Money]: Starting HTTP process");
+			m_log.Info("[MONEY SERVER]: Starting HTTPS process");
+
 			ReadIniConfig();
 
-			m_httpServer = new BaseHttpServer(m_moneyServerPort, true, "SineWaveCert.pfx", "123");
-			SetupMoneyServices();
-			m_httpServer.Start();
-			base.StartupSpecific();
+			try {
+				if (m_certFilename!="" && m_certPassword!="")
+				{
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+				}
+				else
+				{
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
+				}
+
+				SetupMoneyServices();
+				m_httpServer.Start();
+				base.StartupSpecific();
+			}
+			catch (Exception e)
+			{
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
+                Environment.Exit(1);
+			}
 
 			//TODO : Add some console commands here
 		}
@@ -119,28 +147,40 @@ namespace OpenSim.Grid.MoneyServer
 
 			try {
 				// [Startup]
-				IConfig s_config = moneyConfig.m_config.Configs["Startup"];
-				string PIDFile = s_config.GetString("PIDFile", "");
+				IConfig st_config = moneyConfig.m_config.Configs["Startup"];
+				string PIDFile = st_config.GetString("PIDFile", "");
 				if (PIDFile!="") Create_PIDFile(PIDFile);
 
 				// [MySql]
 				IConfig db_config = moneyConfig.m_config.Configs["MySql"];
-				string hostname = db_config.GetString("hostname", "localhost");
-				string database = db_config.GetString("database", "OpenSim");
-				string username = db_config.GetString("username", "root");
-				string password = db_config.GetString("password", "password");
-				string pooling 	= db_config.GetString("pooling",  "false");
-				string port 	= db_config.GetString("port", 	  "3306");
-				MAX_DB_CONNECTION = db_config.GetInt("MaxConnection", 10);
-				connectionString = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
-										   username + ";Password=" + password + ";Pooling=" + pooling + ";";
+				string sqlserver  = db_config.GetString("hostname", "localhost");
+				string database   = db_config.GetString("database", "OpenSim");
+				string username   = db_config.GetString("username", "root");
+				string password   = db_config.GetString("password", "password");
+				string pooling 	  = db_config.GetString("pooling",  "false");
+				string port 	  = db_config.GetString("port", 	"3306");
+				MAX_DB_CONNECTION = db_config.GetInt   ("MaxConnection", 10);
+
+				connectionString  = "Server=" + sqlserver + ";Port=" + port + ";Database=" + database + ";User ID=" +
+												username + ";Password=" + password + ";Pooling=" + pooling + ";";
+
 				// [MoneyServer]
-				m_config = moneyConfig.m_config.Configs["MoneyServer"];
-				DEAD_TIME = m_config.GetInt("ExpiredTime", 120);
+				m_config   = moneyConfig.m_config.Configs["MoneyServer"];
+				DEAD_TIME  = m_config.GetInt   ("ExpiredTime", 120);
+				m_hostName = m_config.GetString("HostName", "localhost");	// be not used
+
+				string checkcert = m_config.GetString("CheckClientCert", "false");
+				if (checkcert.ToLower()=="true") m_checkClientCert = true;
+				m_certFilename = m_config.GetString("ServerCertFilename", "SineWaveCert.pfx");
+				m_certPassword = m_config.GetString("ServerCertPassword", "123");
+				//if (m_certFilename!="" && m_certPassword!="")
+				//{
+				//	m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+				//}
 			}
 			catch (Exception)
 			{
-				m_log.Error("[Config] Fail to setup configure. Please check MoneyServer.ini");
+				m_log.Error("[MONEY SERVER] ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
 				Environment.Exit(1);
 			}
 		}
@@ -171,7 +211,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_moneyDBService = new MoneyDBService();
 			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
-			m_moneyXmlRpcModule.Initialise(m_version,m_config, m_moneyDBService, this);
+			m_moneyXmlRpcModule.Initialise(m_version, m_config, m_moneyDBService, this);
 			m_moneyXmlRpcModule.PostInitialise();
 		}
 
