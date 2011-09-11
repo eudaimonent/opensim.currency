@@ -94,7 +94,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
  コマンド例)
  # mkdir /var/www/currency
- # cp -R Scripts/* /var/www/currency
+ # cp -Rpd Scripts/* /var/www/currency
  # cd /var/www/currency
  # ./setup_scripts.sh
  # chown -R www-data.www-data .
