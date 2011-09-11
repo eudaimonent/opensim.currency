@@ -60,6 +60,7 @@
     PriceUpload = 10
     PriceGroupCreate = 20
 
+
  - Attention) 
      Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
      identification of user on Money Server.
@@ -76,7 +77,7 @@
 
  ex.)
   # mkdir /var/www/currency
-  # cp -R Scripts/* /var/www/currency
+  # cp -Rpd Scripts/* /var/www/currency
   # cd /var/www/currency
   # ./setup_sripts.sh
   # chown -R www-data.www-data .
