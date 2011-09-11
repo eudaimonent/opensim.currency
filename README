@@ -81,7 +81,7 @@
 
  ex.)
   # mkdir /var/www/currency
-  # cp -R Scripts/* /var/www/currency
+  # cp -Rpd Scripts/* /var/www/currency
   # cd /var/www/currency
   # ./setup_sripts.sh
   # chown -R www-data.www-data .
