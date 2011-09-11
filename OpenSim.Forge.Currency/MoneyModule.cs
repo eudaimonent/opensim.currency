@@ -847,7 +847,7 @@ namespace OpenSim.Forge.Currency
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
 					//requestParam.Contains("receiverUUID") &&
-					//requestParam.Contains("clientSessionID") &&	// unable for Aurora-Sim
+					requestParam.Contains("clientSessionID") &&
 					requestParam.Contains("clientSecureSessionID"))
 				{
 					UUID clientUUID = UUID.Zero;
@@ -858,7 +858,7 @@ namespace OpenSim.Forge.Currency
 					{
 						IClientAPI client = GetLocateClient(clientUUID);
 						if (client!=null &&
-							//client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&	// unable for Aurora-Sim
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("transactionType") &&
