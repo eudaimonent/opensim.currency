@@ -726,8 +726,7 @@ namespace OpenSim.Forge.Currency
 
 		#region MoneyModule XML-RPC Handler
 
-		// for UpdateBlance RPC
-		// 		Money Server -> Region Server -> Viewer
+		// "UpdateBalance" RPC from MoneyServer or Script
 		public XmlRpcResponse BalanceUpdateHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] BalanceUpdateHandler:");
@@ -783,7 +782,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// for UserAlert RPC
+		// "UserAlert" RPC from Script
 		public XmlRpcResponse UserAlertHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] UserAlertHandler:");
@@ -835,7 +834,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// for OnMoneyTransfered RPC from Money Server
+		// "OnMoneyTransfered" RPC from MoneyServer
 		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler:");
@@ -900,7 +899,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// for AddBankerMoney RPC
+		// "AddBankerMoney" RPC from Script
 		public XmlRpcResponse AddBankerMoneyHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] AddBankerMoneyHandler:");
@@ -950,7 +949,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// for SendMoneyBalance RPC
+		// "SendMoneyBalance" RPC from Script
 		public XmlRpcResponse SendMoneyBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] SendMoneyBalanceHandler:");
@@ -999,7 +998,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// for GetBalance RPC
+		// "GetBalance" RPC from Script
 		public XmlRpcResponse GetBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] GetBalanceHandler:");
@@ -1047,7 +1046,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// UploadCovered RPC for Aurora-Sim
+		// "UploadCovered" RPC for Aurora-Sim
 		public XmlRpcResponse UploadCoveredHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] UploadCoveredHandler:");
@@ -1087,7 +1086,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// UploadCharge RPC for Aurora-Sim
+		// "UploadCharge" RPC for Aurora-Sim
 		public XmlRpcResponse UploadChargeHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] UploadChargeHandler:");
