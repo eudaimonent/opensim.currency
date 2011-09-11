@@ -54,6 +54,9 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   5. 所持金のアップデートのメッセージ(青いダイアログ)を変更することが可能である．メッセージを変更したい場合は各 "BalanceMessage..."
      を有効にし内容を書き換える．
 
+  参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
+
+
 2-2. Region Server
 
   bin/OpenSim.ini に MoneyServerに接続するための設定を行う．Money Serverには HTTPS
@@ -65,8 +68,8 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  [Economy]
    SellEnabled = "true"
    CurrencyServer = "https://(MoneyServer's Name or IP):8008/"
+   UserServer = "http://(UserServer's Name or IP):8002"
    EconomyModule  = DTLNSLMoneyModule
-   UserServer = "http://(MoneyServer's Name or IP):8003"
 
    ;; Money Unit fee to upload textures, animations etc
    PriceUpload = 10			;; テクスチャなどのアップロードのコスト
@@ -75,10 +78,14 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
    PriceGroupCreate = 100	;; グループ作成のコスト
 
 
- 注）なお，UserServer と CurrencyServer のアドレスに localhost (127.0.0.1)を使用しないこと．
+ 注）モジュールの名前が DTLNSLMoneyModule に変更になりました．
+     なお，UserServer と CurrencyServer のアドレスに localhost (127.0.0.1)を使用しないこと．
      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
 
-2-3
+ 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FOpenSim.ini
+
+
+2-3. Helper スクリプト
  
   Webインターフェイスの XoopenSimまたは Modlosを使用しない場合，ヘルパースクリプトを手動で設置
 なければならない．ヘルパースクリプトは Scriptsディレクトリにあるので，これを適当なディレクトリ
@@ -89,22 +96,32 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  # mkdir /var/www/currency
  # cp -R Scripts/* /var/www/currency
  # cd /var/www/currency
+ # ./setup_scripts.sh
  # chown -R www-data.www-data .
  # vi include/config.php
 
   Viewerは "-helperuri [ENV_HELPER_URL/]" オプション付きで起動しなければならない．ここで ENV_HELPER_URL
 ヘルパースクリプトの helperディレクトリのURLである．
-例) -helperuri http://localhost/currency/helper/      最後の / は必ず必要!!
+ 例) -helperuri http://localhost/currency/helper/      最後の / は必ず必要!!
+
+ 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
 
 
 
 3. 起動
 
-3-1. Money Server
+3-1. Robust Server
 
  # cd opensim-0.7.x-source
  # cd bin
- # mono OpenSim.Grid.MoneyServer.exe
+ # mono Robust.exe
+
+
+3-2. Money Server
+
+ # cd opensim-0.7.x-source
+ # cd bin
+ # mono MoneyServer.exe
 
 
 3-2. Region Server
@@ -145,5 +162,4 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   このプロジェクトに関して，Miloから沢山のアドバイスと寄付をいただきました．
 
   ありがとうございました．
-
 
