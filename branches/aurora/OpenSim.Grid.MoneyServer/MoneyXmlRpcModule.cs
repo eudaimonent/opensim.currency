@@ -964,20 +964,20 @@ namespace OpenSim.Grid.MoneyServer
 						{
 							//m_log.InfoFormat("[MONEY RPC] NotifyTransfer: Now notify opensim to give object to customer {0} ", transaction.Sender);
 							Hashtable requestTable = new Hashtable();
-							string senderID = transaction.Sender.Split('@')[0];
+							string senderID   = transaction.Sender.Split('@')[0];
 							string receiverID = transaction.Receiver.Split('@')[0];
-							requestTable["senderID"] = senderID;
-							requestTable["receiverID"] = receiverID;
+							requestTable["clientUUID"]   = senderID;
+							requestTable["receiverUUID"] = receiverID;
 
 							if(m_sessionDic.ContainsKey(transaction.Sender)&&m_secureSessionDic.ContainsKey(transaction.Sender))
 							{
-								requestTable["senderSessionID"] = m_sessionDic[transaction.Sender];
-								requestTable["senderSecureSessionID"] = m_secureSessionDic[transaction.Sender];
+								requestTable["clientSessionID"] = m_sessionDic[transaction.Sender];
+								requestTable["clientSecureSessionID"] = m_secureSessionDic[transaction.Sender];
 							}
 							else 
 							{
-								requestTable["senderSessionID"] =  UUID.Zero.ToString();
-								requestTable["senderSecureSessionID"] = UUID.Zero.ToString();
+								requestTable["clientSessionID"] =  UUID.Zero.ToString();
+								requestTable["clientSecureSessionID"] = UUID.Zero.ToString();
 							}
 							requestTable["transactionType"] = transaction.Type;
 							requestTable["amount"] = transaction.Amount;

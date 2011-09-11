@@ -558,9 +558,9 @@ diff -Nur aurora-/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs auror
 +            OpenSim.Services.Interfaces.GridRegion region = service.Region;
 +            AgentCircuitData circuitData = service.CircuitData;
 +
-+            paramTable["sessionID"]       = circuitData.SessionID.ToString();
-+            paramTable["secureSessionID"] = circuitData.SecureSessionID.ToString();
-+            paramTable["agentID"]         = service.AgentID.ToString();
++            paramTable["clientUUID"]            = service.AgentID.ToString();
++            paramTable["clinetSessionID"]       = circuitData.SessionID.ToString();
++            paramTable["clientSecureSessionID"] = circuitData.SecureSessionID.ToString();
 +            arrayParams.Add(paramTable);
 +
 +            Nwc.XmlRpc.XmlRpcRequest moneyModuleReq = new Nwc.XmlRpc.XmlRpcRequest("UploadCovered", arrayParams);
@@ -580,9 +580,9 @@ diff -Nur aurora-/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs auror
 +            OpenSim.Services.Interfaces.GridRegion region = service.Region;
 +            AgentCircuitData circuitData = service.CircuitData;
 +
-+            paramTable["sessionID"]       = circuitData.SessionID.ToString();
-+            paramTable["secureSessionID"] = circuitData.SecureSessionID.ToString();
-+            paramTable["agentID"]         = service.AgentID.ToString();
++            paramTable["clientUUID"]            = service.AgentID.ToString();
++            paramTable["clientSessionID"]       = circuitData.SessionID.ToString();
++            paramTable["clientSecureSessionID"] = circuitData.SecureSessionID.ToString();
 +            arrayParams.Add(paramTable);
 +
 +            Nwc.XmlRpc.XmlRpcRequest moneyModuleReq = new Nwc.XmlRpc.XmlRpcRequest("UploadCharge", arrayParams);

@@ -76,13 +76,28 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
  注）なお，UserServer のアドレスに localhost (127.0.0.1)を使用しないこと．
      これは，アドレスが，Monet Server内でのユーザのアカウント識別に利用されるためである．
 
-
   - 参考： http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
 
-  - Attention) 
-       Not use 127.0.0.1 or localhost for CurrencyServer and UserServer's address. UserServer's address is used for 
-       identification of user on Money Server.
 
+2-3. Helper Script  
+
+  - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
+  - Please copy Scripts/* to any Web contents directory, and execute setup_sripts.sh shell script.
+    And next, edit include/config.php to rewrite ENV_HELPER_URL, ENV_HELPER_PATH, DB information, and etc.etc.
+  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
+ 
+ ex.)
+  # mkdir /var/www/currency
+  # cp -R Scripts/* /var/www/currency
+  # cd /var/www/currency
+  # ./setup_sripts.sh
+  # chown -R www-data.www-data .
+  # vi include/config.php
+
+  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option.
+    Here, ENV_HELPER_URL is helper directory url in include/config.php.
+  - ex.) -helperuri http://localhost/currency/helper/   need last '/'
+ 
 
 
 3. 起動
@@ -115,7 +130,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 5. 注意事項
 
-　このソフトウェアはNSLで改造された非公式のソフトウェアです．このソフトウェアに関して OpenSimの開発チームや
+　このソフトウェアはNSLで改造された非公式のソフトウェアです．このソフトウェアに関して Aurora-Simの開発チームや
 　DTL Currency Processingの開発チームへのお問い合わせは行わないでください．
 
 
