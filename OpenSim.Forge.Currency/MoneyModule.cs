@@ -225,7 +225,7 @@ namespace OpenSim.Forge.Currency
 
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
-						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandlered);
+						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);				// added
 						HttpServer.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);			// added
 						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);						// added
@@ -234,7 +234,7 @@ namespace OpenSim.Forge.Currency
 
 						MainServer.Instance.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
-						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandlered);
+						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);		// added
 						MainServer.Instance.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);	// added
 						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);				// added
@@ -833,36 +833,36 @@ namespace OpenSim.Forge.Currency
 
 
 		// for OnMoneyTransfered RPC from Money Server
-		public XmlRpcResponse OnMoneyTransferedHandlered(XmlRpcRequest request, IPEndPoint remoteClient)
+		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
-			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandlered:");
+			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler:");
 
 			bool ret = false;
 
-			if (request.Params.Count > 0)
+			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("senderID") &&
-					requestParam.Contains("receiverID") &&
-					requestParam.Contains("senderSessionID") &&
-					requestParam.Contains("senderSecureSessionID"))
+				if (requestParam.Contains("clientUUID") &&
+					//requestParam.Contains("receiverUUID") &&
+					requestParam.Contains("clientSessionID") &&
+					requestParam.Contains("clientSecureSessionID"))
 				{
-					UUID senderID = UUID.Zero;
-					UUID receiverID = UUID.Zero;
-					UUID.TryParse((string)requestParam["senderID"], out senderID);
-					UUID.TryParse((string)requestParam["receiverID"], out receiverID);
-					if (senderID!=UUID.Zero)
+					UUID clientUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
+					//UUID receiverUUID = UUID.Zero;
+					//UUID.TryParse((string)requestParam["receiverUUID"], out receiverUUID);
+					if (clientUUID!=UUID.Zero)
 					{
-						IClientAPI client = GetLocateClient(senderID);
+						IClientAPI client = GetLocateClient(clientUUID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["senderSessionID"] &&
-							client.SecureSessionId.ToString()==(string)requestParam["senderSecureSessionID"])
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("transactionType") &&
 								requestParam.Contains("objectID") &&
 								requestParam.Contains("amount"))
 							{
-								//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandlered: type = {0}", requestParam["transactionType"]);
+								//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler: type = {0}", requestParam["transactionType"]);
 								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)		// Pay for the object.
 								{
 									// Send notify to the client(viewer) for Money Event Trigger.   
@@ -871,7 +871,7 @@ namespace OpenSim.Forge.Currency
 									{
 										UUID objectID = UUID.Zero;
 										UUID.TryParse((string)requestParam["objectID"], out objectID);
-										handlerOnObjectPaid(objectID, senderID, (int)requestParam["amount"]);	// call Script Engine for LSL money()
+										handlerOnObjectPaid(objectID, clientUUID, (int)requestParam["amount"]);	// call Script Engine for LSL money()
 									}
 									ret = true;
 								}
@@ -888,7 +888,7 @@ namespace OpenSim.Forge.Currency
 
 			if (!ret)
 			{
-				m_log.ErrorFormat("[MONEY] OnMoneyTransferedHandlered: Transaction is failed. MoneyServer will rollback");
+				m_log.ErrorFormat("[MONEY] OnMoneyTransferedHandler: Transaction is failed. MoneyServer will rollback");
 			}
 			resp.Value = paramTable;
 
@@ -907,24 +907,24 @@ namespace OpenSim.Forge.Currency
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("bankerID") &&
-					requestParam.Contains("bankerSessionID") &&
-					requestParam.Contains("bankerSecureSessionID"))
+				if (requestParam.Contains("clientUUID") &&
+					requestParam.Contains("clientSessionID") &&
+					requestParam.Contains("clientSecureSessionID"))
 				{
-					UUID bankerID = UUID.Zero;
-					UUID.TryParse((string)requestParam["bankerID"], out bankerID);
-					if (bankerID!=UUID.Zero)
+					UUID bankerUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["clientUUID"], out bankerUUID);
+					if (bankerUUID!=UUID.Zero)
 					{
-						IClientAPI client = GetLocateClient(bankerID);
+						IClientAPI client = GetLocateClient(bankerUUID);
 						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["bankerSessionID"] &&
-							client.SecureSessionId.ToString()==(string)requestParam["bankerSecureSessionID"])
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
 							if (requestParam.Contains("amount"))
 							{
 								Scene scene = (Scene)client.Scene;
 								int amount  = (int)requestParam["amount"];
-								ret = AddBankerMoney(bankerID, amount, scene.RegionInfo.RegionHandle);
+								ret = AddBankerMoney(bankerUUID, amount, scene.RegionInfo.RegionHandle);
 							}
 						}
 					}
@@ -957,24 +957,24 @@ namespace OpenSim.Forge.Currency
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("avatarID") &&
-					requestParam.Contains("secretCode"))
+				if (requestParam.Contains("agentUUID") &&
+					requestParam.Contains("secretAccessCode"))
 				{
-					UUID avatarID = UUID.Zero;
-					UUID.TryParse((string)requestParam["avatarID"], out avatarID);
-					if (avatarID!=UUID.Zero)
+					UUID agentUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["agentUUID"], out agentUUID);
+					if (agentUUID!=UUID.Zero)
 					{
 						if (requestParam.Contains("amount"))
 						{
 							int amount  = (int)requestParam["amount"];
-							string secretCode = (string)requestParam["secretCode"];
+							string secretCode = (string)requestParam["secretAccessCode"];
 							string scriptIP   = remoteClient.Address.ToString();
 
 							MD5 md5 = MD5.Create();
 							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
 							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
 							//m_log.InfoFormat("[MONEY] SendMoneyBalanceHandler: SecretCode: {0} + {1} = {2}", secretCode, scriptIP, hash);
-							ret = SendMoneyBalance(avatarID, amount, hash);
+							ret = SendMoneyBalance(agentUUID, amount, hash);
 						}
 					}
 				}
@@ -1007,15 +1007,15 @@ namespace OpenSim.Forge.Currency
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("clientID") &&
+				if (requestParam.Contains("clientUUID") &&
 					requestParam.Contains("clientSessionID") &&
 					requestParam.Contains("clientSecureSessionID"))
 				{
-					UUID clientID = UUID.Zero;
-					UUID.TryParse((string)requestParam["clientID"], out clientID);
-					if (clientID!=UUID.Zero)
+					UUID clientUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
+					if (clientUUID!=UUID.Zero)
 					{
-						IClientAPI client = GetLocateClient(clientID);
+						IClientAPI client = GetLocateClient(clientUUID);
 						if (client!=null &&
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
@@ -1029,7 +1029,7 @@ namespace OpenSim.Forge.Currency
 			// Send the response to caller.
 			if (balance<0) 
 			{
-				m_log.ErrorFormat("[MONEY] GetBalanceHandler: GetBlance transaction is failed");
+				m_log.ErrorFormat("[MONEY] GetBalanceHandler: GetBalance transaction is failed");
 				ret = false;
 			}
 
