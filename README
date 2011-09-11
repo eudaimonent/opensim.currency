@@ -67,6 +67,27 @@
  - Please see also http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FEconomy.ini
 
 
+2-3. Helper Script
+
+  - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
+  - Please copy Scripts/* to any Web contents directory, and execute setup_sripts.sh shell script.
+    And next, edit include/config.php to rewrite ENV_HELPER_URL, ENV_HELPER_PATH, DB information, and etc.etc.
+  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
+
+ ex.)
+  # mkdir /var/www/currency
+  # cp -R Scripts/* /var/www/currency
+  # cd /var/www/currency
+  # ./setup_sripts.sh
+  # chown -R www-data.www-data .
+  # vi include/config.php
+
+  - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option.
+    Here, ENV_HELPER_URL is helper directory url in include/config.php.
+  - ex.) -helperuri http://localhost/currency/helper/   need last '/'
+
+
+
 3. Execution
 
 3-1. Aurora Server
