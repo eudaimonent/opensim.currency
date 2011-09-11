@@ -77,7 +77,7 @@
   - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
   - Please copy Scripts/* to any Web contents directory, and execute setup_sripts.sh shell script.
     And next, edit include/config.php to rewrite ENV_HELPER_URL, ENV_HELPER_PATH, DB information, and etc.etc.
-    Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
+  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
 
  ex.)
   # mkdir /var/www/currency
