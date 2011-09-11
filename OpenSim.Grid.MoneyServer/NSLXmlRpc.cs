@@ -1,4 +1,6 @@
-// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/
+// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp
+//
+//
 
 
 using System;
@@ -8,6 +10,7 @@ using System.Xml;
 using System.Net;
 using System.Text;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 using log4net;
 using Nwc.XmlRpc;
@@ -15,10 +18,8 @@ using Nwc.XmlRpc;
 
 namespace NSL.XmlRpc 
 {
-
 	public class NSLXmlRpcRequest : XmlRpcRequest
 	{
-		//private String _methodName = null;
 		private Encoding _encoding = new ASCIIEncoding();
 		private XmlRpcRequestSerializer _serializer = new XmlRpcRequestSerializer();
 		private XmlRpcResponseDeserializer _deserializer = new XmlRpcResponseDeserializer();
@@ -37,21 +38,23 @@ namespace NSL.XmlRpc
 		}
 
 
-
-		public XmlRpcResponse xSend(String url, Int32 timeout)
+		public XmlRpcResponse certSend(String url, X509Certificate2 cert, bool checkCert, Int32 timeout)
 	  	{
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 
-			if (request == null) {
+			if (request==null)
+			{
 				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, 
-						XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
+								XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
 			}
+
 			request.Method = "POST";
 			request.ContentType = "text/xml";
 			request.AllowWriteStreamBuffering = true;
-
 			request.Timeout = timeout;
-			request.Headers.Add("NoVerifyCert", "true");
+
+			if (cert!=null) request.ClientCertificates.Add(cert); 
+			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");
 
 			Stream stream = request.GetRequestStream();
 			XmlTextWriter xml = new XmlTextWriter(stream, _encoding);
@@ -67,7 +70,5 @@ namespace NSL.XmlRpc
 			response.Close();
 			return resp;
 	  	}
-
 	}
-
 }
