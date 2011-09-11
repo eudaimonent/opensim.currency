@@ -44,6 +44,7 @@
 	"MoneyScriptAccessKey" is Secret key of Helper Script. Specify same key in include/config.php or WI(XoopenSim/Modlos)
 	"MoneyScriptIPaddress" is IP address of server that Helper Script execute at. Not specify 127.0.0.1. 
   - If you want to change Update Balance Messages (blue dialog), pleaase enable and rewrite "BalanceMessage..." valiables.
+  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FMoneyServer.ini
 
 
 2-2. Region Server
@@ -65,22 +66,26 @@
 
 
  Attention) 
-   Not use 127.0.0.1 or localhost for UserServer's address and CurrencyServer's address. 
-   This address is used for identification of user on Money Server.
+  - Module name was changed from DTLMoneyModule to DTLNSLMoneyModule
+  - Not use 127.0.0.1 or localhost for UserServer's address and CurrencyServer's address. 
+    This address is used for identification of user on Money Server.
+  - Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FOpenSim.ini
 
 
 2-3. Helper Script
 
   - If you do not use XoopenSim or Modlos (Web Interface), you should setup helper scripts by manual.
-  - Please copy Scripts/* to any Web contents directory, and edit ENV_HELPER_URL, ENV_HELPER_PATH and DB information
-    in include/config.php 
+  - Please copy Scripts/* to any Web contents directory, and execute setup_sripts.sh shell script.
+    And next, edit include/config.php to rewrite ENV_HELPER_URL, ENV_HELPER_PATH, DB information, and etc.etc.
+    Please see also: http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?OpenSim%2FMoneyServer%2FHelper%20Script
 
  ex.)
- # mkdir /var/www/currency
- # cp -R Scripts/* /var/www/currency
- # cd /var/www/currency
- # chown -R www-data.www-data .
- # vi include/config.php
+  # mkdir /var/www/currency
+  # cp -R Scripts/* /var/www/currency
+  # cd /var/www/currency
+  # ./setup_sripts.sh
+  # chown -R www-data.www-data .
+  # vi include/config.php
 
   - Please execute viewer with "-helperuri [ENV_HELPER_URL/]" option. 
     Here, ENV_HELPER_URL is helper directory url in include/config.php.
@@ -90,14 +95,21 @@
 
 3. Execution
 
-3-1. Money Server
+3-1. Robust Server
 
  # cd opensim-0.7.x-source
  # cd bin
- # mono OpenSim.Grid.MoneyServer.exe
+ # mono Robust.exe
 
 
-3-2. Region Server
+3-2. Money Server
+
+ # cd opensim-0.7.x-source
+ # cd bin
+ # mono MoneyServer.exe
+
+
+3-3. Region Server
 
  # cd opensim-0.7.x-source
  # cd bin
