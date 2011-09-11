@@ -956,12 +956,12 @@ namespace OpenSim.Forge.Currency
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("agentUUID") &&
+				if (requestParam.Contains("clientUUID") &&
 					requestParam.Contains("secretAccessCode"))
 				{
-					UUID agentUUID = UUID.Zero;
-					UUID.TryParse((string)requestParam["agentUUID"], out agentUUID);
-					if (agentUUID!=UUID.Zero)
+					UUID clientUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
+					if (clientUUID!=UUID.Zero)
 					{
 						if (requestParam.Contains("amount"))
 						{
@@ -973,7 +973,7 @@ namespace OpenSim.Forge.Currency
 							byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(secretCode + "_" + scriptIP));
 							string hash = BitConverter.ToString(code).ToLower().Replace("-","");
 							//m_log.InfoFormat("[MONEY] SendMoneyBalanceHandler: SecretCode: {0} + {1} = {2}", secretCode, scriptIP, hash);
-							ret = SendMoneyBalance(agentUUID, amount, hash);
+							ret = SendMoneyBalance(clientUUID, amount, hash);
 						}
 					}
 				}
