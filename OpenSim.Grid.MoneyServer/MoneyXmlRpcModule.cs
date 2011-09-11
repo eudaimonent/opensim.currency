@@ -32,6 +32,7 @@ using System.Reflection;
 using System.Collections;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 using log4net;
 using Nini.Config;
@@ -53,19 +54,19 @@ namespace OpenSim.Grid.MoneyServer
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		private int m_defaultBalance = 0;
-		//private string m_simServURI = string.Empty;
-
+		private int    m_defaultBalance  = 0;
 		//
-		private bool   m_forceTransfer = false;
-		private string m_bankerAvatar  = "";
+		private bool   m_forceTransfer   = false;
+		private string m_bankerAvatar    = "";
 
-		private bool   m_scriptSendMoney  = false;
-		private string m_scriptAccessKey  = "";
-		private string m_scriptIPaddress  = "127.0.0.1";
+		private bool   m_scriptSendMoney = false;
+		private string m_scriptAccessKey = "";
+		private string m_scriptIPaddress = "127.0.0.1";
 
-		private bool   m_useCertFile   = false;
-		private string m_certFilename  = "";
+		private bool   m_checkClientCert = false;
+		private string m_certFilename    = "";
+		private string m_certPassword    = "";
+		private X509Certificate2 m_cert  = null;
 
 		// Update Balance Messages
 		private string m_BalanceMessageLandSale 	= "Paid the Money L${0} for Land.";
@@ -105,7 +106,7 @@ namespace OpenSim.Grid.MoneyServer
 		}
 
 
-		public void Initialise(string opensimVersion,IConfig config, IMoneyDBService moneyDBService, IMoneyServiceCore moneyCore) 
+		public void Initialise(string opensimVersion, IConfig config, IMoneyDBService moneyDBService, IMoneyServiceCore moneyCore) 
 		{
 			m_opensimVersion = opensimVersion;
 			m_moneyDBService = moneyDBService;
@@ -114,19 +115,29 @@ namespace OpenSim.Grid.MoneyServer
 
 			m_defaultBalance = m_config.GetInt("DefaultBalance", 1000);
 
-			string ftrans  = m_config.GetString("enableForceTransfer", "false");
+			string ftrans   = m_config.GetString ("enableForceTransfer", "false");
 			if (ftrans.ToLower()=="true") m_forceTransfer = true;
+			m_forceTransfer = m_config.GetBoolean("EnableForceTransfer", m_forceTransfer);
 
 			string banker  = m_config.GetString("BankerAvatar", "");
 			m_bankerAvatar = banker.ToLower();
 
-			string sendmoney = m_config.GetString("enableScriptSendMoney", "false");
+			string sendmoney  = m_config.GetString ("enableScriptSendMoney", "false");
 			if (sendmoney.ToLower()=="true") m_scriptSendMoney = true;
+			m_scriptSendMoney = m_config.GetBoolean("EnableScriptSendMoney", m_scriptSendMoney);
+
 			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
 			m_scriptIPaddress = m_config.GetString("MoneyScriptIPaddress", "127.0.0.1");
 
-			m_certFilename = m_config.GetString("RegionCertificateFile", "");
-			if (m_certFilename!="") m_useCertFile = true;
+			string checkcert = m_config.GetString("CheckClientCert", "false");
+			if (checkcert.ToLower()=="true") m_checkClientCert = true;
+
+			m_certFilename = m_config.GetString ("ServerCertFilename", "SineWaveCert.pfx");
+			m_certPassword = m_config.GetString ("ServerCertPassword", "123");
+			if (m_certFilename!="" && m_certPassword!="") 
+			{
+				m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+			}
 
 			// Update Balance Messages
 			m_BalanceMessageLandSale	 = m_config.GetString("BalanceMessageLandSale", 	m_BalanceMessageLandSale);
@@ -423,7 +434,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			m_log.Error("[MONEY RPC] handleTransaction: Session authentication failure for sender " + fmID);
 			responseData["success"] = false;
-			responseData["message"] = "Session check failure,please re-login later!";
+			responseData["message"] = "Session check failure, please re-login later!";
 			return response;
 		}
 
@@ -725,9 +736,9 @@ namespace OpenSim.Grid.MoneyServer
 
 			MD5 md5 = MD5.Create();
 			byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(m_scriptAccessKey + "_" + clientIP));
-			string hash = BitConverter.ToString(code).ToLower().Replace("-","");
+			string hash = BitConverter.ToString(code).ToLower().Replace("-", "");
 			code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(hash + "_" + m_scriptIPaddress));
-			hash = BitConverter.ToString(code).ToLower().Replace("-","");
+			hash = BitConverter.ToString(code).ToLower().Replace("-", "");
 
 			if (secretCode.ToLower()!=hash)
 			{
@@ -1007,7 +1018,7 @@ namespace OpenSim.Grid.MoneyServer
 									}
 									else
 									{
-										m_log.InfoFormat("[MONEY RPC] NotifyTransfer: Transaction {0} finished successfully",transactionUUID.ToString());
+										m_log.InfoFormat("[MONEY RPC] NotifyTransfer: Transaction {0} finished successfully", transactionUUID.ToString());
 										return true;
 									}
 								}
@@ -1161,17 +1172,29 @@ namespace OpenSim.Grid.MoneyServer
 		/// <param name="ReqParams">Hashtable containing parameters to the method</param>   
 		/// <param name="method">Method to invoke</param>   
 		/// <returns>Hashtable with success=>bool and other values</returns>   
-		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method,string uri)
+		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method, string uri)
 		{
 			//m_log.InfoFormat("[MONEY RPC] genericCurrencyXMLRPCRequest:");
 
-			// Handle the error in parameter list.   
-			if (reqParams.Count <= 0 ||
-				string.IsNullOrEmpty(method) ||
-				!uri.StartsWith("http://"))
+			if (reqParams.Count<=0 || string.IsNullOrEmpty(method)) return null;
+
+			if (m_checkClientCert)
 			{
-				return null;
+				if (!uri.StartsWith("https://")) 
+				{
+					m_log.ErrorFormat("[MONEY RPC] genericCurrencyXMLRPCRequest: CheckClientCert is true, but protocol is not HTTPS. Please check INI file");
+					return null; 
+				}
 			}
+			else
+			{
+				if (!uri.StartsWith("https://") && !uri.StartsWith("http://"))
+				{
+					m_log.ErrorFormat("[MONEY RPC] genericCurrencyXMLRPCRequest: Invalid Region Server URL: {0}", uri);
+					return null; 
+				}
+			}
+
 
 			ArrayList arrayParams = new ArrayList();
 			arrayParams.Add(reqParams);
@@ -1181,17 +1204,17 @@ namespace OpenSim.Grid.MoneyServer
 				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
 				//moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.xSend(uri, MONEYMODULE_REQUEST_TIMEOUT);
+				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_checkClientCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{
-				m_log.ErrorFormat("[MONEY RPC] handleClientLogout: Unable to connect to OpenSim Server {0}. Exception {1}", uri, ex.ToString());
+				m_log.ErrorFormat("[MONEY RPC] genericCurrencyXMLRPCRequest: Unable to connect to Region Server {0}", uri);
+				m_log.ErrorFormat("[MONEY RPC] genericCurrencyXMLRPCRequest: {0}", ex.ToString());
 
 				Hashtable ErrorHash = new Hashtable();
 				ErrorHash["success"] = false;
 				ErrorHash["errorMessage"] = "Failed to perform actions on OpenSim Server";
 				ErrorHash["errorURI"] = "";
-
 				return ErrorHash;
 			}
 
@@ -1201,7 +1224,6 @@ namespace OpenSim.Grid.MoneyServer
 				ErrorHash["success"] = false;
 				ErrorHash["errorMessage"] = "Failed to perform actions on OpenSim Server";
 				ErrorHash["errorURI"] = "";
-
 				return ErrorHash;
 			}
 			Hashtable moneyRespData = (Hashtable)moneyServResp.Value;
@@ -1252,13 +1274,13 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC] RollBackTransaction:");
 
-			if(m_moneyDBService.withdrawMoney(transaction.TransUUID,transaction.Receiver,transaction.Amount))
+			if(m_moneyDBService.withdrawMoney(transaction.TransUUID, transaction.Receiver, transaction.Amount))
 			{
-				if(m_moneyDBService.giveMoney(transaction.TransUUID,transaction.Sender,transaction.Amount))
+				if(m_moneyDBService.giveMoney(transaction.TransUUID, transaction.Sender, transaction.Amount))
 				{
 					m_log.InfoFormat("[MONEY RPC] RollBackTransaction: Transaction {0} successfully", transaction.TransUUID.ToString());
 					m_moneyDBService.updateTransactionStatus(transaction.TransUUID, (int)Status.FAILED_STATUS, 
-																	"The buyer failed to get the object,roll back the transaction");
+																	"The buyer failed to get the object, roll back the transaction");
 
 					UserInfo senderInfo   = m_moneyDBService.FetchUserInfo(transaction.Sender);
 					UserInfo receiverInfo = m_moneyDBService.FetchUserInfo(transaction.Receiver);
@@ -1299,7 +1321,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("transactionID"))
 			{
 				transactionID = (string)requestData["transactionID"];
-				UUID.TryParse(transactionID,out transactionUUID);
+				UUID.TryParse(transactionID, out transactionUUID);
 			}
 
 			if (string.IsNullOrEmpty(secureCode) || string.IsNullOrEmpty(transactionID))
@@ -1433,7 +1455,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (string.IsNullOrEmpty(userID) || string.IsNullOrEmpty(webSessionID))
 			{
 				responseData["success"] = false;
-				responseData["errorMessage"] = "userID or sessionID can`t be empty,login failed!";
+				responseData["errorMessage"] = "userID or sessionID can`t be empty, login failed!";
 				return response;
 			}
 
@@ -1561,7 +1583,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_log.Error("[MONEY RPC] handleWebLogout: Session authentication failed when getting balance for user " + userID);
 
 			responseData["success"] = false;
-			responseData["errorMessage"] = "Session check failure,please re-login";
+			responseData["errorMessage"] = "Session check failure, please re-login";
 			return response;
 		}
 
@@ -1657,7 +1679,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_log.Error("[MONEY RPC] handleWebGetTransaction: Session authentication failed when getting transaction for user " + userID);
 
 			responseData["success"] = false;
-			responseData["errorMessage"] = "Session check failure,please re-login";
+			responseData["errorMessage"] = "Session check failure, please re-login";
 			return response;
 
 		}
@@ -1692,10 +1714,10 @@ namespace OpenSim.Grid.MoneyServer
 			{
 				if (m_webSessionDic[userID]==webSessionID)
 				{
-					int it = m_moneyDBService.getTransactionNum(userID,startTime,endTime);
-					if (it >= 0)
+					int it = m_moneyDBService.getTransactionNum(userID, startTime, endTime);
+					if (it>=0)
 					{
-						m_log.InfoFormat("[MONEY RPC] handleWebGetTransactionNum: Get {0} transactions for user {1}", it,userID);
+						m_log.InfoFormat("[MONEY RPC] handleWebGetTransactionNum: Get {0} transactions for user {1}", it, userID);
 						responseData["success"] = true;
 						responseData["number"] = it;
 					}

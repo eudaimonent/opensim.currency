@@ -55,7 +55,7 @@
 
     EconomyModule = DTLNSLMoneyModule
     CurrencyServer = "https://(MoneyServer's Name or IP):8008/"  
-    UserServer = "http://(UserServer's Name or IP):8003/"
+    UserServer = "http://(UserServer's Name or IP):8002/"
 
     PriceUpload = 10
     PriceGroupCreate = 20
