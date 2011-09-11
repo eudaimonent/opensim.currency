@@ -223,21 +223,21 @@ namespace OpenSim.Forge.Currency
 						HttpServer = new BaseHttpServer(9000);
 						HttpServer.AddStreamHandler(new Region.Framework.Scenes.RegionStatsHandler(scene.RegionInfo));
 
+						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						HttpServer.AddXmlRPCHandler("UserAlert", UserAlertHandler);
-						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
+						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);						// added
 						HttpServer.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);				// added
 						HttpServer.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);			// added
-						HttpServer.AddXmlRPCHandler("GetBalance", GetBalanceHandler);						// added
 						//HttpServer.AddXmlRPCHandler("UploadCovered", UploadCoveredHandler);				// added for Aurora-Sim
 						//HttpServer.AddXmlRPCHandler("UploadCharge",  UploadChargeHandler);				// added for Aurora-Sim
 
+						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						MainServer.Instance.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
 						MainServer.Instance.AddXmlRPCHandler("UserAlert", UserAlertHandler);
-						MainServer.Instance.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
+						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);				// added
 						MainServer.Instance.AddXmlRPCHandler("AddBankerMoney", AddBankerMoneyHandler);		// added
 						MainServer.Instance.AddXmlRPCHandler("SendMoneyBalance",  SendMoneyBalanceHandler);	// added
-						MainServer.Instance.AddXmlRPCHandler("GetBalance", GetBalanceHandler);				// added
 						//MainServer.Instance.AddXmlRPCHandler("UploadCovered", UploadCoveredHandler);		// added for Aurora-Sim
 						//MainServer.Instance.AddXmlRPCHandler("UploadCharge",  UploadChargeHandler);		// added for Aurora-Sim
 					}
@@ -723,6 +723,73 @@ namespace OpenSim.Forge.Currency
 
 		#region MoneyModule XML-RPC Handler
 
+		// "OnMoneyTransfered" RPC from MoneyServer
+		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler:");
+
+			bool ret = false;
+
+			if (request.Params.Count>0)
+			{
+				Hashtable requestParam = (Hashtable)request.Params[0];
+				if (requestParam.Contains("clientUUID") &&
+					//requestParam.Contains("receiverUUID") &&
+					requestParam.Contains("clientSessionID") &&
+					requestParam.Contains("clientSecureSessionID"))
+				{
+					UUID clientUUID = UUID.Zero;
+					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
+					//UUID receiverUUID = UUID.Zero;
+					//UUID.TryParse((string)requestParam["receiverUUID"], out receiverUUID);
+					if (clientUUID!=UUID.Zero)
+					{
+						IClientAPI client = GetLocateClient(clientUUID);
+						if (client!=null &&
+							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
+							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
+						{
+							if (requestParam.Contains("transactionType") &&
+								requestParam.Contains("objectID") &&
+								requestParam.Contains("amount"))
+							{
+								//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler: type = {0}", requestParam["transactionType"]);
+								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)		// Pay for the object.
+								{
+									// Send notify to the client(viewer) for Money Event Trigger.   
+									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
+									if (handlerOnObjectPaid!=null)
+									{
+										UUID objectID = UUID.Zero;
+										UUID.TryParse((string)requestParam["objectID"], out objectID);
+										handlerOnObjectPaid(objectID, clientUUID, (int)requestParam["amount"]);	// call Script Engine for LSL money()
+									}
+									ret = true;
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+
+			// Send the response to money server.
+			XmlRpcResponse resp   = new XmlRpcResponse();
+			Hashtable paramTable  = new Hashtable();
+			paramTable["success"] = ret;
+
+			if (!ret)
+			{
+				m_log.ErrorFormat("[MONEY] OnMoneyTransferedHandler: Transaction is failed. MoneyServer will rollback");
+			}
+			resp.Value = paramTable;
+
+			return resp;
+		}
+
+
+
 		// "UpdateBalance" RPC from MoneyServer or Script
 		public XmlRpcResponse BalanceUpdateHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
@@ -831,25 +898,23 @@ namespace OpenSim.Forge.Currency
 
 
 
-		// "OnMoneyTransfered" RPC from MoneyServer
-		public XmlRpcResponse OnMoneyTransferedHandler(XmlRpcRequest request, IPEndPoint remoteClient)
+		// "GetBalance" RPC from Script
+		public XmlRpcResponse GetBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
-			//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler:");
+			//m_log.InfoFormat("[MONEY] GetBalanceHandler:");
 
 			bool ret = false;
+			int  balance = -1;
 
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
-					//requestParam.Contains("receiverUUID") &&
 					requestParam.Contains("clientSessionID") &&
 					requestParam.Contains("clientSecureSessionID"))
 				{
 					UUID clientUUID = UUID.Zero;
 					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
-					//UUID receiverUUID = UUID.Zero;
-					//UUID.TryParse((string)requestParam["receiverUUID"], out receiverUUID);
 					if (clientUUID!=UUID.Zero)
 					{
 						IClientAPI client = GetLocateClient(clientUUID);
@@ -857,38 +922,23 @@ namespace OpenSim.Forge.Currency
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
-							if (requestParam.Contains("transactionType") &&
-								requestParam.Contains("objectID") &&
-								requestParam.Contains("amount"))
-							{
-								//m_log.InfoFormat("[MONEY] OnMoneyTransferedHandler: type = {0}", requestParam["transactionType"]);
-								if ((int)requestParam["transactionType"]==(int)TransactionType.PayObject)		// Pay for the object.
-								{
-									// Send notify to the client(viewer) for Money Event Trigger.   
-									ObjectPaid handlerOnObjectPaid = OnObjectPaid;
-									if (handlerOnObjectPaid!=null)
-									{
-										UUID objectID = UUID.Zero;
-										UUID.TryParse((string)requestParam["objectID"], out objectID);
-										handlerOnObjectPaid(objectID, clientUUID, (int)requestParam["amount"]);	// call Script Engine for LSL money()
-									}
-									ret = true;
-								}
-							}
+							balance = QueryBalanceFromMoneyServer(client);
 						}
 					}
 				}
 			}
 
-			// Send the response to money server.
+			// Send the response to caller.
+			if (balance<0) 
+			{
+				m_log.ErrorFormat("[MONEY] GetBalanceHandler: GetBalance transaction is failed");
+				ret = false;
+			}
+
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
-
-			if (!ret)
-			{
-				m_log.ErrorFormat("[MONEY] OnMoneyTransferedHandler: Transaction is failed. MoneyServer will rollback");
-			}
+			paramTable["balance"] = balance;
 			resp.Value = paramTable;
 
 			return resp;
@@ -988,54 +1038,6 @@ namespace OpenSim.Forge.Currency
 			{
 				m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Send Money transaction is failed");
 			}
-			resp.Value = paramTable;
-
-			return resp;
-		}
-
-
-
-		// "SendMoneyBalance" RPC from Script
-		public XmlRpcResponse GetBalanceHandler(XmlRpcRequest request, IPEndPoint remoteClient)
-		{
-			//m_log.InfoFormat("[MONEY] GetBalanceHandler:");
-
-			bool ret = false;
-			int  balance = -1;
-
-			if (request.Params.Count>0)
-			{
-				Hashtable requestParam = (Hashtable)request.Params[0];
-				if (requestParam.Contains("clientUUID") &&
-					requestParam.Contains("clientSessionID") &&
-					requestParam.Contains("clientSecureSessionID"))
-				{
-					UUID clientUUID = UUID.Zero;
-					UUID.TryParse((string)requestParam["clientUUID"], out clientUUID);
-					if (clientUUID!=UUID.Zero)
-					{
-						IClientAPI client = GetLocateClient(clientUUID);
-						if (client!=null &&
-							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
-							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
-						{
-							balance = QueryBalanceFromMoneyServer(client);
-						}
-					}
-				}
-			}
-
-			// Send the response to caller.
-			if (balance<0) 
-			{
-				m_log.ErrorFormat("[MONEY] GetBalanceHandler: GetBalance transaction is failed");
-				ret = false;
-			}
-
-			XmlRpcResponse resp   = new XmlRpcResponse();
-			Hashtable paramTable  = new Hashtable();
-			paramTable["success"] = ret;
-			paramTable["balance"] = balance;
 			resp.Value = paramTable;
 
 			return resp;
