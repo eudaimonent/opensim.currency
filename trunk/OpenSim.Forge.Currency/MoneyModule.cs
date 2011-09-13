@@ -1275,12 +1275,12 @@ namespace OpenSim.Forge.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["avatarUserServIP"] 	= m_userServIP;
-				paramTable["avatarID"] 			= avatarID.ToString();
-				paramTable["transactionType"] 	= (int)TransactionType.ReferBonus;
-				paramTable["amount"] 			= amount;
-				paramTable["secretCode"] 		= secretCode;
-				paramTable["description"] 		= "Bonus to Avatar";
+				paramTable["avatarUserServIP"] = m_userServIP;
+				paramTable["avatarID"] 		   = avatarID.ToString();
+				paramTable["transactionType"]  = (int)TransactionType.ReferBonus;
+				paramTable["amount"] 		   = amount;
+				paramTable["secretAccessCode"] = secretCode;
+				paramTable["description"] 	   = "Bonus to Avatar";
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "SendMoneyBalance");

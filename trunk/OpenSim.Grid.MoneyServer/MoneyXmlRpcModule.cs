@@ -132,8 +132,8 @@ namespace OpenSim.Grid.MoneyServer
 			string checkcert = m_config.GetString("CheckClientCert", "false");
 			if (checkcert.ToLower()=="true") m_checkClientCert = true;
 
-			m_certFilename = m_config.GetString ("ServerCertFilename", "SineWaveCert.pfx");
-			m_certPassword = m_config.GetString ("ServerCertPassword", "123");
+			m_certFilename = m_config.GetString("ServerCertFilename", "SineWaveCert.pfx");
+			m_certPassword = m_config.GetString("ServerCertPassword", "123");
 			if (m_certFilename!="" && m_certPassword!="") 
 			{
 				m_cert = new X509Certificate2(m_certFilename, m_certPassword);
@@ -165,24 +165,25 @@ namespace OpenSim.Grid.MoneyServer
 
 		public void RegisterHandlers()
 		{
-			//have these in separate method as some servers restart the http server and reregister all the handlers.
 			m_httpServer = m_moneyCore.GetHttpServer();
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
-			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
-			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);		// added by Fumi.Iseki
-			m_httpServer.AddXmlRPCHandler("GetBalance", handleUserBalanceRequest);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
-			m_httpServer.AddXmlRPCHandler("CancelTransfer", handleCancelTransfer);
+			m_httpServer.AddXmlRPCHandler("GetBalance", handleUserBalanceRequest);
 			m_httpServer.AddXmlRPCHandler("GetTransaction", handleGetTransaction);
+
+			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
+			m_httpServer.AddXmlRPCHandler("CancelTransfer", handleCancelTransfer);
+			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);		// added
+			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);				// added
+			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);			// added
+			m_httpServer.AddXmlRPCHandler("PayMoneyCharge", handlePayMoneyCharge);				// added
+
+			// this is from original DTL. not check yet.
 			m_httpServer.AddXmlRPCHandler("WebLogin", handleWebLogin);
 			m_httpServer.AddXmlRPCHandler("WebLogout", handleWebLogout);
 			m_httpServer.AddXmlRPCHandler("WebGetBalance", handleWebGetBalance);
 			m_httpServer.AddXmlRPCHandler("WebGetTransaction", handleWebGetTransaction);
 			m_httpServer.AddXmlRPCHandler("WebGetTransactionNum", handleWebGetTransactionNum);
-			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);				// added by Fumi.Iseki
-			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);			// added by Fumi.Iseki
-			m_httpServer.AddXmlRPCHandler("PayMoneyCharge", handlePayMoneyCharge);				// added by Fumi.Iseki
-			//m_httpServer.AddXmlRPCHandler("ConfirmTransfer", handleConfirmTransfer);
 		}
 
 
@@ -727,12 +728,12 @@ namespace OpenSim.Grid.MoneyServer
 				return response;
 			}
 
-			if (requestData.ContainsKey("avatarID")) 			avatarID = (string)requestData["avatarID"];
-			if (requestData.ContainsKey("amount")) 				amount = (Int32)requestData["amount"];
-			if (requestData.ContainsKey("transactionType")) 	transactionType = (Int32)requestData["transactionType"];
-			if (requestData.ContainsKey("description")) 		description = (string)requestData["description"];
-			if (requestData.ContainsKey("avatarUserServIP"))	avatarUserServIP = (string)requestData["avatarUserServIP"];
-			if (requestData.ContainsKey("secretCode"))			secretCode = (string)requestData["secretCode"];
+			if (requestData.ContainsKey("avatarID")) 		 avatarID = (string)requestData["avatarID"];
+			if (requestData.ContainsKey("amount")) 			 amount = (Int32)requestData["amount"];
+			if (requestData.ContainsKey("transactionType"))  transactionType = (Int32)requestData["transactionType"];
+			if (requestData.ContainsKey("description")) 	 description = (string)requestData["description"];
+			if (requestData.ContainsKey("avatarUserServIP")) avatarUserServIP = (string)requestData["avatarUserServIP"];
+			if (requestData.ContainsKey("secretAccessCode")) secretCode = (string)requestData["secretAccessCode"];
 
 			MD5 md5 = MD5.Create();
 			byte[] code = md5.ComputeHash(ASCIIEncoding.Default.GetBytes(m_scriptAccessKey + "_" + clientIP));
