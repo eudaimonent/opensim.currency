@@ -168,15 +168,15 @@ namespace OpenSim.Grid.MoneyServer
 			m_httpServer = m_moneyCore.GetHttpServer();
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
-			m_httpServer.AddXmlRPCHandler("GetBalance", handleUserBalanceRequest);
+			m_httpServer.AddXmlRPCHandler("GetBalance", handleGetBalance);
 			m_httpServer.AddXmlRPCHandler("GetTransaction", handleGetTransaction);
 
-			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
 			m_httpServer.AddXmlRPCHandler("CancelTransfer", handleCancelTransfer);
+			m_httpServer.AddXmlRPCHandler("TransferMoney", handleTransaction);
 			m_httpServer.AddXmlRPCHandler("ForceTransferMoney", handleForceTransaction);		// added
+			m_httpServer.AddXmlRPCHandler("PayMoneyCharge", handlePayMoneyCharge);				// added
 			m_httpServer.AddXmlRPCHandler("AddBankerMoney", handleAddBankerMoney);				// added
 			m_httpServer.AddXmlRPCHandler("SendMoneyBalance", handleSendMoneyBalance);			// added
-			m_httpServer.AddXmlRPCHandler("PayMoneyCharge", handlePayMoneyCharge);				// added
 
 			// this is from original DTL. not check yet.
 			m_httpServer.AddXmlRPCHandler("WebLogin", handleWebLogin);
@@ -1046,9 +1046,9 @@ namespace OpenSim.Grid.MoneyServer
 		/// </summary>
 		/// <param name="request"></param>
 		/// <returns></returns>
-		public XmlRpcResponse handleUserBalanceRequest(XmlRpcRequest request, IPEndPoint remoteClient)
+		public XmlRpcResponse handleGetBalance(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
-			//m_log.InfoFormat("[MONEY RPC] handleUserBalanceRequest:");
+			//m_log.InfoFormat("[MONEY RPC] handleGetBalance:");
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1068,7 +1068,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			userID = clientUUID + "@" + userServerIP;
 
-			m_log.InfoFormat("[MONEY RPC] handleUserBalanceRequest: Getting balance for user {0}", userID);
+			m_log.InfoFormat("[MONEY RPC] handleGetBalance: Getting balance for user {0}", userID);
 			if (m_sessionDic.ContainsKey(userID) && m_secureSessionDic.ContainsKey(userID))
 			{
 				if (m_sessionDic[userID]==sessionID && m_secureSessionDic[userID]==secureID)
@@ -1102,13 +1102,13 @@ namespace OpenSim.Grid.MoneyServer
 					}
 					catch (Exception e)
 					{
-						m_log.ErrorFormat("[MONEY RPC] handleUserBalanceRequest: Can't get balance for user {0}, Exception {1}", clientUUID, e.ToString());
+						m_log.ErrorFormat("[MONEY RPC] handleGetBalance: Can't get balance for user {0}, Exception {1}", clientUUID, e.ToString());
 					}
 
 				}
 			}
 
-			m_log.Error("[MONEY RPC] handleUserBalanceRequest: Session authentication failed when getting balance for user " + userID);
+			m_log.Error("[MONEY RPC] handleGetBalance: Session authentication failed when getting balance for user " + userID);
 
 			responseData["success"] = false;
 			responseData["description"] = "Session check failure, please re-login";
