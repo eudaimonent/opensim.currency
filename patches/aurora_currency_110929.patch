@@ -1,0 +1,593 @@
+diff -Nur aurora-/Aurora/AuroraDotNetEngine/EventManager.cs aurora/Aurora/AuroraDotNetEngine/EventManager.cs
+--- aurora-/Aurora/AuroraDotNetEngine/EventManager.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine/EventManager.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -118,53 +118,22 @@
+             if (money != null)
+             {
+                 money.OnObjectPaid += HandleObjectPaid;
+-                money.OnPostObjectPaid += HandlePostObjectPaid;
+             }
+         }
+ 
+-        //private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+-        private bool HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+         {
+-            bool ret = false;
+             ISceneChildEntity part = m_scriptEngine.findPrim(objectID);
+ 
+-            //if (part == null)
+-            //    return;
++            if (part == null) return;
+ 
+-            //m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-            //if (part.ParentGroup != null)
+-            //    part = part.ParentGroup.RootPart;
++            m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++            if (part.ParentEntity != null) part = part.ParentEntity.RootChild;
+ 
+-            //if (part != null)
+-            //{
+-            //    money(part.LocalId, agentID, amount);
+-            //}
+-            if (part != null) 
++            if (part != null)
+             {
+-                m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-                if (part.ParentEntity != null) part = part.ParentEntity.RootChild;
+-                if (part != null)
+-                {
+-                    ret = money(part.LocalId, agentID, amount);
+-                }
++                money(part.LocalId, agentID, amount);
+             }
+-            return ret;
+-        }
+-
+-        private bool HandlePostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount)
+-        {
+-            bool ret = true;
+-
+-            foreach (IScene scene in m_scriptEngine.Worlds)
+-            {
+-                if (scene.RegionInfo.RegionHandle == regionHandle)
+-                {
+-                    ret = money(localID, agentID, amount);
+-                    break;
+-                }
+-            }
+-
+-            return ret;
+         }
+ 
+         public void changed (ISceneChildEntity part, uint change)
+@@ -311,19 +280,18 @@
+             CoalescedTouchEvents[part.LocalId] = det;
+         }
+ 
+-        //public void money(uint localID, UUID agentID, int amount)
+-        public bool money(uint localID, UUID agentID, int amount)
++        public void money(uint localID, UUID agentID, int amount)
+         {
+-            bool ret = false;
+             ISceneChildEntity part = m_scriptEngine.findPrim(localID);
+-            if (part == null) return ret;
++            if (part == null) return;
+ 
+             ScriptData[] datas = ScriptEngine.ScriptProtection.GetScripts(part.UUID);
+ 
+             if (datas == null || datas.Length == 0)
+             {
+-                datas = ScriptEngine.ScriptProtection.GetScripts(part.ParentEntity.UUID);
+-                if (datas == null || datas.Length == 0) return ret;
++                //datas = ScriptEngine.ScriptProtection.GetScripts(part.ParentEntity.UUID);
++                //if (datas == null || datas.Length == 0) 
++                    return;
+             }
+             string functionName = "money";
+             object[] param = new object[] {
+@@ -334,10 +302,8 @@
+             {
+                 if (CheckIfEventShouldFire(ID, functionName, param)) {
+                      m_scriptEngine.AddToScriptQueue(ID, functionName, new DetectParams[0], EventPriority.FirstStart, param);
+-                    ret = true;
+                 }
+             }
+-            return ret;
+         }
+ 
+         public void collision_start (ISceneChildEntity part, ColliderArgs col)
+diff -Nur aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs aurora/Aurora/AuroraDotNetEngine4/EventManager.cs
+--- aurora-/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/Aurora/AuroraDotNetEngine4/EventManager.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -122,53 +122,22 @@
+             if (money != null)
+             {
+                 money.OnObjectPaid += HandleObjectPaid;
+-                money.OnPostObjectPaid += HandlePostObjectPaid;
+             }
+         }
+ 
+-        //private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+-        private bool HandleObjectPaid(UUID objectID, UUID agentID, int amount)
++        private void HandleObjectPaid(UUID objectID, UUID agentID, int amount)
+         {
+-            bool ret = false;
+             ISceneChildEntity part = m_scriptEngine.findPrim(objectID);
+ 
+-            //if (part == null)
+-            //    return;
++            if (part == null) return;
+ 
+-            //m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-            //if (part.ParentGroup != null)
+-            //    part = part.ParentGroup.RootPart;
++            m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
++            if (part.ParentEntity != null) part = part.ParentEntity.RootChild;
+ 
+-            //if (part != null)
+-            //{
+-            //    money(part.LocalId, agentID, amount);
+-            //}
+-            if (part != null) 
++            if (part != null)
+             {
+-                m_log.Debug("Paid: " + objectID + " from " + agentID + ", amount " + amount);
+-                if (part.ParentEntity != null) part = part.ParentEntity.RootChild;
+-                if (part != null)
+-                {
+-                    ret = money(part.LocalId, agentID, amount);
+-                }
++                money(part.LocalId, agentID, amount);
+             }
+-            return ret;
+-        }
+-
+-        private bool HandlePostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount)
+-        {
+-            bool ret = true;
+-
+-            foreach (Scene scene in m_Scenes)
+-            {
+-                if (scene.RegionInfo.RegionHandle == regionHandle)
+-                {
+-                    ret = money(localID, agentID, amount);
+-                    break;
+-                }
+-            }
+-
+-            return ret;
+         }
+ 
+         public void changed (ISceneChildEntity part, uint change)
+@@ -315,19 +284,18 @@
+             CoalescedTouchEvents[part.LocalId] = det;
+         }
+ 
+-        //public void money(uint localID, UUID agentID, int amount)
+-        public bool money(uint localID, UUID agentID, int amount)
++        public void money(uint localID, UUID agentID, int amount)
+         {
+-            bool ret = false;
+             ISceneChildEntity part = m_scriptEngine.findPrim(localID);
+-            if (part == null) return ret;
++            if (part == null) return;
+ 
+             ScriptData[] datas = ScriptEngine.ScriptProtection.GetScripts(part.UUID);
+ 
+             if (datas == null || datas.Length == 0)
+             {
+-                datas = ScriptEngine.ScriptProtection.GetScripts(part.ParentEntity.UUID);
+-                if (datas == null || datas.Length == 0) return ret;
++                //datas = ScriptEngine.ScriptProtection.GetScripts(part.ParentEntity.UUID);
++                //if (datas == null || datas.Length == 0) 
++                    return;
+             }
+             string functionName = "money";
+             object[] param = new object[] {
+@@ -338,10 +306,8 @@
+             {
+                 if (CheckIfEventShouldFire(ID, functionName, param)) {
+                      m_scriptEngine.AddToScriptQueue(ID, functionName, new DetectParams[0], ID.VersionID, param);
+-                    ret = true;
+                 }
+             }
+-            return ret;
+         }
+ 
+         public void collision_start (ISceneChildEntity part, ColliderArgs col)
+diff -Nur aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs
+--- aurora-/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/Aurora/Modules/Avatar/AuroraProfile/AvatarProfileModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -242,7 +242,8 @@
+             IMoneyModule money = p.Scene.RequestModuleInterface<IMoneyModule>();
+             if (money != null)
+             {
+-                if (!money.Charge(remoteClient.AgentId, queryclassifiedPrice, "Add Classified"))
++                //if (!money.Charge(remoteClient.AgentId, queryclassifiedPrice, "Add Classified"))
++                if (!money.AmountCovered(remoteClient, queryclassifiedPrice))
+                 {
+                     remoteClient.SendAlertMessage("You do not have enough money to complete this upload.");
+                     return;
+diff -Nur aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs
+--- aurora-/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/Aurora/Modules/World/SampleCurrencyModule/SampleCurrencyModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -71,29 +71,55 @@
+ #pragma warning disable 67
+ 
+         public event ObjectPaid OnObjectPaid;
+-        public event PostObjectPaid OnPostObjectPaid;
+-        public bool Transfer(UUID toID, UUID fromID, int amount, string description)
++        //public event PostObjectPaid OnPostObjectPaid;
++
++        public bool Transfer(UUID fromID, UUID toID, int id, int amount, TransactionType type, string text)
+         {
+             return true;
+         }
+ 
+-        public bool Transfer(UUID toID, UUID fromID, int amount, string description, TransactionType type)
++        public bool Transfer(UUID fromID, UUID toID, UUID objectID, int amount, TransactionType type, string text)
+         {
++            if ((type == TransactionType.PayObject) && (OnObjectPaid != null)) OnObjectPaid(objectID, fromID, amount);
+             return true;
+         }
+ 
+-        public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type)
++        public int GetBalance(UUID agentID)
++        {
++            return 0;
++        }
++
++        public bool UploadCovered(IClientAPI client, int amount)
+         {
+-            if ((type == TransactionType.ObjectPay) && (OnObjectPaid != null))
+-                OnObjectPaid((fromObjectID == UUID.Zero) ? toObjectID : fromObjectID, fromID, amount);
+             return true;
+         }
+ 
+-        public void Transfer (UUID objectID, UUID agentID, int amount)
++        public bool AmountCovered(IClientAPI client, int amount)
++        {
++            return true;
++        }
++
++        public void ApplyUploadCharge(UUID agentID, int amount, string text)
++        {
++        }
++
++        public void ApplyCharge(UUID agentID, int amount, TransactionType type, string text)
+         {
+-            
+         }
+ 
++        public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
++        {
++            return true;
++        }
++
++        public void ProcessMoneyTransferRequest(UUID source, UUID destination, int amount,
++                                                        int transactiontype, string description)
++        {
++        }
++
++        #endregion
++
++
+ #pragma warning restore 67
+ 
+         #region IRegionModuleBase Members
+@@ -161,27 +187,6 @@
+ 
+         #endregion
+ 
+-        public int Balance(IClientAPI client)
+-        {
+-            return 0;
+-        }
+-
+-        public bool Charge(UUID agentID, int amount, string text)
+-        {
+-            return true;
+-        }
+-
+-        public bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount)
+-        {
+-            return true;
+-        }
+-
+-        public void ProcessMoneyTransferRequest(UUID source, UUID destination, int amount,
+-                                                        int transactiontype, string description)
+-        {
+-        }
+-
+-        #endregion
+ 
+         /// <summary>
+         /// New Client Event Handler
+@@ -340,11 +345,6 @@
+                                      0, 0);
+         }
+ 
+-        public bool Charge(IClientAPI client, int amount)
+-        {
+-            return true;
+-        }
+-
+         #endregion
+     }
+ }
+diff -Nur aurora-/OpenSim/Framework/IMoneyModule.cs aurora/OpenSim/Framework/IMoneyModule.cs
+--- aurora-/OpenSim/Framework/IMoneyModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Framework/IMoneyModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -25,43 +25,74 @@
+  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
++using System;
+ using OpenMetaverse;
+ 
++
+ namespace OpenSim.Framework
+ {
+-    //public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
+-    // For legacy money module. Fumi.Iseki
+-    public delegate bool ObjectPaid(UUID objectID, UUID agentID, int amount);
+-    // For DTL money module.
+-    public delegate bool PostObjectPaid(uint localID, ulong regionHandle, UUID agentID, int amount);
++    public delegate void ObjectPaid(UUID objectID, UUID agentID, int amount);
+ 
+     public enum TransactionType
+     {
+-        SystemGenerated = 0,
+-        RegionMoneyRequest = 1,
+-        Gift = 2,
+-        Purchase = 3,
+-        Upload = 4,
+-        ObjectPay = 5008
++        GroupCreate    = 1002,
++        GroupJoin      = 1004,
++        UploadCharge   = 1101,
++        LandAuction    = 1102,
++        ObjectSale     = 5000,
++        Gift           = 5001,
++        LandSale       = 5002,
++        ReferBonus     = 5003,
++        InvntorySale   = 5004,
++        RefundPurchase = 5005,
++        LandPassSale   = 5006,
++        DwellBonus     = 5007,
++        PayObject      = 5008,
++        ObjectPays     = 5009,
++        BuyMoney       = 5010,
++        MoveMoney      = 5011
+     }
+ 
++
+     public interface IMoneyModule
+     {
+-        bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID,
+-                int amount);
++        event ObjectPaid OnObjectPaid;
++
++        bool ObjectGiveMoney(UUID objectID, UUID fromID, UUID toID, int amount);
++
++        int  GetBalance(UUID agentID);
++
++        bool UploadCovered(IClientAPI client, int amount);
++        bool AmountCovered(IClientAPI client, int amount);
+ 
+-        int Balance(IClientAPI client);
+-        bool Charge(IClientAPI client, int amount);
+-        bool Charge(UUID agentID, int amount, string text);
++        void ApplyUploadCharge(UUID agentID, int amount, string text);
++        void ApplyCharge(UUID agentID, int amount, TransactionType type, string text);
+ 
+         int UploadCharge { get; }
+         int GroupCreationCharge { get; }
+ 
+-        event ObjectPaid OnObjectPaid;
+-        event PostObjectPaid OnPostObjectPaid;
++        bool Transfer(UUID fromID, UUID toID, int parcelID,  int amount, TransactionType type, string text);
++        bool Transfer(UUID fromID, UUID toID, UUID objectID, int amount, TransactionType type, string text);
++    }
++
+ 
+-        bool Transfer(UUID toID, UUID fromID, int amount, string description);
+-        bool Transfer(UUID toID, UUID fromID, int amount, string description, TransactionType type);
+-        bool Transfer(UUID toID, UUID fromID, UUID toObjectID, UUID fromObjectID, int amount, string description, TransactionType type);
++    public class MoneyTransferArgs : EventArgs
++    {
++        public UUID sender;
++        public UUID receiver;
++        public bool authenticated = false;
++        public int  amount;
++        public int  transactiontype;
++        public string description;
++
++        public MoneyTransferArgs(UUID asender, UUID areceiver, int aamount, int atransactiontype, string adescription)
++        {
++            sender = asender;
++            receiver = areceiver;
++            amount = aamount;
++            transactiontype = atransactiontype;
++            description = adescription;
++        }
+     }
+ }
++
+diff -Nur aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs
+--- aurora-/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Agent/AssetTransaction/AssetTransactionModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -306,11 +306,15 @@
+ 
+                 if (mm != null)
+                 {
+-                    if (!mm.Charge(remoteClient, mm.UploadCharge))
++                    if (!mm.UploadCovered(remoteClient, mm.UploadCharge))
+                     {
+                         remoteClient.SendAgentAlertMessage("Unable to upload asset. Insufficient funds.", false);
+                         return;
+                     }
++                    // added by Fumi.Iseki for UDP
++                    else {
++                        mm.ApplyUploadCharge(remoteClient.AgentId, mm.UploadCharge, "Upload Asset");
++                    }
+                 }
+             }
+ 
+diff -Nur aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs
+--- aurora-/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/Avatar/Groups/GroupsModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -959,7 +959,8 @@
+                 try
+                 {
+                     // do the transaction, that is if the agent has got sufficient funds
+-                    if (!money.Charge (GetRequestingAgentID (remoteClient), money.GroupCreationCharge, "Group Creation"))
++                    //if (!money.Charge (GetRequestingAgentID (remoteClient), money.GroupCreationCharge, "Group Creation"))
++                    if (!money.AmountCovered(remoteClient, money.GroupCreationCharge))
+                     {
+                         remoteClient.SendCreateGroupReply (UUID.Zero, false, "You have got issuficient funds to create a group.");
+                         return UUID.Zero;
+@@ -970,6 +971,7 @@
+                     remoteClient.SendCreateGroupReply (UUID.Zero, false, "A money related exception occured, please contact your grid administrator.");
+                     return UUID.Zero;
+                 }
++                money.ApplyCharge(remoteClient.AgentId, money.GroupCreationCharge, TransactionType.GroupCreate, "Group Creation");
+             }
+             UUID groupID = m_groupData.CreateGroup(GetRequestingAgentID(remoteClient), name, charter, showInList, insigniaID, membershipFee, openEnrollment, allowPublish, maturePublish, GetRequestingAgentID(remoteClient));
+ 
+diff -Nur aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
+--- aurora-/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -1143,7 +1143,8 @@
+ 
+             IMoneyModule module = m_scene.RequestModuleInterface<IMoneyModule>();
+             if (module != null)
+-                if (!module.Transfer(landObject.LandData.OwnerID, client.AgentId, landObject.LandData.PassPrice, "Parcel Pass"))
++                if (!module.Transfer(client.AgentId, landObject.LandData.OwnerID, ParcelLocalID,
++                                                     landObject.LandData.PassPrice, TransactionType.LandPassSale, "Parcel Pass"))
+                 {
+                     client.SendAlertMessage("You do not have enough funds to complete this transaction.");
+                     return;
+@@ -1733,7 +1734,23 @@
+                 // Make sure that we do all checking that we can sell this land
+                 if (m_scene.EventManager.TriggerValidateBuyLand(args))
+                 {
+-                    land.UpdateLandSold(args.agentId, args.groupId, args.groupOwned, (uint)args.transactionID, args.parcelPrice, args.parcelArea);
++                    if (args.parcelOwnerID!=UUID.Zero)
++                    {
++                        bool ret = false;
++                        if (args.transactionID==0) args.transactionID = (int)TransactionType.LandSale;
++
++                        IMoneyModule module = m_scene.RequestModuleInterface<IMoneyModule>();
++                        if (module != null)
++                        {
++                           ret = module.Transfer(args.agentId, args.parcelOwnerID, args.parcelLocalID,
++                                                               args.parcelPrice, (TransactionType)args.transactionID, "Parcel Sale");
++                        }
++
++                        if (ret || module==null || args.parcelPrice==0)
++                        {
++                            land.UpdateLandSold(args.agentId, args.groupId, args.groupOwned, (uint)args.transactionID, args.parcelPrice, args.parcelArea);
++                        }
++                    }
+                 }
+             }
+         }
+diff -Nur aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs
+--- aurora-/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Region/CoreModules/World/Objects/BuySell/BuySellModule.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -157,7 +157,7 @@
+             IMoneyModule moneyMod = remoteClient.Scene.RequestModuleInterface<IMoneyModule>();
+             if (moneyMod != null)
+             {
+-                if (!moneyMod.Transfer(part.OwnerID, remoteClient.AgentId, part.ParentUUID, UUID.Zero, part.SalePrice, "Object Purchase", TransactionType.ObjectPay))
++                if (!moneyMod.Transfer(remoteClient.AgentId, part.OwnerID, part.ParentUUID, part.SalePrice, TransactionType.PayObject, "Object Purchase"))
+                 {
+                     remoteClient.SendAgentAlertMessage("You do not have enough money to buy this object.", false);
+                     return;
+diff -Nur aurora-/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs aurora/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs
+--- aurora-/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs	2011-09-29 11:52:10.000000000 +0900
++++ aurora/OpenSim/Services/CapsService/CAPModules/InventoryCAPS.cs	2011-09-29 11:52:34.000000000 +0900
+@@ -299,18 +299,15 @@
+                 asset_type == "animation" ||
+                 asset_type == "sound")
+             {
+-                IMoneyModule mm = m_service.Registry.RequestModuleInterface<IMoneyModule>();
+-
+-                /*if (mm != null)
++                // Request to Region Server by Fumi.Iseki
++                if (!RequestUploadCovered(m_service))
+                 {
+-                    if (!mm.Charge (client.AgentID, mm.UploadCharge))
+-                    {
+-                        map = new OSDMap ();
+-                        map["uploader"] = "";
+-                        map["state"] = "error";
+-                        return OSDParser.SerializeLLSDXmlString (map);
+-                    }
+-                }*/
++                    map = new OSDMap ();
++                    map["description"] = "No Money";
++                    map["uploader"] = "";
++                    map["state"] = "error";
++                    return OSDParser.SerializeLLSDXmlString (map);
++                }
+             }
+             return OSDParser.SerializeLLSDXmlString(InternalNewAgentInventoryRequest(map, path, param, httpRequest, httpResponse));
+         }
+@@ -726,9 +723,54 @@
+ 
+             m_inventoryService.AddItem(item);
+ 
++            // Request to Region Server by Fumi.Iseki
++            RequestUploadCharge(m_service);
++
+             return assetID;
+         }
+ 
+         #endregion
++
++
++
++        //
++        private bool RequestUploadCovered(IRegionClientCapsService service)
++        {
++            Hashtable paramTable  = new Hashtable();
++            ArrayList arrayParams = new ArrayList();
++            OpenSim.Services.Interfaces.GridRegion region = service.Region;
++            AgentCircuitData circuitData = service.CircuitData;
++
++            paramTable["clientUUID"]            = service.AgentID.ToString();
++            paramTable["clinetSessionID"]       = circuitData.SessionID.ToString();
++            paramTable["clientSecureSessionID"] = circuitData.SecureSessionID.ToString();
++            arrayParams.Add(paramTable);
++
++            Nwc.XmlRpc.XmlRpcRequest moneyModuleReq = new Nwc.XmlRpc.XmlRpcRequest("UploadCovered", arrayParams);
++            Nwc.XmlRpc.XmlRpcResponse moneyServResp = moneyModuleReq.Send(region.ServerURI, 6000);
++
++                        if (moneyServResp.IsFault) return false;
++                        return true;
++        }
++
++
++
++        private void  RequestUploadCharge(IRegionClientCapsService service)
++        {
++
++            Hashtable paramTable  = new Hashtable();
++            ArrayList arrayParams = new ArrayList();
++            OpenSim.Services.Interfaces.GridRegion region = service.Region;
++            AgentCircuitData circuitData = service.CircuitData;
++
++            paramTable["clientUUID"]            = service.AgentID.ToString();
++            paramTable["clientSessionID"]       = circuitData.SessionID.ToString();
++            paramTable["clientSecureSessionID"] = circuitData.SecureSessionID.ToString();
++            arrayParams.Add(paramTable);
++
++            Nwc.XmlRpc.XmlRpcRequest moneyModuleReq = new Nwc.XmlRpc.XmlRpcRequest("UploadCharge", arrayParams);
++            moneyModuleReq.Send(region.ServerURI, 6000);
++        }
++
+     }
+ }
