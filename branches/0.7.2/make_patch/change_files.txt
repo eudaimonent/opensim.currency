@@ -1,0 +1,7 @@
+OpenSim/Framework/IMoneyModule.cs
+OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs
+OpenSim/Region/ScriptEngine/DotNetEngine/EventManager.cs
+OpenSim/Region/ScriptEngine/XEngine/EventManager.cs
+#OpenSim/Region/ReplaceableModules/MoneyModule/SampleMoneyModule.cs
+OpenSim/Region/OptionalModules/World/MoneyModule/SampleMoneyModule.cs
+
