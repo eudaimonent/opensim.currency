@@ -391,21 +391,23 @@ namespace OpenSim.Forge.Currency
 
 		public int GetBalance(UUID agentID)
 		{
-			IClientAPI client = GetLocateClient(agentID);;
+			IClientAPI client = GetLocateClient(agentID);
 			return QueryBalanceFromMoneyServer(client);
 		}
 
 
-		public bool UploadCovered(IClientAPI client, int amount)
+		public bool UploadCovered(UUID agentID, int amount)
 		{
+			IClientAPI client = GetLocateClient(agentID);
 			int balance = QueryBalanceFromMoneyServer(client);
 			if (balance<amount) return false;
 			return true;
 		}
 
 
-		public bool AmountCovered(IClientAPI client, int amount)
+		public bool AmountCovered(UUID agentID, int amount)
 		{
+			IClientAPI client = GetLocateClient(agentID);
 			int balance = QueryBalanceFromMoneyServer(client);
 			if (balance<amount) return false;
 			return true;
