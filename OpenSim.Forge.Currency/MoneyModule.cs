@@ -104,6 +104,13 @@ namespace OpenSim.Forge.Currency
 		private bool   m_checkServerCert = false;
 		private X509Certificate2 m_cert	 = null;
 
+		//
+		private bool   m_use_web_settle	 = false;
+		private string m_settle_url      = "";
+		private string m_settle_message  = "";
+		private bool   m_settle_user  	 = false;
+
+
 		/// <summary>   
 		/// Scene dictionary indexed by Region Handle   
 		/// </summary>   
@@ -198,6 +205,11 @@ namespace OpenSim.Forge.Currency
 				{
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 				}
+
+				// Settlement
+				m_use_web_settle = economyConfig.GetBoolean("SettlementByWeb", false);
+				m_settle_url     = economyConfig.GetString ("SettlementURL", "");
+				m_settle_message = economyConfig.GetString ("SettlementMessage", "");
 
 				// Price
 				PriceEnergyUnit 		= economyConfig.GetInt	("PriceEnergyUnit", 		100);
@@ -993,21 +1005,30 @@ namespace OpenSim.Forge.Currency
 								Scene scene = (Scene)client.Scene;
 								int amount  = (int)requestParam["amount"];
 								ret = AddBankerMoney(bankerUUID, amount, scene.RegionInfo.RegionHandle);
+
+								if (m_use_web_settle && m_settle_user) 
+								{
+									ret = true;
+									IDialogModule dlg = scene.RequestModuleInterface<IDialogModule>();
+									if (dlg!=null) {
+										dlg.SendUrlToUser(bankerUUID, "SYSTEM", UUID.Zero, UUID.Zero, false, m_settle_message, m_settle_url);
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 
+			if (!ret) m_log.ErrorFormat("[MONEY] AddBankerMoneyHandler: Add Banker Money transaction is failed");
+
 			// Send the response to caller.
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
+			paramTable["settle"]  = false;
 			paramTable["success"] = ret;
 
-			if (!ret) 
-			{
-				m_log.ErrorFormat("[MONEY] AddBankerMoneyHandler: Add Banker Money transaction is failed");
-			}
+			if (m_use_web_settle && m_settle_user) paramTable["settle"] = true;
 			resp.Value = paramTable;
 
 			return resp;
@@ -1048,15 +1069,13 @@ namespace OpenSim.Forge.Currency
 				}
 			}
 
+			if (!ret) m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Send Money transaction is failed");
+
 			// Send the response to caller.
 			XmlRpcResponse resp   = new XmlRpcResponse();
 			Hashtable paramTable  = new Hashtable();
 			paramTable["success"] = ret;
 
-			if (!ret) 
-			{
-				m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Send Money transaction is failed");
-			}
 			resp.Value = paramTable;
 
 			return resp;
@@ -1226,6 +1245,7 @@ namespace OpenSim.Forge.Currency
 			//m_log.InfoFormat("[MONEY] AddBankerMoney:");
 
 			bool ret = false;
+			m_settle_user = false;
 
 			if (!string.IsNullOrEmpty(m_moneyServURL))
 			{
@@ -1242,13 +1262,21 @@ namespace OpenSim.Forge.Currency
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "AddBankerMoney");
 
 				// Handle the return values from Money Server.  
-				if (resultTable!=null && resultTable.Contains("success"))
+				if (resultTable!=null)
 				{
-					if ((bool)resultTable["success"]==true)
+					if (resultTable.Contains("success") && (bool)resultTable["success"]==true)
 					{
 						ret = true;
 					}
-					else m_log.ErrorFormat("[MONEY] AddBankerMoney: Fail Message {0}", resultTable["message"]);
+					else 
+					{
+						if (resultTable.Contains("banker"))
+						{
+							m_settle_user = !(bool)resultTable["banker"]; // If avatar is not banker, Web Settlement is used.
+							if (m_settle_user && m_use_web_settle) m_log.ErrorFormat("[MONEY] AddBankerMoney: Avatar is not Banker. Web Settlemrnt is used.");
+						}
+						else m_log.ErrorFormat("[MONEY] AddBankerMoney: Fail Message {0}", resultTable["message"]);
+					}
 				}
 				else m_log.ErrorFormat("[MONEY] AddBankerMoney: Money Server is not responce");
 			}

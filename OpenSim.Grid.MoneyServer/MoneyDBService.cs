@@ -428,7 +428,7 @@ namespace OpenSim.Grid.MoneyServer
             {
                 if (dbm.Manager.fetchUserInfo(user.UserID) != null)
                 {
-                    m_log.InfoFormat("[Money DB] Found user \"{0}\",now update information", user.Avatar);
+                    m_log.InfoFormat("[Money DB] Found user \"{0}\", now update information", user.Avatar);
                     if (m_moneyManager.updateUserInfo(user))
                         return true;
                 }
