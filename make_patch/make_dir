@@ -1,9 +1,0 @@
-mkdir -p opensim/OpenSim/Framework/Servers/HttpServer
-#mkdir -p opensim/OpenSim/Region/ScriptEngine/DotNetEngine
-#mkdir -p opensim/OpenSim/Region/ScriptEngine/XEngine
-#mkdir -p opensim/OpenSim/Region/OptionalModules/World/MoneyModule
-
-mkdir -p opensim-/OpenSim/Framework/Servers/HttpServer
-#mkdir -p opensim-/OpenSim/Region/ScriptEngine/DotNetEngine
-#mkdir -p opensim-/OpenSim/Region/ScriptEngine/XEngine
-#mkdir -p opensim-/OpenSim/Region/OptionalModules/World/MoneyModule
