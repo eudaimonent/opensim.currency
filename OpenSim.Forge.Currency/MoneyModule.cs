@@ -1066,7 +1066,21 @@ namespace OpenSim.Forge.Currency
 							ret = SendMoneyBalance(clientUUID, amount, hash);
 						}
 					}
+					else {
+						m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: amount is missed");
+					}
 				}
+				else {
+					if (!requestParam.Contains("clientUUID")) {
+						m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: clientUUID is missed");
+					}
+					if (!requestParam.Contains("secretAccessCode")) {
+						m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: secretAccessCode is missed");
+					}
+				}
+			}
+			else {
+				m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Count is under 0");
 			}
 
 			if (!ret) m_log.ErrorFormat("[MONEY] SendMoneyBalanceHandler: Send Money transaction is failed");
