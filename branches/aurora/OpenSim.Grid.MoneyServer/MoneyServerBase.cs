@@ -38,6 +38,7 @@ using Nini.Config;
 using log4net;
 
 using OpenSim.Framework;
+using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
@@ -53,8 +54,8 @@ namespace OpenSim.Grid.MoneyServer
 		private uint m_moneyServerPort = 8008;
 		private string m_hostName = "localhost";
 
-		private string m_certFilename    = "";
-		private string m_certPassword    = "";
+		private string m_certFilename	 = "";
+		private string m_certPassword	 = "";
 		private bool   m_checkClientCert = false;
 		//private X509Certificate2 m_cert  = null;
 
@@ -73,8 +74,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		public MoneyServerBase()
 		{
-			m_console = new LocalConsole();
-			m_console.DefaultPrompt = "Money ";
+			m_console = new LocalConsole("Money ");
 			MainConsole.Instance = m_console;
 		}
 
@@ -117,12 +117,11 @@ namespace OpenSim.Grid.MoneyServer
 			try {
 				if (m_certFilename!="" && m_certPassword!="")
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, true);
-					m_httpServer.SetSecureParams(m_certFilename, m_certPassword, SslProtocols.Tls);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, false);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
@@ -131,10 +130,10 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			catch (Exception e)
 			{
-				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
-				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
-				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
-				Environment.Exit(1);
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
+                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
+                Environment.Exit(1);
 			}
 
 			//TODO : Add some console commands here
@@ -163,12 +162,12 @@ namespace OpenSim.Grid.MoneyServer
 				MAX_DB_CONNECTION = db_config.GetInt   ("MaxConnection", 10);
 
 				connectionString  = "Server=" + sqlserver + ";Port=" + port + ";Database=" + database + ";User ID=" +
-											    username + ";Password=" + password + ";Pooling=" + pooling + ";";
+												username + ";Password=" + password + ";Pooling=" + pooling + ";";
 
 				// [MoneyServer]
 				m_config   = moneyConfig.m_config.Configs["MoneyServer"];
 				DEAD_TIME  = m_config.GetInt   ("ExpiredTime", 120);
-				m_hostName = m_config.GetString("HostName", "localhost");
+				m_hostName = m_config.GetString("HostName", "localhost");	// be not used
 
 				string checkcert = m_config.GetString("CheckClientCert", "false");
 				if (checkcert.ToLower()=="true") m_checkClientCert = true;
@@ -253,7 +252,7 @@ namespace OpenSim.Grid.MoneyServer
 			string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
 			if (File.Exists(configPath))
 			{
-				m_config = new IniConfigSource(configPath, Nini.Ini.IniFileType.AuroraStyle);
+				m_config = new IniConfigSource(configPath);
 			}
 			else
 			{
