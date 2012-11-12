@@ -52,7 +52,7 @@ namespace OpenSim.Forge.Currency
     {
 		public static IPAddress GetHostFromURL(string url)
 		{
-			return GetHostFromDNS(url.Split(new char[] { '/', ':' })[3]);
+			return NetworkUtils.GetHostFromDNS(url.Split(new char[] { '/', ':' })[3]);
 		}
 	}
 }

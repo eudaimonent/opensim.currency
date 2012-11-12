@@ -37,11 +37,12 @@ using System.Security.Authentication;
 using Nini.Config;
 using log4net;
 
-using OpenSim.Framework;
-using OpenSim.Framework.Console;
+using Aurora.Framework;
+//using OpenSim.Framework.Console;
+//using Aurora.Framework.Servers;
 using OpenSim.Framework.Servers;
-using OpenSim.Framework.Servers.HttpServer;
-using OpenSim.Data;
+//using OpenSim.Framework.Servers.HttpServer;
+using Aurora.Framework.Servers.HttpServer;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -74,7 +75,8 @@ namespace OpenSim.Grid.MoneyServer
 
 		public MoneyServerBase()
 		{
-			m_console = new LocalConsole("Money ");
+			m_console = new LocalConsole();
+			m_console.DefaultPrompt = "Money ";
 			MainConsole.Instance = m_console;
 		}
 
@@ -117,11 +119,12 @@ namespace OpenSim.Grid.MoneyServer
 			try {
 				if (m_certFilename!="" && m_certPassword!="")
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, true);
+					m_httpServer.SetSecureParams(m_certFilename, m_certPassword, SslProtocols.Tls);
 				}
 				else
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, false);
 				}
 
 				SetupMoneyServices();
@@ -130,10 +133,10 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			catch (Exception e)
 			{
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
-                Environment.Exit(1);
+				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
+				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
+				m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
+				Environment.Exit(1);
 			}
 
 			//TODO : Add some console commands here
@@ -252,7 +255,7 @@ namespace OpenSim.Grid.MoneyServer
 			string configPath = Path.Combine(Directory.GetCurrentDirectory(), "MoneyServer.ini");
 			if (File.Exists(configPath))
 			{
-				m_config = new IniConfigSource(configPath);
+				m_config = new IniConfigSource(configPath, Nini.Ini.IniFileType.AuroraStyle);
 			}
 			else
 			{

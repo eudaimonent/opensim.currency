@@ -99,9 +99,8 @@ namespace OpenSim.Forge.Currency
 
 
 	// 
-	//[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
-	public class MoneyModule : IMoneyModule, ISharedRegionModule
 	//public class MoneyModule : IMoneyModule, IRegionModule
+	public class MoneyModule : IMoneyModule, ISharedRegionModule
 	{
 		#region Constant numbers and members.
 
@@ -258,7 +257,7 @@ namespace OpenSim.Forge.Currency
 
 
 
-		public void AddRegion(Scene scene)
+		public void AddRegion(IScene scene)
 		{
 			if (scene==null) return;
 
@@ -271,7 +270,7 @@ namespace OpenSim.Forge.Currency
 					if (!string.IsNullOrEmpty(m_moneyServURL))
 					{
 						HttpServer = new BaseHttpServer(9000, MainServer.Instance.HostName, false);
-                        HttpServer.AddStreamHandler(new MoneyServerHandler(scene.RegionInfo));
+						HttpServer.AddStreamHandler(new MoneyServerHandler(scene.RegionInfo));
 
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);
 						HttpServer.AddXmlRPCHandler("UpdateBalance", BalanceUpdateHandler);
@@ -295,11 +294,11 @@ namespace OpenSim.Forge.Currency
 
 				if (m_sceneList.ContainsKey(scene.RegionInfo.RegionHandle))
 				{
-					m_sceneList[scene.RegionInfo.RegionHandle] = scene;
+					m_sceneList[scene.RegionInfo.RegionHandle] = (Scene)scene;
 				}
 				else
 				{
-					m_sceneList.Add(scene.RegionInfo.RegionHandle, scene);
+					m_sceneList.Add(scene.RegionInfo.RegionHandle, (Scene)scene);
 				}
 
 			}
@@ -316,12 +315,12 @@ namespace OpenSim.Forge.Currency
 
 	
 
-		public void RemoveRegion(Scene scene)
+		public void RemoveRegion(IScene scene)
 		{
 		}
 
 
-		public void RegionLoaded(Scene scene)
+		public void RegionLoaded(IScene scene)
 		{
 		}
 
@@ -353,7 +352,6 @@ namespace OpenSim.Forge.Currency
 		{
 		}
 
-
 		#endregion
 
 
@@ -380,7 +378,9 @@ namespace OpenSim.Forge.Currency
 			Scene scene = GetLocateScene(toID);
 			if (scene!=null)
 			{
-				UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, toID);
+				List<UUID> scopeIDs = new List<UUID>();
+				scopeIDs.Add(scene.RegionInfo.ScopeID);
+				UserAccount account = scene.UserAccountService.GetUserAccount(scopeIDs, toID);
 				if (account!=null)
 				{
 					avatarName = account.FirstName + " " + account.LastName;
@@ -392,7 +392,6 @@ namespace OpenSim.Forge.Currency
 
 			if (sceneObj.OwnerID==fromID)
 			{
-			//	ulong regionHandle = sceneObj.RegionHandle;
 				ulong regionHandle = sceneObj.ParentGroup.Scene.RegionInfo.RegionHandle;
 				if (GetLocateClient(fromID)!=null)
 				{
@@ -491,6 +490,26 @@ namespace OpenSim.Forge.Currency
 		}
 
 
+		public List<GroupAccountHistory> GetTransactions(UUID groupID, UUID agentID, int currentInterval, int intervalDays)
+		{
+			return new List<GroupAccountHistory>();
+		}
+
+
+		public GroupBalance GetGroupBalance(UUID groupID)
+		{
+			return new GroupBalance() { StartingDate = DateTime.Now.AddDays(-4) };
+		}
+
+
+		public int ClientPort
+		{
+			get
+			{
+				return (int)MainServer.Instance.Port;
+			}
+		}
+
 		#endregion
 
 
@@ -541,7 +560,7 @@ namespace OpenSim.Forge.Currency
 		{
 			//m_log.InfoFormat("[MONEY] MoneyTransferRequest: type = {0} {1} {2}", transactionType, amount, description);
 
-			//if (transactionType==(int)TransactionType.UploadCharge) return;
+			if (transactionType==(int)TransactionType.UploadCharge) return;
 			MoneyTransferArgs moneyEvent = new MoneyTransferArgs(sourceID, destID, amount, transactionType, description);
 			Scene scene = GetLocateScene(sourceID);
 			MoneyTransferAction(scene, moneyEvent);
@@ -597,7 +616,7 @@ namespace OpenSim.Forge.Currency
 
 
 		// for OnMakeChildAgent event
-        private void MakeChildAgent(IScenePresence avatar, OpenSim.Services.Interfaces.GridRegion destination)
+		private void MakeChildAgent(IScenePresence avatar, OpenSim.Services.Interfaces.GridRegion destination)
 		{
 		}
 
@@ -605,7 +624,7 @@ namespace OpenSim.Forge.Currency
 
 		/*
 		// for OnValidateLandBuy event
-		//		For Aurora-Sim, OnParcelBuy event function is already defined         
+		//		For Aurora-Sim, OnParcelBuy event function is already defined		 
 		//		in OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
@@ -752,7 +771,7 @@ namespace OpenSim.Forge.Currency
 
 			Scene scene = GetLocateScene(client.AgentId);
 			if (scene==null) return;
-			SceneObjectPart sceneObj = scene.GetSceneObjectPart(objectID);
+			SceneObjectPart sceneObj = (SceneObjectPart)scene.GetSceneObjectPart(objectID);
 			if (sceneObj==null) return;
 			SceneObjectGroup group = sceneObj.ParentGroup;
 			SceneObjectPart root = group.RootPart;
@@ -763,11 +782,9 @@ namespace OpenSim.Forge.Currency
 
 
 		//
-		private void OnEconomyDataRequest(UUID agentId)
+		private void OnEconomyDataRequest(IClientAPI user)
 		{
 			//m_log.InfoFormat("[MONEY] OnEconomyDataRequest:");
-
-			IClientAPI user = GetLocateClient(agentId);
 
 			if (user!=null)
 			{
@@ -1152,7 +1169,7 @@ namespace OpenSim.Forge.Currency
 							client.SessionId.ToString()==(string)requestParam["clientSessionID"] &&
 							client.SecureSessionId.ToString()==(string)requestParam["clientSecureSessionID"])
 						{
-							ret = UploadCovered(client, UploadCharge);
+							ret = UploadCovered(clientUUID, UploadCharge);
 						}
 					}
 				}
@@ -1174,6 +1191,7 @@ namespace OpenSim.Forge.Currency
 		public XmlRpcResponse UploadChargeHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] UploadChargeHandler:");
+
 			bool ret = false;
 
 			if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
@@ -1538,7 +1556,9 @@ namespace OpenSim.Forge.Currency
 				{
 					if (scene!=null)
 					{
-						UserAccount account = scene.UserAccountService.GetUserAccount(scene.RegionInfo.ScopeID, client.AgentId);
+						List<UUID> scopeIDs = new List<UUID>();
+						scopeIDs.Add(scene.RegionInfo.ScopeID);
+						UserAccount account = scene.UserAccountService.GetUserAccount(scopeIDs, client.AgentId);
 						if (account!=null)
 						{
 							userName = account.FirstName + " " + account.LastName;
@@ -1549,8 +1569,10 @@ namespace OpenSim.Forge.Currency
 				// Login the Money Server.   
 				Hashtable paramTable = new Hashtable();
 				paramTable["userServIP"] 			= m_userServIP;
-				paramTable["openSimServIP"] 		= scene.RegionInfo.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
-																						 scene.RegionInfo.HttpPort.ToString());
+				paramTable["openSimServIP"] 		= MainServer.Instance.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
+																						 MainServer.Instance.Port.ToString());
+//				paramTable["openSimServIP"] 		= scene.RegionInfo.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
+//																						 scene.RegionInfo.HttpPort.ToString());
 				paramTable["userName"] 				= userName;
 				paramTable["clientUUID"] 			= client.AgentId.ToString();
 				paramTable["clientSessionID"] 		= client.SessionId.ToString();
