@@ -533,7 +533,7 @@ namespace OpenSim.Forge.Currency
 		{
 			//m_log.InfoFormat("[MONEY] MoneyTransferRequest: type = {0} {1} {2}", transactionType, amount, description);
 
-			//if (transactionType==(int)TransactionType.UploadCharge) return;
+			if (transactionType==(int)TransactionType.UploadCharge) return;
 			EventManager.MoneyTransferArgs moneyEvent = new EventManager.MoneyTransferArgs(sourceID, destID, amount, transactionType, description);
 			Scene scene = GetLocateScene(sourceID);
 			MoneyTransferAction(scene, moneyEvent);
@@ -1164,6 +1164,7 @@ namespace OpenSim.Forge.Currency
 		public XmlRpcResponse UploadChargeHandler(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY] UploadChargeHandler:");
+
 			bool ret = false;
 
 			if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
@@ -1740,7 +1741,7 @@ namespace OpenSim.Forge.Currency
 				Hashtable paramTable = new Hashtable();
 				paramTable["userServIP"]			= m_userServIP;
 				paramTable["clientUUID"]			= client.AgentId.ToString();
-				paramTable["clientSessionID"]	   = client.SessionId.ToString();			
+				paramTable["clientSessionID"]	    = client.SessionId.ToString();			
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
 				paramTable["transactionID"]			= transactionID;
 
