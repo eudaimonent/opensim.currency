@@ -43,7 +43,7 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
-//using OpenSim.Forge.Currency;
+using OpenSim.Forge.Currency;
 
 using NSL.XmlRpc;
 
@@ -617,9 +617,11 @@ namespace OpenSim.Grid.MoneyServer
 				m_log.Error("[MONEY RPC] handleAddBankerMoney: Not allowed add money to avatar!!");
 				m_log.Error("[MONEY RPC] handleAddBankerMoney: Set BankerAvatar at [MoneyServer] in MoneyServer.ini");
 				responseData["message"] = "not allowed add money to avatar!";
+				responseData["banker"]  = false;
 				return response;
 			}
 
+			responseData["banker"] = true;
 			fmID = senderID + "@" + bankerUserServIP;
 			toID = bankerID + "@" + bankerUserServIP;
 

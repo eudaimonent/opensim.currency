@@ -9,6 +9,7 @@
 			<sources>
 				<include name="Properties/AssemblyInfo.cs" />
 				<include name="MoneyServerHandler.cs" />
+				<include name="MoneyModuleUtil.cs" />
 				<include name="MoneyModule.cs" />
 				<include name="../OpenSim.Grid.MoneyServer/NSLXmlRpc.cs" />
 			</sources>
@@ -27,6 +28,7 @@
 				<include name="${referdir}/HttpServer.dll" />
 				<include name="${referdir}/HttpServer_OpenSim.dll" />
 				<include name="${referdir}/MySql.Data.dll" />
+				<include name="${referdir}/Aurora.Framework.dll" />
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
@@ -34,12 +36,12 @@
 				<include name="${referdir}/OpenSim.Region.OptionalModules.dll" />
 				<include name="${referdir}/OpenSim.Data.dll" />
 				<include name="${referdir}/OpenSim.Grid.Framework.dll" />
-				<include name="${referdir}/OpenSim.Framework.dll" />
 				<include name="${referdir}/OpenSim.Framework.Console.dll" />
 				<include name="${referdir}/OpenSim.Framework.Servers.dll" />
 				<include name="${referdir}/OpenSim.Framework.Servers.HttpServer.dll" />
 				<include name="${referdir}/OpenSim.Framework.Communications.dll" />
 				<include name="${referdir}/OpenSim.Framework.Statistics.dll" />
+				<include name="${referdir}/OpenSim.Services.dll" />
 				<include name="${referdir}/OpenSim.Services.Interfaces.dll" />
 				<include name="${referdir}/OpenSim.Services.UserAccountService.dll" />
 			</references>

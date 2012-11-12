@@ -48,47 +48,11 @@ using Aurora.Framework.Servers.HttpServer;
 
 namespace OpenSim.Forge.Currency
 {
-    public class MoneyServerHandler : IStreamedRequestHandler
+    public class Util 
     {
-        private string osRXStatsURI = String.Empty;
-        private Aurora.Framework.RegionInfo regionInfo;
-        //private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-
-        public MoneyServerHandler(Aurora.Framework.RegionInfo region_info)
-        {
-            regionInfo = region_info;
-            osRXStatsURI = Util.SHA1Hash(regionInfo.Password.ToString());
-        }
-                    
-
-        public byte[] Handle(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
-        {
-            return Util.UTF8.GetBytes(Report());
-        }
-
-
-        public string ContentType
-        {
-            get { return "text/plain"; }
-        }
-
-
-        public string HttpMethod
-        {
-            get { return "GET"; }
-        }
-
-
-        public string Path
-        {
-            get { return "/" + osRXStatsURI + "/"; }
-        }
-        
-
-        private string Report()
-        {
-            return "";
-        }
-    }
+		public static IPAddress GetHostFromURL(string url)
+		{
+			return GetHostFromDNS(url.Split(new char[] { '/', ':' })[3]);
+		}
+	}
 }
