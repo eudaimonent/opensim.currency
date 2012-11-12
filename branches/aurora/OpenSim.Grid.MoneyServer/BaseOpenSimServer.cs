@@ -41,9 +41,11 @@ using log4net.Repository;
 using Timer=System.Timers.Timer;
 
 using OpenMetaverse;
-using OpenSim.Framework;
-using OpenSim.Framework.Servers;
-using OpenSim.Framework.Servers.HttpServer;
+
+using Aurora.Framework;
+using Aurora.Framework.Servers;
+using Aurora.Framework.Servers.HttpServer;
+//using OpenSim.Framework.Servers.HttpServer;
 
 //using OpenSim.Region.CoreModules.Framework.Monitoring;
 

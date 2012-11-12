@@ -58,13 +58,13 @@ namespace OpenSim.Forge.Currency
         public MoneyServerHandler(Aurora.Framework.RegionInfo region_info)
         {
             regionInfo = region_info;
-            osRXStatsURI = Util.SHA1Hash(regionInfo.Password.ToString());
+            osRXStatsURI = Aurora.Framework.Util.SHA1Hash(regionInfo.Password.ToString());
         }
                     
 
         public byte[] Handle(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            return Util.UTF8.GetBytes(Report());
+            return Aurora.Framework.Util.UTF8.GetBytes(Report());
         }
 
 
@@ -90,5 +90,11 @@ namespace OpenSim.Forge.Currency
         {
             return "";
         }
+
+
+		public void Dispose() 
+		{
+			return;
+		}
     }
 }
