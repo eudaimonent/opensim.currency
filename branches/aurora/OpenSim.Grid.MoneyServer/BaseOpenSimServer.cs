@@ -154,9 +154,15 @@ namespace OpenSim.Framework.Servers
                     m_consoleAppender.Console = m_console;
                     
                     // If there is no threshold set then the threshold is effectively everything.
-                    if (null == m_consoleAppender.Threshold)
-                        m_consoleAppender.Threshold = Level.All;
-                    
+                    if (null == m_consoleAppender.Threshold) m_consoleAppender.Threshold = Level.All;
+                    repository.Threshold = m_consoleAppender.Threshold;
+
+                    foreach (ILogger log in repository.GetCurrentLoggers())
+                    {
+                        log.Level = m_consoleAppender.Threshold;
+                    }
+                    MainConsole.Instance.MaxLogLevel = m_consoleAppender.Threshold;
+
                     Notice(String.Format("Console log level is {0}", m_consoleAppender.Threshold));
                 }
                 
