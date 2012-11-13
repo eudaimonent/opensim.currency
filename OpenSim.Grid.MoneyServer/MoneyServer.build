@@ -34,6 +34,7 @@
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
 				<include name="${referdir}/Aurora.Framework.dll" />
+				<include name="${referdir}/Aurora.Simulation.Base.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
 				<include name="${referdir}/OpenSim.Services.dll" />
 				<include name="${referdir}/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" />
