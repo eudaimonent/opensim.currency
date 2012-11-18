@@ -11,7 +11,7 @@
 				<include name="MoneyServerHandler.cs" />
 				<include name="MoneyModuleUtil.cs" />
 				<include name="MoneyModule.cs" />
-				<include name="../OpenSim.Grid.MoneyServer/NSLXmlRpc.cs" />
+				<include name="../Aurora.Server.MoneyServer/NSLXmlRpc.cs" />
 			</sources>
 			<references>
 				<include name="System.dll" />
