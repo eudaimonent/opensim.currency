@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="OpenSim.Grid.MoneyServer" default="build">
+<project name="Aurora.Server.MoneyServer" default="build">
 	<echo message="Project Directory is ${project::get-base-directory()}" />
 	<property name="basename" value="MoneyServer"/>
 	<property name="referdir" value="../../bin"/>
@@ -8,14 +8,16 @@
 		<csc target="exe" output="${basename}.exe" warnaserror="False">
 			<sources>
 				<include name="Properties/AssemblyInfo.cs" />
-				<include name="BaseOpenSimServer.cs"/>
-				<include name="MoneyServerBase.cs" />
-				<include name="MoneyDBService.cs" />
-				<include name="MoneyXmlRpcModule.cs" />
 				<include name="IMoneyDBService.cs" />
 				<include name="IMoneyServiceCore.cs" />
+
+				<include name="MoneySimulationBase.cs" />
+
 				<include name="NSLXmlRpc.cs" />
-				<include name="Program.cs" />
+				<include name="MoneyDBService.cs" />
+				<include name="MoneyXmlRpcModule.cs" />
+				<include name="MoneyServerBase.cs" />
+				<include name="Application.cs" />
 			</sources>
 			<references>
 				<include name="System.dll" />
@@ -33,11 +35,14 @@
 				<include name="${referdir}/MySql.Data.dll" />
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
+				<include name="${referdir}/OpenMetaverse.StructuredData.dll" />
 				<include name="${referdir}/Aurora.Framework.dll" />
 				<include name="${referdir}/Aurora.Simulation.Base.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
 				<include name="${referdir}/OpenSim.Services.dll" />
 				<include name="${referdir}/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" />
+				<include name="${referdir}/Griffin.Networking.dll" />
+				<include name="${referdir}/Griffin.Networking.Http.dll" />
 			</references>
 		</csc>
 	</target>

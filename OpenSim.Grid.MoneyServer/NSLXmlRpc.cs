@@ -1,6 +1,7 @@
-// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp
-//
-//
+/* 
+ * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp
+ *
+ */
 
 
 using System;
@@ -14,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 
 using log4net;
 using Nwc.XmlRpc;
+
 
 
 namespace NSL.XmlRpc 
