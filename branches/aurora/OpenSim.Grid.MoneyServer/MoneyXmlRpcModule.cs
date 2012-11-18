@@ -49,7 +49,8 @@ using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using NSL.XmlRpc;
 
 
-namespace OpenSim.Grid.MoneyServer
+//namespace OpenSim.Grid.MoneyServer
+namespace Aurora.Server.MoneyServer
 {
 	class MoneyXmlRpcModule
 	{

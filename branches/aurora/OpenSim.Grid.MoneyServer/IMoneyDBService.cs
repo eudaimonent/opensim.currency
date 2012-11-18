@@ -33,7 +33,8 @@ using OpenMetaverse;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 
 
-namespace OpenSim.Grid.MoneyServer
+//namespace OpenSim.Grid.MoneyServer
+namespace Aurora.Server.MoneyServer
 {
     public interface IMoneyDBService
     {

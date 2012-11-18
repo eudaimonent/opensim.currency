@@ -33,7 +33,7 @@ using Aurora.Framework;
 using Aurora.Framework.Servers.HttpServer;
 
 
-namespace OpenSim.Grid.MoneyServer
+namespace Aurora.Server.MoneyServer
 {
     public interface IMoneyServiceCore
     {
