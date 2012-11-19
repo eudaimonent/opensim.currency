@@ -4,6 +4,8 @@
 
 
 /*
+Memo
+
 Aurora/Simulation/Base/SimulationBase.cs: SimulationBase
 
 BaseApplication.Startup()
@@ -236,7 +238,7 @@ namespace Aurora.Server.MoneyServer
 				// [MySql]
 				m_DBConfig = configSource.m_config.Configs["MySql"];
 				string sqlserver  = m_DBConfig.GetString("hostname", "localhost");
-				string database   = m_DBConfig.GetString("database", "OpenSim");
+				string database   = m_DBConfig.GetString("database", "Aurora");
 				string username   = m_DBConfig.GetString("username", "root");
 				string password   = m_DBConfig.GetString("password", "password");
 				string pooling 	  = m_DBConfig.GetString("pooling",  "false");

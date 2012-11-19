@@ -1,17 +1,20 @@
 <?xml version="1.0"?>
-<project name="OpenSim.Forge.Currency" default="build">
+<project name="Aurora.Server.MoneyServer" default="build">
 	<echo message="Project Directory is ${project::get-base-directory()}" />
-	<property name="basename" value="OpenSim.Forge.Currency"/>
+	<property name="basename" value="Aurora.Modules.MoneyServer"/>
 	<property name="referdir" value="../../bin"/>
 
 	<target name="build">
-		<csc target="library" output="${basename}.dll" warnaserror="False">
+		<csc target="exe" output="MoneyServer.exe" warnaserror="False">
 			<sources>
 				<include name="Properties/AssemblyInfo.cs" />
-				<include name="MoneyServerHandler.cs" />
-				<include name="MoneyModuleUtil.cs" />
-				<include name="MoneyModule.cs" />
-				<include name="../Aurora.Server.MoneyServer/NSLXmlRpc.cs" />
+				<include name="IMoneyDBService.cs" />
+				<include name="IMoneyServiceCore.cs" />
+				<include name="NSLXmlRpc.cs" />
+				<include name="MoneyDBService.cs" />
+				<include name="MoneyXmlRpcModule.cs" />
+				<include name="MoneyServerBase.cs" />
+				<include name="Application.cs" />
 			</sources>
 			<references>
 				<include name="System.dll" />
@@ -19,7 +22,6 @@
 				<include name="System.Xml.dll" />
 				<include name="System.Xml.Linq.dll" />
 				<include name="System.Data.dll" />
-				<include name="System.Net.dll" />
 				<include name="${referdir}/log4net.dll" />
 				<include name="${referdir}/Nini.dll" />
 				<include name="${referdir}/XMLRPC.dll" />
@@ -30,11 +32,17 @@
 				<include name="${referdir}/MySql.Data.dll" />
 				<include name="${referdir}/OpenMetaverse.dll" />
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
+				<include name="${referdir}/OpenMetaverse.StructuredData.dll" />
 				<include name="${referdir}/Aurora.Framework.dll" />
+				<include name="${referdir}/Aurora.Simulation.Base.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
 				<include name="${referdir}/OpenSim.Services.dll" />
+				<include name="${referdir}/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" />
+				<include name="${referdir}/Griffin.Networking.dll" />
+				<include name="${referdir}/Griffin.Networking.Http.dll" />
 			</references>
 		</csc>
 	</target>
 </project>
+
 

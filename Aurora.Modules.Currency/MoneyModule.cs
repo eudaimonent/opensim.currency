@@ -54,7 +54,7 @@ using NSL.XmlRpc;
 
 
 
-namespace Aurora.Forge.Currency
+namespace Aurora.Modules.Currency
 {
 	//
 	/*
