@@ -28,9 +28,9 @@ namespace NSL.XmlRpc
 
 
 		public NSLXmlRpcRequest()
-      	{
-      		_params = new ArrayList();
-      	}
+	  	{
+	  		_params = new ArrayList();
+	  	}
 
 
 		public NSLXmlRpcRequest(String methodName, IList parameters)
@@ -54,6 +54,7 @@ namespace NSL.XmlRpc
 			request.ContentType = "text/xml";
 			request.AllowWriteStreamBuffering = true;
 			request.Timeout = timeout;
+			//request.KeepAlive = false;
 
 			if (cert!=null) request.ClientCertificates.Add(cert); 
 			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");
@@ -67,7 +68,9 @@ namespace NSL.XmlRpc
 			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 			StreamReader input = new StreamReader(response.GetResponseStream());
 
-			XmlRpcResponse resp = (XmlRpcResponse)_deserializer.Deserialize(input);
+			string inputXml = input.ReadToEnd();
+			XmlRpcResponse resp = (XmlRpcResponse)_deserializer.Deserialize(inputXml);
+
 			input.Close();
 			response.Close();
 			return resp;

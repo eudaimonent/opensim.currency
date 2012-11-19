@@ -28,9 +28,9 @@ namespace NSL.XmlRpc
 
 
 		public NSLXmlRpcRequest()
-      	{
-      		_params = new ArrayList();
-      	}
+	  	{
+	  		_params = new ArrayList();
+	  	}
 
 
 		public NSLXmlRpcRequest(String methodName, IList parameters)
@@ -69,7 +69,7 @@ namespace NSL.XmlRpc
 			StreamReader input = new StreamReader(response.GetResponseStream());
 
 			string inputXml = input.ReadToEnd();
-            XmlRpcResponse resp = (XmlRpcResponse)_deserializer.Deserialize(inputXml);
+			XmlRpcResponse resp = (XmlRpcResponse)_deserializer.Deserialize(inputXml);
 
 			input.Close();
 			response.Close();

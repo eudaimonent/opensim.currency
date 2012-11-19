@@ -6,8 +6,6 @@
 /*
 Aurora/Simulation/Base/SimulationBase.cs: SimulationBase
 
-
-
 BaseApplication.Startup()
 {
     simBase.Initialize();       // simBase => SimulationBase
@@ -16,44 +14,27 @@ BaseApplication.Startup()
 }
 */
 
+
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Reflection;
 using System.Threading;
 using System.Timers;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-
-using System.Net;
-using System.Net.Sockets;
+//using System.Net;
+//using System.Net.Sockets;
+//using Timer=System.Timers.Timer;
+//using CoolHTTPListener = HttpServer.HttpListener;
 
 using Nini.Config;
 using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Repository;
-
-using Timer=System.Timers.Timer;
-//using CoolHTTPListener = HttpServer.HttpListener;
-
-/*
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
-using System.Threading;
-using System.Timers;
-
-using log4net;
-using log4net.Appender;
-using log4net.Core;
-using log4net.Repository;
-*/
 
 using Aurora.Framework;
 using Aurora.Framework.Servers.HttpServer;
@@ -63,10 +44,11 @@ using Aurora.Simulation.Base;
 
 namespace Aurora.Server.MoneyServer
 {
-    //public class AuroraMoneyBase : MoneySimulationBase, IMoneyServiceCore
     public class AuroraMoneyBase : SimulationBase, IMoneyServiceCore
     {
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+		private string m_VersionNum = "0.1";
 
         protected CommandConsole  m_console;
         protected OpenSimAppender m_consoleAppender;
@@ -102,11 +84,6 @@ namespace Aurora.Server.MoneyServer
 		IConfig m_DBConfig;
 
 
-		private string m_VersionNum = "0.1";
-
-//private PollServiceRequestManager m_PollServiceManager;
-//public volatile bool HTTPDRunning = false;
-
 
 		//
         public override ISimulationBase Copy()
@@ -121,16 +98,14 @@ namespace Aurora.Server.MoneyServer
 		{
 			m_log.Info("[MONEY SERVER]: Initialize.");
 
-            //m_commandLineParameters = cmdParams;
             m_StartupTime = DateTime.Now;
             m_version = VersionInfo.Version + " (" + Util.GetRuntimeInformation() + ")";
-            //m_version = m_VersionNum;
             m_config = configSource;
+
+            //m_commandLineParameters = cmdParams;
+            //m_version = m_VersionNum;
             //m_original_config = originalConfig;
             //m_configurationLoader = configLoader;
-
-            //m_periodicDiagnosticsTimer.Elapsed += new ElapsedEventHandler(LogDiagnostics);
-            //m_periodicDiagnosticsTimer.Enabled = true;
 
 			//
             string iniFile = "MoneyServer.ini";
@@ -149,22 +124,6 @@ namespace Aurora.Server.MoneyServer
             SetUpHTTPServer();
 
             SetupMoneyServices();
-
-
-            //SetUpHTTPServer();
-
-            //StartModules();
-
-            //Has to be after Scene Manager startup
-            //AddPluginCommands();
-
-
-
-//            if (MainConsole.Instance != null)
-//                MainConsole.Instance.DefaultPrompt = "Money ";
-
-            //MainConsole.Instance.Info("[MONEY SERVER]: Startup completed in " + (DateTime.Now - this.StartupTime).TotalSeconds);
-
         }
 
 
@@ -173,75 +132,29 @@ namespace Aurora.Server.MoneyServer
         public override void SetUpHTTPServer()
         {
             try {
-                if (m_certFilename!="" && m_certPassword!="")
-                {
+                if (m_certFilename!="" && m_certPassword!="") {
 					m_useHTTPS = true;
-					//m_httpServer = (BaseHttpServer)GetHttpServer(m_moneyServerPort, m_useHTTPS, m_certFilename, m_certPassword, SslProtocols.Tls);
-					//m_BaseHTTPServer = GetHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword, SslProtocols.Tls);
-
-                    m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, true);
+                    m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, m_useHTTPS);
                     m_httpServer.SetSecureParams(m_certFilename, m_certPassword, SslProtocols.Tls);
-					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
-
                 	m_log.Info("[MONEY SERVER]: HTTPS: Secure TLS ");
                 }
-                else
-                {
-					m_useHTTPS = true;
-					//m_httpServer = (BaseHttpServer)GetHttpServer(m_moneyServerPort, m_useHTTPS, "", "", SslProtocols.None);
-					//m_BaseHTTPServer = GetHttpServer(m_moneyServerPort, false, "", "", SslProtocols.None);
-                    //m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, false);
+                else {
+					m_useHTTPS = false;
+                    m_httpServer = new BaseHttpServer(m_moneyServerPort, m_hostName, m_useHTTPS);
                 	m_log.Info("[MONEY SERVER]: HTTP: Non Secure");
                 }
 
-				StartHTTP();
-                //m_httpServer.Start();
-            	//MainServer.Instance = m_BaseHTTPServer;
+                m_httpServer.Start();
             	MainServer.Instance = m_httpServer;
             }
-            catch (Exception e)
-            {
+            //
+            catch (Exception e) {
                 m_log.ErrorFormat("[MONEY SERVER]: SetUpHTTPServer: Fail to start HTTP/HTTPS process");
                 m_log.ErrorFormat("[MONEY SERVER]: SetUpHTTPServer: {0}", e);
                 Environment.Exit(1);
             }
         }
 
-
-
-/*
-        private void StartHTTP()
-        {
-			CoolHTTPListener m_httpListener;
-            try
-            {
-                if (m_useHTTPS)
-                {
-                    m_httpListener = CoolHTTPListener.Create(IPAddress.Any, (int)m_moneyServerPort, m_cert);
-                    //m_httpListener.ExceptionThrown += httpServerException;
-                    //m_httpListener.LogWriter = httpserverlog;
-                }
-                else
-                {
-                    m_httpListener = CoolHTTPListener.Create(IPAddress.Any, (int)m_moneyServerPort);
-                    //m_httpListener2.ExceptionThrown += httpServerException;
-                    //m_httpListener2.LogWriter = httpserverlog;
-                }
-
-                m_httpListener.RequestReceived += OnRequest;
-                m_httpListener.Start(64);
-
-                m_PollServiceManager = new PollServiceRequestManager(m_httpServer, 3, 25000);
-                HTTPDRunning = true;
-            }
-            catch (Exception e)
-            {
-                m_log.Error("[BASE HTTP SERVER]: Error - " + e.Message);
-                //m_log.Error("[BASE HTTP SERVER]: Tip: Do you have permission to listen on port " + m_port + ", " + m_sslport + "?");
-                throw e;
-            }
-        }
-*/
 
 
 
@@ -388,7 +301,6 @@ namespace Aurora.Server.MoneyServer
         public BaseHttpServer GetHttpServer()
         {
 			return m_httpServer;
-			//return (BaseHttpServer)m_BaseHTTPServer;
         }
 
 
@@ -499,7 +411,6 @@ namespace Aurora.Server.MoneyServer
 
         protected string GetVersionText()
         {
-            //return String.Format("Version: {0} (interface version {1})", m_version, VersionInfo.MajorInterfaceVersion);
             return String.Format("Version: {0}", m_version);
         }
 

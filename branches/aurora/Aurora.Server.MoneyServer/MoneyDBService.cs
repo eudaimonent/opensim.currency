@@ -35,7 +35,6 @@ using System.Reflection;
 using OpenMetaverse;
 
 
-//namespace OpenSim.Grid.MoneyServer
 namespace Aurora.Server.MoneyServer
 {
     class MoneyDBService: IMoneyDBService
