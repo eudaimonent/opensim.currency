@@ -43,7 +43,7 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
-using OpenSim.Forge.Currency;
+//using OpenSim.Forge.Currency;
 
 using NSL.XmlRpc;
 
@@ -1424,6 +1424,7 @@ namespace OpenSim.Grid.MoneyServer
 
 					catch (Exception e)
 					{
+						m_log.ErrorFormat("[MONEY RPC] handleGetTransaction: {0}", e.ToString());
 						m_log.ErrorFormat("[MONEY RPC] handleGetTransaction: Can't get transaction information for {0}", transactionUUID.ToString());
 					}
 
