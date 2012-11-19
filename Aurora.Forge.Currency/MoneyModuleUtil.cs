@@ -40,13 +40,9 @@ using Aurora.Framework;
 using Aurora.Framework.Servers;
 using Aurora.Framework.Servers.HttpServer;
 
-//using OpenSim.Framework;
-//using OpenSim.Framework.Servers;
-//using OpenSim.Framework.Servers.HttpServer;
 
 
-
-namespace OpenSim.Forge.Currency
+namespace Aurora.Forge.Currency
 {
     public class Util 
     {

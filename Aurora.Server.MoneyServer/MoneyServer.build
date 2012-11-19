@@ -10,8 +10,6 @@
 				<include name="Properties/AssemblyInfo.cs" />
 				<include name="IMoneyDBService.cs" />
 				<include name="IMoneyServiceCore.cs" />
-
-
 				<include name="NSLXmlRpc.cs" />
 				<include name="MoneyDBService.cs" />
 				<include name="MoneyXmlRpcModule.cs" />
