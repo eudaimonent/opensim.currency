@@ -43,7 +43,7 @@ using Aurora.Framework.Servers.HttpServer;
 
 
 
-namespace Aurora.Forge.Currency
+namespace Aurora.Modules.Currency
 {
     public class MoneyServerHandler : IStreamedRequestHandler
     {
