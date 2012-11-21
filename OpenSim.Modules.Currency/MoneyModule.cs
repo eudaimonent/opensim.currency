@@ -36,6 +36,7 @@ using System.Security.Cryptography.X509Certificates;
 using log4net;
 using Nini.Config;
 using Nwc.XmlRpc;
+using Mono.Addins;
 
 using OpenMetaverse;
 
@@ -47,10 +48,12 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using Mono.Addins;
-
 using NSL.XmlRpc;
 
+
+
+[assembly: Addin("MoneyModule", "0.1")]
+[assembly: AddinDependency("OpenSim", "0.7")]
 
 
 
@@ -94,9 +97,8 @@ namespace OpenSim.Modules.Currency
 
 
 	// 
-	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "MoneyModule")]
+	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id="MoneyModule")]
 	public class MoneyModule : IMoneyModule, ISharedRegionModule
-	//public class MoneyModule : IMoneyModule, IRegionModule
 	{
 		#region Constant numbers and members.
 
