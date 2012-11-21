@@ -162,9 +162,6 @@ namespace OpenSim.Modules.Currency
 		#endregion
 
 
-
-		#region ISharedRegionModule interface
-
 		//
 		public void Initialise(Scene scene, IConfigSource source)
 		{
@@ -173,6 +170,8 @@ namespace OpenSim.Modules.Currency
 		}
 
 
+
+		#region ISharedRegionModule interface
 
 		public void Initialise(IConfigSource source)
 		{
