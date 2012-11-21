@@ -43,7 +43,7 @@
 				<include name="${referdir}/OpenSim.Framework.Communications.dll" />
 				<include name="${referdir}/OpenSim.Framework.Statistics.dll" />
 				<include name="${referdir}/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" />
-				<include name="${referdir}/OpenSim.Forge.Currency.dll" />
+				<include name="${referdir}/OpenSim.Modules.Currency.dll" />
 			</references>
 		</csc>
 	</target>
