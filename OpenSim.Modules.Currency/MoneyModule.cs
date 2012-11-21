@@ -52,8 +52,8 @@ using NSL.XmlRpc;
 
 
 
-[assembly: Addin("MoneyModule", "0.7.5")]
-[assembly: AddinDependency("OpenSim", "0.7")]
+[assembly: Addin("MoneyModule", "0.1")]
+[assembly: AddinDependency("OpenSim", "0.5")]
 
 
 
