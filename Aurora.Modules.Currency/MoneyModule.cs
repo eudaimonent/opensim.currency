@@ -163,8 +163,6 @@ namespace Aurora.Modules.Currency
 
 
 
-		#region ISharedRegionModule interface
-
 		//
 		public void Initialise(Scene scene, IConfigSource source)
 		{
@@ -173,6 +171,8 @@ namespace Aurora.Modules.Currency
 		}
 
 
+
+		#region ISharedRegionModule interface
 
 		public void Initialise(IConfigSource source)
 		{
