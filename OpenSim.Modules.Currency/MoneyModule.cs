@@ -52,7 +52,7 @@ using NSL.XmlRpc;
 
 
 
-namespace OpenSim.Forge.Currency
+namespace OpenSim.Modules.Currency
 {
 	//
 	public enum TransactionType : int
