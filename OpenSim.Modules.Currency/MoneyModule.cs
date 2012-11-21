@@ -47,6 +47,8 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
+using Mono.Addins;
+
 using NSL.XmlRpc;
 
 
@@ -92,9 +94,9 @@ namespace OpenSim.Modules.Currency
 
 
 	// 
-	//[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
-	//public class MoneyModule : IMoneyModule, ISharedRegionModule
-	public class MoneyModule : IMoneyModule, IRegionModule
+	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "MoneyModule")]
+	public class MoneyModule : IMoneyModule, ISharedRegionModule
+	//public class MoneyModule : IMoneyModule, IRegionModule
 	{
 		#region Constant numbers and members.
 
