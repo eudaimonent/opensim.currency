@@ -955,7 +955,8 @@ namespace Aurora.Server.MoneyServer
 						bool updateSender = true;
 						bool updateReceiv = true;
 						if (transaction.Sender==transaction.Receiver) updateSender = false;
-						if (transaction.Type==(int)TransactionType.UploadCharge) return true;
+						//if (transaction.Type==(int)TransactionType.UploadCharge) return true;
+						if (transaction.Type==(int)TransactionType.UploadCharge) updateReceiv = false;
 
 						if (updateSender) {
 							UserInfo receiverInfo = m_moneyDBService.FetchUserInfo(transaction.Receiver);
