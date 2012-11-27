@@ -6,7 +6,7 @@ diff -Nur aurora-/Aurora/AuroraDotNetEngine/APIs/LSL_Api.cs aurora/Aurora/Aurora
              else if (moneyMod != null)
              {
 -                success = moneyMod.Transfer(UUID.Parse(destination), m_host.OwnerID, amt, "");
-+                success = moneyMod.Transfer(m_host.OwnerID, UUID.Parse(destination), UUID.Zero, amt, TransactionType.MoveMoney, "");
++                success = moneyMod.ObjectGiveMoney(m_host.ParentEntity.UUID, m_host.OwnerID, UUID.Parse(destination), amt);
                  data = llList2CSV(success ? new LSL_List(destination, amt) : new LSL_Types.list("LINDENDOLLAR_INSUFFICIENTFUNDS"));
              }
              else
