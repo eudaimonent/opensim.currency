@@ -16,6 +16,8 @@ rm -f OpenSim.Grid.MoneyServer/MoneyServer.exe
 (cd OpenSim.Grid.MoneyServer/ && nant && cp MoneyServer.exe ../$OPNSIMPATH)
 
 
+rm -f $OPNSIMPATH/OpenSim.Forge.Currency.dll
+
 if [ ! -f $OPNSIMPATH/MoneyServer.ini ]; then
 	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH
 else
