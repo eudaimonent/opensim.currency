@@ -1243,7 +1243,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// <param name="userID"></param>
 		private void UpdateBalance(string userID, string message)
 		{
-			//m_log.InfoFormat("[MONEY RPC] UpdateBalance:");
+			//m_log.InfoFormat("[MONEY RPC] UpdateBalance: ID = {0}, Message = {1}", userID, message);
 
 			string clientUUID = string.Empty;
 			string sessionID  = string.Empty;
@@ -1263,7 +1263,10 @@ namespace OpenSim.Grid.MoneyServer
 				if (message!="") requestTable["Message"] = message;
 
 				UserInfo user = m_moneyDBService.FetchUserInfo(userID);
-				if (user!=null) genericCurrencyXMLRPCRequest(requestTable, "UpdateBalance", user.SimIP);
+				if (user!=null) {
+					genericCurrencyXMLRPCRequest(requestTable, "UpdateBalance", user.SimIP);
+					//m_log.InfoFormat("[MONEY RPC] UpdateBalance: Sended UpdateBalance Request to {0}", user.SimIP.ToString());
+				}
 			}
 		}
 
