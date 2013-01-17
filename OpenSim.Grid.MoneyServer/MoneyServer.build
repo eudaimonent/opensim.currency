@@ -34,14 +34,12 @@
 				<include name="${referdir}/OpenMetaverseTypes.dll" />
 				<include name="${referdir}/OpenSim.Region.Framework.dll" />
 				<include name="${referdir}/OpenSim.Server.Base.dll" />
-				<include name="${referdir}/OpenSim.Grid.Framework.dll" />
 				<include name="${referdir}/OpenSim.Data.dll" />
 				<include name="${referdir}/OpenSim.Framework.dll" />
 				<include name="${referdir}/OpenSim.Framework.Console.dll" />
 				<include name="${referdir}/OpenSim.Framework.Servers.dll" />
 				<include name="${referdir}/OpenSim.Framework.Servers.HttpServer.dll" />
 				<include name="${referdir}/OpenSim.Framework.Communications.dll" />
-				<include name="${referdir}/OpenSim.Framework.Statistics.dll" />
 				<include name="${referdir}/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" />
 				<include name="${referdir}/OpenSim.Modules.Currency.dll" />
 			</references>
