@@ -7,13 +7,15 @@ echo "=========================="
 echo "DTL/NSL_CURRENCY"
 echo "=========================="
 
-rm -f OpenSim.Data.MySQL.MySQLMoneyDataWrapper/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
-rm -f OpenSim.Modules.Currency/OpenSim.Modules.Currency.dll
-rm -f OpenSim.Grid.MoneyServer/MoneyServer.exe
+rm -f bin/*
+yes | mono ../bin/Prebuild.exe /clean
 
-(cd OpenSim.Data.MySQL.MySQLMoneyDataWrapper/ && nant && cp OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH)
-(cd OpenSim.Modules.Currency/ && nant && cp OpenSim.Modules.Currency.dll ../$OPNSIMPATH)
-(cd OpenSim.Grid.MoneyServer/ && nant && cp MoneyServer.exe ../$OPNSIMPATH)
+./runprebuild.sh
+nant
+
+cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH
+cp bin/OpenSim.Modules.Currency.dll ../$OPNSIMPATH
+cp bin/MoneyServer.exe ../$OPNSIMPATH
 
 
 rm -f $OPNSIMPATH/OpenSim.Forge.Currency.dll
