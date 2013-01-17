@@ -30,7 +30,7 @@ using System.Data;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
