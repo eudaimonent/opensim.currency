@@ -32,7 +32,7 @@
       </Options>
     </Configuration>
 
-    <Project name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="." type="Library">
+    <Project name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>./bin/</OutputPath>
@@ -74,7 +74,7 @@
     </Project>
 
 
-    <Project name="OpenSim.Modules.Currency" path="." type="Library">
+    <Project name="OpenSim.Modules.Currency" path="OpenSim.Modules.Currency" type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>./bin/</OutputPath>
@@ -115,7 +115,7 @@
     </Project>
 
 
-    <Project name="MoneyServer" path="." type="Exe">
+    <Project name="OpenSim.Grid.MoneyServer" path="OpenSim.Grid.MoneyServer" type="Exe">
       <Configuration name="Debug">
         <Options>
           <OutputPath>./bin/</OutputPath>
