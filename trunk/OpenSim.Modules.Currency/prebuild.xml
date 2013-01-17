@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Prebuild xmlns="http://dnpb.sourceforge.net/schemas/prebuild-1.7.xsd" version="1.7">
-  <Solution name="OpenSim" activeConfig="Release" path="./" version="0.5.0-$Rev$">
+  <Solution name="OpenSim.Modules.Currency" activeConfig="Release" path="./" version="0.5.0-$Rev$">
     <Configuration name="Debug">
       <Options>
         <CompilerDefines>TRACE;DEBUG</CompilerDefines>
@@ -32,7 +32,7 @@
       </Options>
     </Configuration>
 
-    <Project name="MoneyServer.Modules" path="." type="Library">
+    <Project name="OpenSim.Modules.Currency" path="." type="Library">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
@@ -66,9 +66,9 @@
       <Reference name="OpenSim.Services.Interfaces"/>
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data"/>
-      <Reference name="MoneyServer.Modules.dll"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
+        <Match path="../OpenSim.Grid.MoneyServer" pattern="NSLXmlRpc.cs" recurse="false"/>
       </Files>
     </Project>
 
