@@ -43,19 +43,19 @@
           <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-
       <ReferencePath>../../bin/</ReferencePath>
-      <Reference name="System" localCopy="false"/>
+      <Reference name="System"/>
+      <Reference name="System.Core"/>
       <Reference name="System.Xml"/>
-      <Reference name="System.Xml.Linq"/>
+      <Reference name="System.Data"/>
       <Reference name="System.Drawing"/>
       <Reference name="System.Runtime.Remoting"/>
       <Reference name="Axiom.MathLib.dll"/>
       <Reference name="Nini.dll" />
       <Reference name="log4net.dll"/>
       <Reference name="XMLRPC.dll"/>
-      <Reference name="Mono.Addins.dll"/>
       <Reference name="MySql.Data"/>
+      <Reference name="Mono.Addins.dll"/>
       <Reference name="OpenMetaverseTypes.dll"/>
       <Reference name="OpenMetaverse.dll"/>
       <Reference name="OpenSim.Region.Framework" />
@@ -68,8 +68,8 @@
       <Reference name="OpenSim.Services.Interfaces"/>
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data" />
-      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll" path="../bin/"/>
-      <Reference name="OpenSim.Modules.Currency.dll" path="../bin/"/>
+      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="../bin/"/>
+      <Reference name="OpenSim.Modules.Currency" path="../bin/"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
       </Files>
