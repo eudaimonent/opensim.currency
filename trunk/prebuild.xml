@@ -115,7 +115,7 @@
     </Project>
 
 
-    <Project name="OpenSim.Grid.MoneyServer" path="OpenSim.Grid.MoneyServer" type="Exe">
+    <Project name="MoneyServer" path="OpenSim.Grid.MoneyServer" type="Exe">
       <Configuration name="Debug">
         <Options>
           <OutputPath>../bin/</OutputPath>
