@@ -20,7 +20,6 @@
 				<include name="System.dll" />
 				<include name="System.Core.dll" />
 				<include name="System.Xml.dll" />
-				<include name="System.Xml.Linq.dll" />
 				<include name="System.Data.dll" />
 				<include name="${referdir}/log4net.dll" />
 				<include name="${referdir}/Nini.dll" />
