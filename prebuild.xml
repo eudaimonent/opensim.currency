@@ -35,16 +35,16 @@
     <Project name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" type="Library">
       <Configuration name="Debug">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
       <Configuration name="Release">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
 
-      <ReferencePath>../bin/</ReferencePath>
+      <ReferencePath>../../bin/</ReferencePath>
       <Reference name="System" localCopy="false"/>
       <Reference name="System.Xml"/>
       <Reference name="System.Data"/>
@@ -69,7 +69,7 @@
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data" />
       <Files>
-        <Match path="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" pattern="*.cs" recurse="true"/>
+        <Match pattern="*.cs" recurse="true"/>
       </Files>
     </Project>
 
@@ -77,16 +77,16 @@
     <Project name="OpenSim.Modules.Currency" path="OpenSim.Modules.Currency" type="Library">
       <Configuration name="Debug">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
       <Configuration name="Release">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
 
-      <ReferencePath>../bin/</ReferencePath>
+      <ReferencePath>../../bin/</ReferencePath>
       <Reference name="System" localCopy="false"/>
       <Reference name="System.Xml"/>
       <Reference name="System.Drawing"/>
@@ -109,8 +109,8 @@
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data"/>
       <Files>
-        <Match path="OpenSim.Modules.Currency" pattern="*.cs" recurse="true"/>
-        <Match path="OpenSim.Grid.MoneyServer" pattern="NSLXmlRpc.cs" recurse="false"/>
+        <Match pattern="*.cs" recurse="true"/>
+        <Match path="../OpenSim.Grid.MoneyServer" pattern="NSLXmlRpc.cs" recurse="false"/>
       </Files>
     </Project>
 
@@ -118,15 +118,15 @@
     <Project name="OpenSim.Grid.MoneyServer" path="OpenSim.Grid.MoneyServer" type="Exe">
       <Configuration name="Debug">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
       <Configuration name="Release">
         <Options>
-          <OutputPath>./bin/</OutputPath>
+          <OutputPath>../bin/</OutputPath>
         </Options>
       </Configuration>
-      <ReferencePath>../bin/</ReferencePath>
+      <ReferencePath>../../bin/</ReferencePath>
       <Reference name="System"/>
       <Reference name="System.Core"/>
       <Reference name="System.Xml"/>
@@ -151,10 +151,10 @@
       <Reference name="OpenSim.Services.Interfaces"/>
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data" />
-      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="./bin/"/>
-      <Reference name="OpenSim.Modules.Currency" path="./bin/"/>
+      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="../bin/"/>
+      <Reference name="OpenSim.Modules.Currency" path="../bin/"/>
       <Files>
-        <Match path="OpenSim.Grid.MoneyServer" pattern="*.cs" recurse="true"/>
+        <Match pattern="*.cs" recurse="true"/>
       </Files>
     </Project>
 
