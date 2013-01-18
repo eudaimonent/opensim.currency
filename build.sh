@@ -7,13 +7,15 @@ echo "=========================="
 echo "DTL/NSL_CURRENCY"
 echo "=========================="
 
-rm -f OpenSim.Data.MySQL.MySQLMoneyDataWrapper/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
-rm -f Aurora.Modules.Currency/Aurora.Modules.Currency.dll
-rm -f Aurora.Server.MoneyServer/MoneyServer.exe
+rm -f bin/*
+yes | mono ../bin/Prebuild.exe /clean
 
-(cd OpenSim.Data.MySQL.MySQLMoneyDataWrapper/ && nant && cp OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH)
-(cd Aurora.Modules.Currency/ && nant && cp Aurora.Modules.Currency.dll ../$OPNSIMPATH)
-(cd Aurora.Server.MoneyServer/ && nant && cp MoneyServer.exe ../$OPNSIMPATH)
+./runprebuild.sh
+nant
+
+cp OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH
+cp Aurora.Modules.Currency.dll ../$OPNSIMPATH
+cp MoneyServer.exe ../$OPNSIMPATH
 
 
 if [ ! -f $OPNSIMPATH/MoneyServer.ini ]; then
@@ -29,3 +31,5 @@ fi
 if [ ! -f $OPNSIMPATH/SineWaveCert.pfx ]; then
 	cp $CONFIGPATH/SineWaveCert.pfx $OPNSIMPATH
 fi
+
+
