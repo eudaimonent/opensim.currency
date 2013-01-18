@@ -16,8 +16,8 @@ rm -fr Aurora.Server.MoneyServer/bin
 rm -fr Aurora.Server.MoneyServer/obj
 
 yes | mono ../bin/Prebuild.exe /clean
-./runprebuild.sh
-xbuild
+./runprebuild_nant.sh
+nant
 
 cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH
 cp bin/Aurora.Modules.Currency.dll ../$OPNSIMPATH
