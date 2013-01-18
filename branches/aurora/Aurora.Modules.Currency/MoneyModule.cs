@@ -496,7 +496,10 @@ namespace Aurora.Modules.Currency
 
 		public GroupBalance GetGroupBalance(UUID groupID)
 		{
-			return new GroupBalance() { StartingDate = DateTime.Now.AddDays(-4) };
+            return new GroupBalance()
+            {
+                StartingDate = DateTime.Now.AddDays(-4)
+            };
 		}
 
 
