@@ -141,60 +141,72 @@ fi
 
 if [ "$ALL_SCRIPT" = "YES" ]; then
 
-# download nsl.modules
-if [ -d nsl.modules ]; then
-    svn update nsl.modules
+# download opensim.modules
+if [ -d opensim.modules ]; then
+    svn update opensim.modules
 else
-    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.nsl.modules/trunk nsl.modules
+    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.nsl.modules/trunk opensim.modules
 fi
 
 if [ "$ONLY_DWNLD" = "NO" ]; then
     if   [ "$SYMBL_LINK" = "YES" ]; then
-        ln -sf ../nsl.modules/php/mute.php helper/mute.php
-    elif [ "$SYMBL_LINK" = "NO" ]; then
-        cp -puf nsl.modules/php/mute.php helper/mute.php
+        ln -sf ../opensim.modules/Messaging/php/mute.php helper/mute.php
+        ln -sf ../opensim.modules/Profile/php/profile.php  helper/profile.php
+        ln -sf ../opensim.modules/Profile/php/profile_config.php helper/profile_config.php
+        ln -sf ../opensim.modules/Search/php/parser.php helper/parser.php
+        ln -sf ../opensim.modules/Search/php/query.php  helper/query.php
+        ln -sf ../opensim.modules/Search/php/register.php helper/register.php
+        ln -sf ../opensim.modules/Search/php/search_config.php helper/search_config.php
+   elif [ "$SYMBL_LINK" = "NO" ]; then
+        cp -puf opensim.modules/Messaging/php/mute.php helper/mute.php
+        cp -puf opensim.modules/Profile/php/profile.php  helper/profile.php
+        cp -puf opensim.modules/Profile/php/profile_config.php helper/profile_config.php
+        cp -puf opensim.modules/Search/php/parser.php helper/parser.php
+        ln -puf opensim.modules/Search/php/query.php  helper/query.php
+        ln -puf opensim.modules/Search/php/register.php helper/register.php
+        ln -puf opensim.modules/Search/php/search_config.php helper/search_config.php
     fi
 fi
 
 
 # download osprofile
-if [ -d osprofile ]; then
-    svn update osprofile
-else
-    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.osprofile/trunk osprofile
-fi
-
-if [ "$ONLY_DWNLD" = "NO" ]; then
-    if   [ "$SYMBL_LINK" = "YES" ]; then
-        ln -sf ../osprofile/webroot/profile.php  helper/profile.php
-        ln -sf ../osprofile/webroot/profile_config.php helper/profile_config.php
-    elif [ "$SYMBL_LINK" = "NO" ]; then
-        cp -puf osprofile/webroot/profile.php  helper/profile.php
-        cp -puf osprofile/webroot/profile_config.php helper/profile_config.php
-    fi
-fi
+#if [ -d osprofile ]; then
+#    svn update osprofile
+#else
+#    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.osprofile/trunk osprofile
+#fi
+#
+#if [ "$ONLY_DWNLD" = "NO" ]; then
+#    if   [ "$SYMBL_LINK" = "YES" ]; then
+#        ln -sf ../osprofile/webroot/profile.php  helper/profile.php
+#        ln -sf ../osprofile/webroot/profile_config.php helper/profile_config.php
+#    elif [ "$SYMBL_LINK" = "NO" ]; then
+#        cp -puf osprofile/webroot/profile.php  helper/profile.php
+#        cp -puf osprofile/webroot/profile_config.php helper/profile_config.php
+#    fi
+#fi
 
 
 # download ossearch
-if [ -d ossearch ]; then
-    svn update ossearch
-else
-    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.ossearch/trunk ossearch
-fi
-
-if [ "$ONLY_DWNLD" = "NO" ]; then
-    if   [ "$SYMBL_LINK" = "YES" ]; then
-        ln -sf ../ossearch/webroot/parser.php helper/parser.php
-        ln -sf ../ossearch/webroot/query.php  helper/query.php
-        ln -sf ../ossearch/webroot/register.php helper/register.php
-        ln -sf ../ossearch/webroot/search_config.php helper/search_config.php
-    elif [ "$SYMBL_LINK" = "NO" ]; then
-        cp -puf ossearch/webroot/parser.php helper/parser.php
-        cp -puf ossearch/webroot/query.php  helper/query.php
-        cp -puf ossearch/webroot/register.php helper/register.php
-        cp -puf ossearch/webroot/search_config.php helper/search_config.php
-    fi
-fi
+#if [ -d ossearch ]; then
+#    svn update ossearch
+#else
+#    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.ossearch/trunk ossearch
+#fi
+#
+#if [ "$ONLY_DWNLD" = "NO" ]; then
+#    if   [ "$SYMBL_LINK" = "YES" ]; then
+#        ln -sf ../ossearch/webroot/parser.php helper/parser.php
+#        ln -sf ../ossearch/webroot/query.php  helper/query.php
+#        ln -sf ../ossearch/webroot/register.php helper/register.php
+#        ln -sf ../ossearch/webroot/search_config.php helper/search_config.php
+#    elif [ "$SYMBL_LINK" = "NO" ]; then
+#        cp -puf ossearch/webroot/parser.php helper/parser.php
+#        cp -puf ossearch/webroot/query.php  helper/query.php
+#        cp -puf ossearch/webroot/register.php helper/register.php
+#        cp -puf ossearch/webroot/search_config.php helper/search_config.php
+#    fi
+#fi
 
 
 fi  # ALL_SCRIPT

@@ -34,6 +34,8 @@ define('USER_SERVER_URI', 'http://opensim.nsl.tuis.ac.jp:8002/'); 	// not use lo
 
 
 
+
+
 //////////////////////////////////////////////////////////////////////////////////
 // You need not change the below usually. 
 

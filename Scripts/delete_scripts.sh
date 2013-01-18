@@ -19,22 +19,22 @@ if [ -d opensim.phplib ]; then
 fi
 
 
-# download nsl.modules
-if [ -d nsl.modules ]; then
-    rm -rf nsl.modules
+# download opensim.modules
+if [ -d opensim.modules ]; then
+    rm -rf opensim.modules
 fi
 
 
 # download osprofile
-if [ -d osprofile ]; then
-    rm -rf osprofile
-fi
+#if [ -d osprofile ]; then
+#    rm -rf osprofile
+#fi
 
 
 # delete ossearch
-if [ -d ossearch ]; then
-	rm -rf ossearch
-fi
+#if [ -d ossearch ]; then
+#	rm -rf ossearch
+#fi
 
 
 rm -rf helper
