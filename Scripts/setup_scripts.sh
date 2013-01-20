@@ -105,12 +105,14 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensimwiredux/helpers.php helper/helpers.php
         ln -sf ../opensimwiredux/offline.php helper/offline.php
         ln -sf ../opensimwiredux/mysql.php include/mysql.func.php
+        ln -sf ../../opensimwiredux/sql/offline.sql helper/sql/offline.sql
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensimwiredux/currency.php helper/currency.php
         cp -puf opensimwiredux/landtool.php helper/landtool.php
         cp -puf opensimwiredux/helpers.php helper/helpers.php
         cp -puf opensimwiredux/offline.php helper/offline.php
         cp -puf opensimwiredux/mysql.php include/mysql.func.php
+        cp -puf opensimwiredux/sql/offline.sql helper/sql/offline.sql
     fi
 fi
 
@@ -157,6 +159,7 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.modules/Search/php/query.php  helper/query.php
         ln -sf ../opensim.modules/Search/php/register.php helper/register.php
         ln -sf ../opensim.modules/Search/php/search_config.php helper/search_config.php
+        ln -sf ../../opensim.modules/Messaging/sql/mute.sql helper/sql/mute.sql
         ln -sf ../../opensim.modules/Profile/sql/osprofile.sql helper/sql/osprofile.sql
         ln -sf ../../opensim.modules/Search/sql/ossearch.sql  helper/sql/ossearch.sql
    elif [ "$SYMBL_LINK" = "NO" ]; then
@@ -167,6 +170,7 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         cp -puf opensim.modules/Search/php/query.php  helper/query.php
         cp -puf opensim.modules/Search/php/register.php helper/register.php
         cp -puf opensim.modules/Search/php/search_config.php helper/search_config.php
+        cp -puf opensim.modules/Messaging/sql/mute.sql helper/sql/mute.sql
         cp -puf opensim.modules/Profile/sql/osprofile.sql helper/sql/osprofile.sql
         cp -puf opensim.modules/Search/sql/ossearch.sql  helper/sql/ossearch.sql
     fi

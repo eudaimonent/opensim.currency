@@ -102,7 +102,7 @@ define('SEARCH_OBJECTS_TBL',		'objects');
 define('SEARCH_PARCELS_TBL',		'parcels');
 define('SEARCH_PARCELSALES_TBL',	'parcelsales');
 define('SEARCH_POPULARPLACES_TBL',	'popularplaces');
-define('SEARCH_REGIONS_TBL',		'regions');
+define('SEARCH_REGIONS_TBL',		'search_regions');
 define('SEARCH_CLASSIFIEDS_TBL',	PROFILE_CLASSIFIEDS_TBL);
 
 
