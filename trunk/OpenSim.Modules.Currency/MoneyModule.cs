@@ -189,13 +189,13 @@ namespace OpenSim.Modules.Currency
 
 				m_userServIP = "";
 				if (networkConfig.Contains("user_server_url")) {
-					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
+					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url"));
 				}
 
 				// [Economy] section
 				IConfig economyConfig = m_config.Configs["Economy"];
 
-				if (economyConfig.GetString("EconomyModule").ToString()!=Name)
+				if (economyConfig.GetString("EconomyModule")!=Name)
 				{
 					m_enabled = false;
 					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is disabled");
@@ -209,9 +209,9 @@ namespace OpenSim.Modules.Currency
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
 
 				if (m_userServIP=="") {
-					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
+					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer"));
 				}
-				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
+				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
 				string checkcert = economyConfig.GetString("CheckServerCert", "false");
 				if (checkcert.ToLower()=="true") m_checkServerCert = true;
