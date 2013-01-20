@@ -8,7 +8,7 @@
 LANG=C
 COMMAND="$0"
 
-ALL_SCRIPT="YES"
+ALL_SCRIPT="NO"
 SYMBL_LINK="YES"
 ONLY_DWNLD="NO"
 
@@ -16,7 +16,9 @@ SHOW_HELP="NO"
 
 
 while [ $# != 0 ]; do
-    if   [ "$1" = "-c" -o "$1" = "--copy" ]; then
+    if   [ "$1" = "-a" -o "$1" = "--all" ]; then
+        ALL_SCRIPT='YES' 
+    elif [ "$1" = "-c" -o "$1" = "--copy" ]; then
         SYMBL_LINK="NO"
     elif [ "$1" = "-d" -o "$1" = "--download" ]; then
         ONLY_DWNLD="YES"
@@ -30,13 +32,16 @@ done
 
 if [ "$SHOW_HELP" = "YES" ]; then
     echo
-    echo "usage... $COMMAND [-c/--copy] [-d/--download] [-h/--help]"
+    echo "usage... $COMMAND [-c/--copy] [-d/--download] [-a/--all] [-h/--help]"
     echo "-c or --copy     : not symbolic link but copy files"
     echo "-d or --download : download only"
+    echo "-a or --all      : treat all scripts include optional scripts"
     echo "-h or --help     : show this help"
     echo
     exit 0
 fi
+
+
 
 
 if [ "$SYMBL_LINK" = "NO" ]; then
