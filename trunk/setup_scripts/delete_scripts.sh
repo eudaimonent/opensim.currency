@@ -8,9 +8,9 @@ fi
 
 
 # download opensimwiredux
-if [ -d opensimwiredux ]; then
-    rm -rf opensimwiredux
-fi
+#if [ -d opensimwiredux ]; then
+#    rm -rf opensimwiredux
+#fi
 
 
 # download opensum.phplib
