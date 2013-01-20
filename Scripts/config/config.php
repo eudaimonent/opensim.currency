@@ -29,7 +29,7 @@ define('XMLGROUP_RKEY', '1234');	// Read Key
 define('XMLGROUP_WKEY', '1234');	// Write key
 
 // Please set user(robust) server's URL
-define('USER_SERVER_URI', 'http://202.26.148.225:8002/'); 	// not use localhost or 127.0.0.1
+define('USER_SERVER_URI', 'http://opensim.nsl.tuis.ac.jp:8002/'); 	// not use localhost or 127.0.0.1
 
 
 
