@@ -73,7 +73,6 @@ fi
 
 if [ "$ONLY_DWNLD" = "NO" ]; then
     if   [ "$SYMBL_LINK" = "YES" ]; then
-        ln -sf ../flotsam_XmlRpcGroup/groups.sql helper/groups.sql
         ln -sf ../flotsam_XmlRpcGroup/xmlgroups.php helper/xmlgroups.php
         ln -sf ../flotsam_XmlRpcGroup/xmlgroups_config.php helper/xmlgroups_config.php
         ln -sf ../flotsam_XmlRpcGroup/xmlrpc.php helper/xmlrpc.php
@@ -82,7 +81,6 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         fi
         ln -sf ../flotsam_XmlRpcGroup/phpxmlrpclib helper/phpxmlrpclib
     elif [ "$SYMBL_LINK" = "NO" ]; then
-        cp -puf flotsam_XmlRpcGroup/groups.sql helper/groups.sql
         cp -puf flotsam_XmlRpcGroup/xmlgroups.php helper/xmlgroups.php
         cp -puf flotsam_XmlRpcGroup/xmlgroups_config.php helper/xmlgroups_config.php
         cp -puf flotsam_XmlRpcGroup/xmlrpc.php helper/xmlrpc.php
