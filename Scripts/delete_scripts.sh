@@ -24,6 +24,9 @@ if [ -d opensim.modules ]; then
     rm -rf opensim.modules
 fi
 
+if [ -d config/sql ]; then
+    rm -rf config/sql
+fi
 
 # download osprofile
 #if [ -d osprofile ]; then

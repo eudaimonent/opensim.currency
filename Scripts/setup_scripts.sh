@@ -50,7 +50,7 @@ if [ "$SYMBL_LINK" = "NO" ]; then
     rm -rf include
 fi
 
-mkdir -p helper
+mkdir -p helper/sql
 mkdir -p include
 
 if [ "$SYMBL_LINK" = "NO" ]; then
@@ -80,11 +80,13 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
             rm -rf helper/phpxmlrpclib
         fi
         ln -sf ../flotsam_XmlRpcGroup/phpxmlrpclib helper/phpxmlrpclib
+        ln -sf ../../flotsam_XmlRpcGroup/sql/groups.sql helper/sql/groups.sql
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf flotsam_XmlRpcGroup/xmlgroups.php helper/xmlgroups.php
         cp -puf flotsam_XmlRpcGroup/xmlgroups_config.php helper/xmlgroups_config.php
         cp -puf flotsam_XmlRpcGroup/xmlrpc.php helper/xmlrpc.php
         cp -Rpdf flotsam_XmlRpcGroup/phpxmlrpclib helper/phpxmlrpclib
+        cp -puf flotsam_XmlRpcGroup/sql/groups.sql helper/sql/groups.sql
     fi
 fi
 
@@ -155,14 +157,18 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.modules/Search/php/query.php  helper/query.php
         ln -sf ../opensim.modules/Search/php/register.php helper/register.php
         ln -sf ../opensim.modules/Search/php/search_config.php helper/search_config.php
+        ln -sf ../../opensim.modules/Profile/sql/osprofile.sql helper/sql/osprofile.sql
+        ln -sf ../../opensim.modules/Search/sql/ossearch.sql  helper/sql/ossearch.sql
    elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.modules/Messaging/php/mute.php helper/mute.php
         cp -puf opensim.modules/Profile/php/profile.php  helper/profile.php
         cp -puf opensim.modules/Profile/php/profile_config.php helper/profile_config.php
         cp -puf opensim.modules/Search/php/parser.php helper/parser.php
-        ln -puf opensim.modules/Search/php/query.php  helper/query.php
-        ln -puf opensim.modules/Search/php/register.php helper/register.php
-        ln -puf opensim.modules/Search/php/search_config.php helper/search_config.php
+        cp -puf opensim.modules/Search/php/query.php  helper/query.php
+        cp -puf opensim.modules/Search/php/register.php helper/register.php
+        cp -puf opensim.modules/Search/php/search_config.php helper/search_config.php
+        cp -puf opensim.modules/Profile/sql/osprofile.sql helper/sql/osprofile.sql
+        cp -puf opensim.modules/Search/sql/ossearch.sql  helper/sql/ossearch.sql
     fi
 fi
 
