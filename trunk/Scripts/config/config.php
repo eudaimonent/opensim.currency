@@ -6,17 +6,17 @@
 //
 
 // Please set this hepler script URL and directory
-if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://www.nsl.tuis.ac.jp/currency/helper/');
+if (!defined('ENV_HELPER_URL'))  define('ENV_HELPER_URL',  'http://io.nsl.tuis.ac.jp/currency/helper/');
 if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/home/apache/htdocs/currency/helper/');
 
 //////////////////////////////////////////////////////////////////////////////////i
 // Valiables for OpenSim
 
 // Please set MySQL DB access information
-define('OPENSIM_DB_HOST', 'mysql.nsl.tuis.ac.jp');
-define('OPENSIM_DB_NAME', 'opensim_db');
-define('OPENSIM_DB_USER', 'opensim_user');
-define('OPENSIM_DB_PASS', 'opensim_pass');
+define('OPENSIM_DB_HOST', 'localhost');
+define('OPENSIM_DB_NAME', 'opensim');
+define('OPENSIM_DB_USER', 'OpenSimUser');
+define('OPENSIM_DB_PASS', 'OpenSimPass');
 
 
 // Money Server Access Key
@@ -29,8 +29,7 @@ define('XMLGROUP_RKEY', '1234');	// Read Key
 define('XMLGROUP_WKEY', '1234');	// Write key
 
 // Please set user(robust) server's URL
-define('USER_SERVER_URI', 'http://opensim.nsl.tuis.ac.jp:8002/'); 	// not use localhost or 127.0.0.1
-
+define('USER_SERVER_URI', 'http://202.26.148.225:8002/'); 	// not use localhost or 127.0.0.1
 
 
 
@@ -49,9 +48,33 @@ if (USE_UTC_TIME) date_default_timezone_set('UTC');
 
 
 // Currency DB
-define('CURRENCY_MONEY_TBL',		'balances');
-define('CURRENCY_TRANSACTION_TBL',	'transactions');
+define('CURRENCY_DB_HOST',          OPENSIM_DB_HOST);
+define('CURRENCY_DB_NAME',          OPENSIM_DB_NAME);
+define('CURRENCY_DB_USER',          OPENSIM_DB_USER);
+define('CURRENCY_DB_PASS',          OPENSIM_DB_PASS);
+define('CURRENCY_MONEY_TBL',        'balances');
+define('CURRENCY_TRANSACTION_TBL',  'transactions');
 
+
+// OffLine Message
+define('OFFLINE_DB_HOST',     		OPENSIM_DB_HOST);
+define('OFFLINE_DB_NAME',     		OPENSIM_DB_NAME);
+define('OFFLINE_DB_USER',     		OPENSIM_DB_USER);
+define('OFFLINE_DB_PASS',     		OPENSIM_DB_PASS);
+define('OFFLINE_MESSAGE_TBL', 		'offline_message');
+
+
+// MuteList 
+define('MUTE_DB_HOST',              OPENSIM_DB_HOST);
+define('MUTE_DB_NAME',              OPENSIM_DB_NAME);
+define('MUTE_DB_USER',              OPENSIM_DB_USER);
+define('MUTE_DB_PASS',              OPENSIM_DB_PASS);
+define('MUTE_LIST_TBL',             'mute_list');
+
+
+
+////////////////////////////////////////////////////////////
+// External other Modules
 
 // XML Group.  see also xmlgroups_config.php 
 define('XMLGROUP_ACTIVE_TBL',		'osagent');
