@@ -7,10 +7,10 @@ if [ -d flotsam_XmlRpcGroup ]; then
 fi
 
 
-# download opensimwiredux
-#if [ -d opensimwiredux ]; then
-#    rm -rf opensimwiredux
-#fi
+# download opensim.helper
+if [ -d opensim.helper ]; then
+    rm -rf opensim.helper
+fi
 
 
 # download opensum.phplib
