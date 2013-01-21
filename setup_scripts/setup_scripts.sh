@@ -93,6 +93,32 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
 fi
 
 
+# download opensim.helper
+if [ -d opensim.helper ]; then
+    svn update opensim.helper
+else
+    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.helper/trunk opensim.helper
+fi
+
+if [ "$ONLY_DWNLD" = "NO" ]; then
+    if   [ "$SYMBL_LINK" = "YES" ]; then
+        ln -sf ../opensim.helper/currency.php helper/currency.php
+        ln -sf ../opensim.helper/landtool.php helper/landtool.php
+        ln -sf ../opensim.helper/helpers.php helper/helpers.php
+        ln -sf ../opensim.helper/offline.php helper/offline.php
+        ln -sf ../opensim.helper/mysql.func.php include/mysql.func.php
+        ln -sf ../../opensim.helper/sql/offline.sql helper/sql/offline.sql
+    elif [ "$SYMBL_LINK" = "NO" ]; then
+        cp -puf opensim.helper/currency.php helper/currency.php
+        cp -puf opensim.helper/landtool.php helper/landtool.php
+        cp -puf opensim.helper/helpers.php helper/helpers.php
+        cp -puf opensim.helper/offline.php helper/offline.php
+        cp -puf opensim.helper/mysql.func.php include/mysql.func.php
+        cp -puf opensim.helper/sql/offline.sql helper/sql/offline.sql
+    fi
+fi
+
+
 # download opensim.phplib
 if [ -d opensim.phplib ]; then
     svn update opensim.phplib
@@ -105,22 +131,10 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.phplib/env.mysql.php include/env.mysql.php
         ln -sf ../opensim.phplib/opensim.mysql.php include/opensim.mysql.php
         ln -sf ../opensim.phplib/tools.func.php include/tools.func.php
-        ln -sf ../../opensim.phplib/sql/offline.sql helper/sql/offline.sql
-        ln -sf ../opensim.phplib/opensimwiredux/currency.php helper/currency.php
-        ln -sf ../opensim.phplib/opensimwiredux/landtool.php helper/landtool.php
-        ln -sf ../opensim.phplib/opensimwiredux/helpers.php helper/helpers.php
-        ln -sf ../opensim.phplib/opensimwiredux/offline.php helper/offline.php
-        ln -sf ../opensim.phplib/opensimwiredux/mysql.func.php include/mysql.func.php
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.phplib/env.mysql.php include/env.mysql.php
         cp -puf opensim.phplib/opensim.mysql.php include/opensim.mysql.php
         cp -puf opensim.phplib/tools.func.php include/tools.func.php
-        cp -puf opensim.phplib/sql/offline.sql helper/sql/offline.sql
-        cp -puf opensim.phplib/opensimwiredux/currency.php helper/currency.php
-        cp -puf opensim.phplib/opensimwiredux/landtool.php helper/landtool.php
-        cp -puf opensim.phplib/opensimwiredux/helpers.php helper/helpers.php
-        cp -puf opensim.phplib/opensimwiredux/offline.php helper/offline.php
-        cp -puf opensim.phplib/opensimwiredux/mysql.func.php include/mysql.func.php
     fi
 fi
 
@@ -135,7 +149,7 @@ if [ "$ALL_SCRIPT" = "YES" ]; then
 if [ -d opensim.modules ]; then
     svn update opensim.modules
 else
-    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.nsl.modules/trunk opensim.modules
+    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.modules/trunk opensim.modules
 fi
 
 if [ "$ONLY_DWNLD" = "NO" ]; then
