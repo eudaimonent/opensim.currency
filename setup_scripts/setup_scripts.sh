@@ -106,14 +106,12 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.helper/landtool.php helper/landtool.php
         ln -sf ../opensim.helper/helpers.php helper/helpers.php
         ln -sf ../opensim.helper/offline.php helper/offline.php
-        ln -sf ../opensim.helper/mysql.func.php include/mysql.func.php
         ln -sf ../../opensim.helper/sql/offline.sql helper/sql/offline.sql
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.helper/currency.php helper/currency.php
         cp -puf opensim.helper/landtool.php helper/landtool.php
         cp -puf opensim.helper/helpers.php helper/helpers.php
         cp -puf opensim.helper/offline.php helper/offline.php
-        cp -puf opensim.helper/mysql.func.php include/mysql.func.php
         cp -puf opensim.helper/sql/offline.sql helper/sql/offline.sql
     fi
 fi
@@ -131,10 +129,12 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.phplib/env.mysql.php include/env.mysql.php
         ln -sf ../opensim.phplib/opensim.mysql.php include/opensim.mysql.php
         ln -sf ../opensim.phplib/tools.func.php include/tools.func.php
+        ln -sf ../opensim.phplib/mysql.func.php include/mysql.func.php
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.phplib/env.mysql.php include/env.mysql.php
         cp -puf opensim.phplib/opensim.mysql.php include/opensim.mysql.php
         cp -puf opensim.phplib/tools.func.php include/tools.func.php
+        cp -puf opensim.phplib/mysql.func.php include/mysql.func.php
     fi
 fi
 
