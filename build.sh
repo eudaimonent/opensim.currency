@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONFIGPATH=./config
-OPNSIMPATH=../bin
+AURORA_BIN=../bin
 
 echo "=========================="
 echo "DTL/NSL_CURRENCY"
@@ -15,27 +15,27 @@ rm -fr Aurora.Modules.Currency/obj
 rm -fr Aurora.Server.MoneyServer/bin
 rm -fr Aurora.Server.MoneyServer/obj
 
-yes | mono ../bin/Prebuild.exe /clean
+yes | mono $AURORA_BIN/Prebuild.exe /clean
 ./runprebuild.sh
 xbuild
 
-cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll ../$OPNSIMPATH
-cp bin/Aurora.Modules.Currency.dll ../$OPNSIMPATH
-cp bin/MoneyServer.exe ../$OPNSIMPATH
+cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll $AURORA_BIN
+cp bin/Aurora.Modules.Currency.dll $AURORA_BIN
+cp bin/MoneyServer.exe $AURORA_BIN
 
 
-if [ ! -f $OPNSIMPATH/MoneyServer.ini ]; then
-	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH
+if [ ! -f $AURORA_BIN/MoneyServer.ini ]; then
+	cp $CONFIGPATH/MoneyServer.ini $AURORA_BIN
 else
-	cp $CONFIGPATH/MoneyServer.ini $OPNSIMPATH/MoneyServer.ini.example
+	cp $CONFIGPATH/MoneyServer.ini $AURORA_BIN/MoneyServer.ini.example
 fi
 
-if [ ! -f $OPNSIMPATH/MoneyServer.exe.config ]; then
-	cp $CONFIGPATH/MoneyServer.exe.config $OPNSIMPATH
+if [ ! -f $AURORA_BIN/MoneyServer.exe.config ]; then
+	cp $CONFIGPATH/MoneyServer.exe.config $AURORA_BIN
 fi
 
-if [ ! -f $OPNSIMPATH/SineWaveCert.pfx ]; then
-	cp $CONFIGPATH/SineWaveCert.pfx $OPNSIMPATH
+if [ ! -f $AURORA_BIN/SineWaveCert.pfx ]; then
+	p $CONFIGPATH/SineWaveCert.pfx $AURORA_BIN
 fi
 
 
