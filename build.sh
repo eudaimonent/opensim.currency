@@ -19,10 +19,10 @@ yes | mono $AURORA_BIN/Prebuild.exe /clean
 ./runprebuild.sh
 xbuild
 
-cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll $AURORA_BIN
-cp bin/Aurora.Modules.Currency.dll $AURORA_BIN
-cp bin/MoneyServer.exe $AURORA_BIN
-
+echo
+cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll $AURORA_BIN 
+cp bin/Aurora.Modules.Currency.dll $AURORA_BIN 
+cp bin/MoneyServer.exe $AURORA_BIN 
 
 if [ ! -f $AURORA_BIN/MoneyServer.ini ]; then
 	cp $CONFIGPATH/MoneyServer.ini $AURORA_BIN

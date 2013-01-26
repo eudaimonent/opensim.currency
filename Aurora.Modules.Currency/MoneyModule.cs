@@ -164,6 +164,7 @@ namespace Aurora.Modules.Currency
 
 
 		/*
+		/*
 		public void Initialise(Scene scene, IConfigSource source)
 		{
 			Initialise(source);
@@ -191,18 +192,32 @@ namespace Aurora.Modules.Currency
 					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
 				}
 
+				// [Currency] section
+				IConfig currencyConfig = m_config.Configs["Currency"];
+
+				if (currencyConfig!=null)
+				{
+					string currencymod = currencyConfig.GetString("Module");
+					if (currencymod!=null && currencymod!=Name)
+					{
+						m_enabled = false;
+						m_log.InfoFormat("[MONEY]: {0} is secified as CurrencyModule. The DTL/NSL MoneyModule is disabled.", currencymod);
+						return;
+					}
+				}
+
 				// [Economy] section
 				IConfig economyConfig = m_config.Configs["Economy"];
 
-				if (economyConfig.GetString("EconomyModule").ToString()!=Name)
+				if (economyConfig!=null && economyConfig.GetString("EconomyModule")==Name)
+				{
+					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is enabled");
+				}
+				else
 				{
 					m_enabled = false;
 					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is disabled");
 					return;
-				}
-				else
-				{
-					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is enabled");
 				}
 
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
@@ -210,7 +225,7 @@ namespace Aurora.Modules.Currency
 				if (m_userServIP=="") {
 					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
 				}
-				m_moneyServURL = economyConfig.GetString("CurrencyServer").ToString();
+				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
 				string checkcert = economyConfig.GetString("CheckServerCert", "false");
 				if (checkcert.ToLower()=="true") m_checkServerCert = true;
