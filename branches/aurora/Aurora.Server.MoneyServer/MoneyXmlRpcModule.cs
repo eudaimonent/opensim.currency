@@ -1177,7 +1177,7 @@ namespace Aurora.Server.MoneyServer
 		/// <returns>Hashtable with success=>bool and other values</returns>   
 		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method, string uri)
 		{
-			//m_log.InfoFormat("[MONEY RPC] genericCurrencyXMLRPCRequest:");
+			m_log.InfoFormat("[MONEY RPC] genericCurrencyXMLRPCRequest:");
 
 			if (reqParams.Count<=0 || string.IsNullOrEmpty(method)) return null;
 
