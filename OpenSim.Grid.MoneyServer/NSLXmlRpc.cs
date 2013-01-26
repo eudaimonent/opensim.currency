@@ -22,6 +22,8 @@ namespace NSL.XmlRpc
 {
 	public class NSLXmlRpcRequest : XmlRpcRequest
 	{
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
 		private Encoding _encoding = new ASCIIEncoding();
 		private XmlRpcRequestSerializer _serializer = new XmlRpcRequestSerializer();
 		private XmlRpcResponseDeserializer _deserializer = new XmlRpcResponseDeserializer();
@@ -42,6 +44,8 @@ namespace NSL.XmlRpc
 
 		public XmlRpcResponse certSend(String url, X509Certificate2 cert, bool checkCert, Int32 timeout)
 	  	{
+			m_log.InfoFormat("[MONEY NSL RPC] XmlRpcResponse certSend: connect to {0}", url);
+
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 
 			if (request==null)
@@ -56,8 +60,8 @@ namespace NSL.XmlRpc
 			request.Timeout = timeout;
 			//request.KeepAlive = false;
 
-			if (cert!=null) request.ClientCertificates.Add(cert); 
-			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");
+			if (cert!=null) request.ClientCertificates.Add(cert); 			// 自身の証明書
+			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 
 			Stream stream = request.GetRequestStream();
 			XmlTextWriter xml = new XmlTextWriter(stream, _encoding);
