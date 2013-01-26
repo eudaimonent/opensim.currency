@@ -163,13 +163,13 @@ namespace Aurora.Modules.Currency
 
 
 
-		//
+		/*
 		public void Initialise(Scene scene, IConfigSource source)
 		{
 			Initialise(source);
 			AddRegion(scene);
 		}
-
+		*/
 
 
 		#region ISharedRegionModule interface
