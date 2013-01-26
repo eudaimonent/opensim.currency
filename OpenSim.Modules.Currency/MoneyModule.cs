@@ -189,7 +189,7 @@ namespace OpenSim.Modules.Currency
 
 				m_userServIP = "";
 				if (networkConfig.Contains("user_server_url")) {
-					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url"));
+					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
 				}
 
 				// [Economy] section
@@ -209,7 +209,7 @@ namespace OpenSim.Modules.Currency
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
 
 				if (m_userServIP=="") {
-					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer"));
+					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
 				}
 				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
