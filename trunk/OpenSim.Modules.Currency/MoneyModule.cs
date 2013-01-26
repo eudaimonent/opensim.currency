@@ -52,7 +52,7 @@ using NSL.XmlRpc;
 
 
 
-[assembly: Addin("MoneyModule", "0.1")]
+[assembly: Addin("DTLNSLMoneyModule", "0.1")]
 [assembly: AddinDependency("OpenSim", "0.5")]
 
 
@@ -97,7 +97,7 @@ namespace OpenSim.Modules.Currency
 
 
 	// 
-	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id="MoneyModule")]
+	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "MoneyModule")]
 	public class MoneyModule : IMoneyModule, ISharedRegionModule
 	{
 		#region Constant numbers and members.
@@ -177,6 +177,8 @@ namespace OpenSim.Modules.Currency
 
 		public void Initialise(IConfigSource source)
 		{
+			//m_log.InfoFormat("[MONEY]: Initialise:");
+
 			// Handle the parameters errors.
 			if (source==null) return;
 
@@ -256,6 +258,8 @@ namespace OpenSim.Modules.Currency
 
 		public void AddRegion(Scene scene)
 		{
+			//m_log.InfoFormat("[MONEY]: AddRegion:");
+
 			if (scene==null) return;
 
 			scene.RegisterModuleInterface<IMoneyModule>(this);
@@ -324,7 +328,8 @@ namespace OpenSim.Modules.Currency
 
 		public Type ReplaceableInterface
 		{
-			get { return typeof(IMoneyModule); }
+			//get { return typeof(IMoneyModule); }
+			get { return null; }
 		}
 
 
