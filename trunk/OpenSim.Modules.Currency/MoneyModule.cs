@@ -262,7 +262,7 @@ namespace OpenSim.Modules.Currency
 
 			if (scene==null) return;
 
-			scene.RegisterModuleInterface<IMoneyModule>(this);
+			scene.RegisterModuleInterface<IMoneyModule>(this);	// 競合するモジュールの排除
 
 			lock (m_sceneList)
 			{
