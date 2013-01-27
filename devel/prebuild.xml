@@ -113,10 +113,6 @@
       <Reference name="OpenSim.Data"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
-<!--
-        <Match path="../OpenSim.Grid.MoneyServer" pattern="NSLBaseHttpServer.cs" recurse="false"/>
-        <Match path="../OpenSim.Grid.MoneyServer" pattern="NSLXmlRpc.cs" recurse="false"/>
-      -->
       </Files>
     </Project>
 
