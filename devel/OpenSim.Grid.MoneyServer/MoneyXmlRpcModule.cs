@@ -45,7 +45,7 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using OpenSim.Modules.Currency;
 
-//using NSL.Servers.HttpServer;
+using NSL.Servers.HttpServer;
 using NSL.XmlRpc;
 
 
@@ -99,7 +99,7 @@ namespace OpenSim.Grid.MoneyServer
 		private Dictionary<string, string> m_secureSessionDic;
 		private Dictionary<string, string> m_webSessionDic;
 
-		protected BaseHttpServer m_httpServer;
+		protected NSLBaseHttpServer m_httpServer;
 
 
 		public MoneyXmlRpcModule()
@@ -166,7 +166,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		public void RegisterHandlers()
 		{
-			m_httpServer = (BaseHttpServer)m_moneyCore.GetHttpServer();
+			m_httpServer = (NSLBaseHttpServer)m_moneyCore.GetHttpServer();
 			m_httpServer.AddXmlRPCHandler("ClientLogin", handleClientLogin);
 			m_httpServer.AddXmlRPCHandler("ClientLogout", handleClientLogout);
 			m_httpServer.AddXmlRPCHandler("GetBalance", handleGetBalance);
