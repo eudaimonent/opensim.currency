@@ -60,7 +60,6 @@ namespace NSL.Servers.HttpServer
 
 
 
-
         public NSLBaseHttpServer(uint port) : base(port)
         {
             //m_port = port;
@@ -84,7 +83,7 @@ namespace NSL.Servers.HttpServer
         protected override void StartHTTP()
         {
             m_log.InfoFormat(
-                "[BASE HTTP SERVER]: Starting {0} server on port {1}", UseSSL ? "HTTPS" : "HTTP", Port);
+                "[NSL BASE HTTP SERVER]: Starting {0} server on port {1}", UseSSL ? "HTTPS" : "HTTP", Port);
 
             try
             {
@@ -131,15 +130,14 @@ namespace NSL.Servers.HttpServer
             }
             catch (Exception e)
             {
-                m_log.Error("[BASE HTTP SERVER]: Error - " + e.Message);
-                m_log.Error("[BASE HTTP SERVER]: Tip: Do you have permission to listen on port " + m_port + ", " + m_sslport + "?");
+                m_log.Error("[NSL BASE HTTP SERVER]: Error - " + e.Message);
+                m_log.Error("[NSL BASE HTTP SERVER]: Tip: Do you have permission to listen on port " + m_port + ", " + m_sslport + "?");
 
                 // We want this exception to halt the entire server since in current configurations we aren't too
                 // useful without inbound HTTP.
                 throw e;
             }
         }
-
 
     }
 
