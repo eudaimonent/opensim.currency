@@ -72,6 +72,11 @@ namespace NSL.Servers.HttpServer
 
         public NSLBaseHttpServer(uint port, bool ssl, uint sslport, string CN) : base(port, ssl, sslport, CN)
         {
+            if (m_ssl)
+            {
+                m_sslport = sslport;
+                m_cert = new X509Certificate2(CN);
+            }
         }
 
         public NSLBaseHttpServer(uint port, bool ssl, string CPath, string CPass) : base(port, ssl, CPath, CPass)
