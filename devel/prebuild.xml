@@ -156,8 +156,8 @@
       <Reference name="OpenSim.Services.Interfaces"/>
       <Reference name="OpenSim.Server.Base"/>
       <Reference name="OpenSim.Data" />
-      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="./bin/"/>
-      <Reference name="OpenSim.Modules.Currency" path="./bin/"/>
+      <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="../bin/"/>
+      <Reference name="OpenSim.Modules.Currency" path="../bin/"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
       </Files>
