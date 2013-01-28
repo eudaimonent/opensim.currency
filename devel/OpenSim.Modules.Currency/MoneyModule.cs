@@ -48,7 +48,6 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using NSL.Servers.HttpServer;
 using NSL.XmlRpc;
 
 
@@ -116,7 +115,7 @@ namespace OpenSim.Modules.Currency
 
 		private string m_moneyServURL	 = string.Empty;
 		private string m_userServIP		 = string.Empty;
-		public NSLBaseHttpServer HttpServer;
+		public BaseHttpServer HttpServer;
 
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
@@ -271,7 +270,7 @@ namespace OpenSim.Modules.Currency
 				{
 					if (!string.IsNullOrEmpty(m_moneyServURL))
 					{
-						HttpServer = new NSLBaseHttpServer(9000);
+						HttpServer = new BaseHttpServer(9000);
 						HttpServer.AddStreamHandler(new Region.Framework.Scenes.RegionStatsHandler(scene.RegionInfo));
 
 						HttpServer.AddXmlRPCHandler("OnMoneyTransfered", OnMoneyTransferedHandler);

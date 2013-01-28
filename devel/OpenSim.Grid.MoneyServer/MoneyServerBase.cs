@@ -43,9 +43,6 @@ using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
 
-using NSL.Servers.HttpServer;
-
-
 
 namespace OpenSim.Grid.MoneyServer
 {
@@ -118,13 +115,13 @@ namespace OpenSim.Grid.MoneyServer
 			ReadIniConfig();
 
 			try {
-				if (m_certFilename!="" && m_certPassword!="")
+				if (m_certFilename!="")
 				{
-					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else
 				{
-					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, false);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
@@ -221,7 +218,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		public BaseHttpServer GetHttpServer()
 		{
-            return m_httpServer;
+			return m_httpServer;
 		}
 
 
