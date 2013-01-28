@@ -115,7 +115,7 @@ namespace OpenSim.Grid.MoneyServer
 			ReadIniConfig();
 
 			try {
-				if (m_certFilename!="" && m_certPassword!="")
+				if (m_certFilename!="")
 				{
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
