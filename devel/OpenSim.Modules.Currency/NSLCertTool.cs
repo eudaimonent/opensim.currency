@@ -42,7 +42,10 @@ namespace NSL.Network.CertTool
 
 		public static void setCA(string pfxfile, string passwd)
 	  	{
-			m_cacert = new X509Certificate2(pfxfile, passwd);
+			X509Certificate2 cert = new X509Certificate2(pfxfile, passwd);
+			byte[] bytes = cert.Export(X509ContentType.Cert, passwd);
+
+			m_cacert = new X509Certificate2(bytes);
             m_chain  = new X509Chain();
 
 			m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
@@ -76,11 +79,14 @@ namespace NSL.Network.CertTool
         RemoteCertificateNameMismatch = 2, // 証明書名が不一致です。
         RemoteCertificateChainErrors = 4,  // ChainStatus が空でない配列を返しました。
 */
-		public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			if (sender is HttpWebRequest) {
+			m_log.InfoFormat("[NSL CERT VERIFY] ValidateServerCertificate");
+
+			if (obj is HttpWebRequest) {
+			m_log.InfoFormat("[NSL CERT VERIFY] obj is HttpWebRequest");
 				//
-				HttpWebRequest Request = (HttpWebRequest)sender;
+				HttpWebRequest Request = (HttpWebRequest)obj;
 
 				if (Request.Headers.Get("NoVerifyCert")=="true") {
 					m_log.InfoFormat("[NSL CERT VERIFY] NoVerifyCert is true");
@@ -101,6 +107,7 @@ namespace NSL.Network.CertTool
 
 			//
 			else if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) { 
+			m_log.InfoFormat("[NSL CERT VERIFY] obj is ?");
 				return false;
 			}
 

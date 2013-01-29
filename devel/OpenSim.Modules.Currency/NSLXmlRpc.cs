@@ -36,6 +36,7 @@ namespace NSL.Network.XmlRpc
 	  	{
 	  		_params = new ArrayList();
 
+			// サーバ認証
 			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 	  	}
@@ -46,6 +47,7 @@ namespace NSL.Network.XmlRpc
 			MethodName = methodName;
 			_params = parameters;
 
+			// サーバ認証
 			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 		}
@@ -69,8 +71,12 @@ namespace NSL.Network.XmlRpc
 			request.Timeout = timeout;
 			//request.KeepAlive = false;
 
-			if (cert!=null) request.ClientCertificates.Add(cert); 			// 自身の証明書
+			if (cert!=null) {
+				m_log.InfoFormat("[MONEY NSL RPC] Client Cert");
+				request.ClientCertificates.Add(cert); 			// 自身の証明書
+			}
 			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
+			request.UserAgent = "DTL/NSL Money Module";
 
 			//
 			Stream stream = request.GetRequestStream();

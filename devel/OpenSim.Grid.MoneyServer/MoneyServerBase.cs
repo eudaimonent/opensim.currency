@@ -29,9 +29,12 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
+using System.Net;
+using System.Net.Security;
 using System.Reflection;
 using System.Timers;
-using System.Security.Authentication;
+//using System.Security.Authentication;
+//using System.Security.Cryptography;
 //using System.Security.Cryptography.X509Certificates;
 
 using Nini.Config;
@@ -42,6 +45,9 @@ using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
+
+using NSL.Network.CertTool;
+using NSL.Network.HttpServer;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -89,6 +95,7 @@ namespace OpenSim.Grid.MoneyServer
 			checkTimer.Enabled = true;
 			checkTimer.Elapsed += new ElapsedEventHandler(CheckTransaction);
 			checkTimer.Start();
+
 			while (true)
 			{
 				m_console.Prompt();
@@ -117,16 +124,17 @@ namespace OpenSim.Grid.MoneyServer
 			try {
 				if (m_certFilename!="")
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else
 				{
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
+					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
 				m_httpServer.Start();
 				base.StartupSpecific();
+			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			}
 			catch (Exception e)
 			{
@@ -135,6 +143,8 @@ namespace OpenSim.Grid.MoneyServer
                 m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
                 Environment.Exit(1);
 			}
+
+			//
 
 			//TODO : Add some console commands here
 		}
