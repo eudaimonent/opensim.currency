@@ -118,9 +118,11 @@ namespace OpenSim.Modules.Currency
 		private string m_userServIP		 = string.Empty;
 		public BaseHttpServer HttpServer;
 
+		private bool   m_checkServerCert = false;
+		private string m_cacertFilename	 = "";
+
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
-		private bool   m_checkServerCert = false;
 		private X509Certificate2 m_cert	 = null;
 
 		//
@@ -226,10 +228,12 @@ namespace OpenSim.Modules.Currency
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 				}
 
-				//cert_v = new NSLCertVerity("cacert.crt");
-
-				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest();
-				NSLCertVerify.setCA("cacert.crt");
+				//
+				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
+				if (m_cacertFilename!="")
+				{
+					NSLCertVerify.setCA(m_cacertFilename);
+				}
 
 
 				// Settlement

@@ -25,24 +25,37 @@ namespace NSL.Network.CertTool
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static X509Certificate2 m_cert = null;
+		public static X509Certificate2 m_cacert = null;
 		public static X509Chain m_chain = null;
 
 
 		public static void setCA(string certfile)
 	  	{
-			m_cert  = new X509Certificate2(certfile);
-            m_chain = new X509Chain();
+			m_cacert = new X509Certificate2(certfile);
+            m_chain  = new X509Chain();
 
-			m_chain.ChainPolicy.ExtraStore.Add(m_cert);
+			m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
 			m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
 	  	}
 
 
+		public static void setCA(string pfxfile, string passwd)
+	  	{
+			m_cacert = new X509Certificate2(pfxfile, passwd);
+            m_chain  = new X509Chain();
+
+			m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
+			m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+	  	}
+
+
+
 		public static bool checkCert(X509Certificate2 cert)
 		{
-			if (m_chain==null || m_cert==null) {
+			if (m_chain==null || m_cacert==null) {
+				m_log.InfoFormat("[NSL CERT VERIFY] Members are null.");
 				return false;
 			}
 
@@ -70,10 +83,12 @@ namespace NSL.Network.CertTool
 				HttpWebRequest Request = (HttpWebRequest)sender;
 
 				if (Request.Headers.Get("NoVerifyCert")=="true") {
+					m_log.InfoFormat("[NSL CERT VERIFY] NoVerifyCert is true");
 					return true;
 				}
 
 				if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+					m_log.InfoFormat("[NSL CERT VERIFY] sslPolicyErrors");
 					return false;
 				}
 
