@@ -171,9 +171,10 @@ namespace OpenSim.Grid.MoneyServer
 
 				string checkcert = m_config.GetString("CheckClientCert", "false");
 				if (checkcert.ToLower()=="true") m_checkClientCert = true;
-				m_certFilename = m_config.GetString("ServerCertFilename", "SineWaveCert.pfx");
-				m_certPassword = m_config.GetString("ServerCertPassword", "123");
-				//if (m_certFilename!="" && m_certPassword!="")
+
+				m_certFilename = m_config.GetString("ServerCertFilename", "");
+				m_certPassword = m_config.GetString("ServerCertPassword", "");
+				//if (m_certFilename!="")
 				//{
 				//	m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 				//}

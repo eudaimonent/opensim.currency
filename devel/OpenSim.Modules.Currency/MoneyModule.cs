@@ -48,7 +48,8 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using NSL.XmlRpc;
+using NSL.Network.CertTool;
+using NSL.Network.XmlRpc;
 
 
 
@@ -220,10 +221,16 @@ namespace OpenSim.Modules.Currency
 
 				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
 				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
-				if (m_certFilename!="" && m_certPassword!="")
+				if (m_certFilename!="")
 				{
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 				}
+
+				//cert_v = new NSLCertVerity("cacert.crt");
+
+				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest();
+				NSLCertVerify.setCA("cacert.crt");
+
 
 				// Settlement
 				m_use_web_settle = economyConfig.GetBoolean("SettlementByWeb", false);

@@ -9,6 +9,7 @@ using System.Collections;
 using System.IO;
 using System.Xml;
 using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -16,13 +17,15 @@ using System.Security.Cryptography.X509Certificates;
 using log4net;
 using Nwc.XmlRpc;
 
+using NSL.Network.CertTool;
 
 
-namespace NSL.XmlRpc 
+
+namespace NSL.Network.XmlRpc 
 {
 	public class NSLXmlRpcRequest : XmlRpcRequest
 	{
-        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private Encoding _encoding = new ASCIIEncoding();
 		private XmlRpcRequestSerializer _serializer = new XmlRpcRequestSerializer();
@@ -32,6 +35,9 @@ namespace NSL.XmlRpc
 		public NSLXmlRpcRequest()
 	  	{
 	  		_params = new ArrayList();
+
+			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 	  	}
 
 
@@ -39,6 +45,9 @@ namespace NSL.XmlRpc
 		{
 			MethodName = methodName;
 			_params = parameters;
+
+			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 		}
 
 
@@ -63,6 +72,7 @@ namespace NSL.XmlRpc
 			if (cert!=null) request.ClientCertificates.Add(cert); 			// 自身の証明書
 			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 
+			//
 			Stream stream = request.GetRequestStream();
 			XmlTextWriter xml = new XmlTextWriter(stream, _encoding);
 			_serializer.Serialize(xml, this);
@@ -79,5 +89,7 @@ namespace NSL.XmlRpc
 			response.Close();
 			return resp;
 	  	}
+
 	}
+
 }
