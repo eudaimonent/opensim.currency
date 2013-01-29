@@ -134,7 +134,6 @@ namespace OpenSim.Grid.MoneyServer
 				SetupMoneyServices();
 				m_httpServer.Start();
 				base.StartupSpecific();
-			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			}
 			catch (Exception e)
 			{

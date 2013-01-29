@@ -33,6 +33,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Monitoring;
 using OpenSim.Framework.Servers.HttpServer;
 
+using NSL.Network.CertTool;
+
 
 
 namespace NSL.Network.HttpServer
@@ -99,6 +101,7 @@ namespace NSL.Network.HttpServer
                     m_httpListener2 = CoolHTTPListener.Create(IPAddress.Any, (int)m_port, m_cert);
                     m_httpListener2.ExceptionThrown += httpServerException;
                     m_httpListener2.LogWriter = httpserverlog;
+ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
                 }
 
                 m_httpListener2.RequestReceived += OnRequest;
