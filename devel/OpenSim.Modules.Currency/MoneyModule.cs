@@ -50,7 +50,7 @@ using OpenSim.Region.Framework.Scenes;
 
 using NSL.Certificate.Tools;
 using NSL.Network.XmlRpc;
-using NSL.Network.Server;
+using NSL.Network.HttpServer;
 
 
 

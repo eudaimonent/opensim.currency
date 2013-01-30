@@ -47,7 +47,7 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
 
 using NSL.Certificate.Tools;
-using NSL.Network.Server;
+using NSL.Network.HttpServer;
 
 
 namespace OpenSim.Grid.MoneyServer
