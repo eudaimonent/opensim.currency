@@ -17,7 +17,7 @@ using System.Security.Cryptography.X509Certificates;
 using log4net;
 using Nwc.XmlRpc;
 
-using NSL.Network.CertTool;
+using NSL.Certificate.Tools;
 
 
 
@@ -58,7 +58,6 @@ namespace NSL.Network.XmlRpc
 			m_log.InfoFormat("[MONEY NSL RPC] XmlRpcResponse certSend: connect to {0}", url);
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
 			if (request==null)
 			{
 				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, 

@@ -19,7 +19,7 @@ using log4net;
 
 
 
-namespace NSL.Network.CertTool 
+namespace NSL.Certificate.Tools 
 {
 	public static class NSLCertVerify
 	{

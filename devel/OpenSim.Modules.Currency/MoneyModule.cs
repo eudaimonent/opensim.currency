@@ -48,9 +48,9 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using NSL.Network.CertTool;
+using NSL.Certificate.Tools;
 using NSL.Network.XmlRpc;
-using NSL.Network.HttpServer;
+using NSL.Network.Server;
 
 
 
