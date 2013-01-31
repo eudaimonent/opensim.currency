@@ -133,7 +133,7 @@ namespace NSL.Certificate.Tools
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. CN = {0}", certificate2);
+				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. CN = {0}", certificate2.GetName());
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
