@@ -31,6 +31,9 @@ namespace NSL.Certificate.Tools
 		private X509Certificate2 m_cacert = null;
 		private X509Chain m_chain = null;
 
+        public string clientCName = "";
+
+
 
         public NSLCertVerify()
         {
@@ -153,7 +156,8 @@ namespace NSL.Certificate.Tools
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetName());
+                m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetNameInfo(X509NameType.SimpleName, false));
+                clientCName = certificate2.GetNameInfo(X509NameType.SimpleName, false);
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
