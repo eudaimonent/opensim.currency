@@ -31,7 +31,7 @@ namespace NSL.Certificate.Tools
 		public static X509Chain m_chain = null;
 
 
-		public static void setCA(string certfile)
+		public static void SetPrivateCA(string certfile)
 	  	{
 			m_cacert = new X509Certificate2(certfile);
             m_chain  = new X509Chain();
@@ -42,7 +42,8 @@ namespace NSL.Certificate.Tools
 	  	}
 
 
-		public static void setCA(string pfxfile, string passwd)
+/*
+		public static void SetPrivateCA(string pfxfile, string passwd)
 	  	{
 			X509Certificate2 cert = new X509Certificate2(pfxfile, passwd);
 			byte[] bytes = cert.Export(X509ContentType.Cert, passwd);
@@ -54,24 +55,26 @@ namespace NSL.Certificate.Tools
 			m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
             m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
 	  	}
+*/
 
 
 
 		//
-		public static bool checkCert(X509Certificate2 cert)
+		public static bool CheckPrivateChain(X509Certificate2 cert)
 		{
 			if (m_chain==null || m_cacert==null) {
-				m_log.InfoFormat("[NSL CERT VERIFY] Members are null.");
 				return false;
 			}
 
-            bool ret = m_chain.Build(cert);
-			if (ret) return true;
+            bool ret = m_chain.Build((X509Certificate2)cert);
+			if (ret) {
+				return true;
+			}
 
             for (int i=0; i<m_chain.ChainStatus.Length; i++)  {
 				if (m_chain.ChainStatus[i].Status==X509ChainStatusFlags.UntrustedRoot) return true;
 			}
-
+			//
 			return false;
 		}
 
@@ -90,30 +93,28 @@ namespace NSL.Certificate.Tools
 		//
 		public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			//m_log.InfoFormat("[NSL CERT VERIFY] ValidateServerCertificate");
+			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate ({0})", sslPolicyErrors);
 
 			if (obj is HttpWebRequest) {
 				//
 				HttpWebRequest Request = (HttpWebRequest)obj;
-
 				if (Request.Headers.Get("NoVerifyCert")=="true") {
 					return true;
 				}
-
-				if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
-					return false;
-				}
-
-				bool valid = checkCert((X509Certificate2)certificate);
-				return valid;
 			}
 
-			//
-			else if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) { 
+			// ChainErrors 以外は全てエラーとする．
+			if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
 
-			return true;
+			X509Certificate2 certificate2 = new X509Certificate2(certificate);
+
+			bool valid = CheckPrivateChain(certificate2);
+			if (!valid) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Server Certification.");
+			}
+			return valid;
 		}
 
 
@@ -123,38 +124,22 @@ namespace NSL.Certificate.Tools
 		//
 		public static bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			m_log.InfoFormat("[NSL CERT VERIFY] ValidateClientCertificate ({0})", sslPolicyErrors);
-
-			if (obj is HttpWebRequest) {
-				m_log.InfoFormat("[NSL CERT VERIFY] obj is HttpWebRequest");
-				//
-				HttpWebRequest Request = (HttpWebRequest)obj;
-
-				if (Request.Headers.Get("NoVerifyCert")=="true") {
-					m_log.InfoFormat("[NSL CERT VERIFY] NoVerifyCert is true");
-					return true;
-				}
-
-				if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
-					m_log.InfoFormat("[NSL CERT VERIFY] sslPolicyErrors");
-					return false;
-				}
-
-				bool valid = checkCert((X509Certificate2)certificate);
-				if (!valid) {
-					m_log.InfoFormat("[NSL CERT VERIFY] Failed to verify certification.");
-				}
-				return valid;
-			}
-
-			//
-			else if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) { 
+			// ChainErrors 以外は全てエラーとする．
+			if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
 
-			return true;
-		}
+			X509Certificate2 certificate2 = new X509Certificate2(certificate);
 
+			bool valid = CheckPrivateChain(certificate2);
+			if (valid) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. CN = {0}", certificate2);
+			}
+			else {
+				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
+			}
+			return valid;
+		}
 
 	}
 

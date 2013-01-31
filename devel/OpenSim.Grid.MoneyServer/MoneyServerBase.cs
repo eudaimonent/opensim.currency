@@ -35,7 +35,7 @@ using System.Reflection;
 using System.Timers;
 //using System.Security.Authentication;
 //using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
+//using System.Security.Cryptography.X509Certificates;
 
 using HttpServer;
 using Nini.Config;
@@ -61,10 +61,10 @@ namespace OpenSim.Grid.MoneyServer
 		private uint m_moneyServerPort = 8008;
 		private string m_hostName = "localhost";
 
-		private string m_certFilename	  = "";
-		private string m_certPassword	  = "";
-		private bool   m_checkClientCert  = false;
-		private X509Certificate2 m_cacert = null;
+		private string m_certFilename	 = "";
+		private string m_certPassword	 = "";
+		private string m_cacertFilename  = "";
+		private bool   m_checkClientCert = false;
 
 		private int DEAD_TIME;
 		private int MAX_DB_CONNECTION;
@@ -139,9 +139,9 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			//
 			catch (Exception e) {
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Fail to start HTTPS process");
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
                 Environment.Exit(1);
 			}
 
@@ -178,19 +178,24 @@ namespace OpenSim.Grid.MoneyServer
 				DEAD_TIME  = m_config.GetInt   ("ExpiredTime", 120);
 				m_hostName = m_config.GetString("HostName", "localhost");	// be not used
 
-				string checkcert = m_config.GetString("CheckClientCert", "false");
-				if (checkcert.ToLower()=="true") m_checkClientCert = true;
-
 				m_certFilename = m_config.GetString("ServerCertFilename", "");
 				m_certPassword = m_config.GetString("ServerCertPassword", "");
 
-				string cacertfile = m_config.GetString("CACertFilename", "");
-				if (cacertfile!="") m_cacert = new X509Certificate2(cacertfile);
+				string checkcert = m_config.GetString("CheckClientCert", "false");
+				if (checkcert.ToLower()=="true") m_checkClientCert = true;
+
+				m_cacertFilename = m_config.GetString("CACertFilename", "");
+				if (m_cacertFilename!="") {
+					NSLCertVerify.SetPrivateCA(m_cacertFilename);
+				}
+				else {
+					m_checkClientCert = false;
+				}
 			}
 			//
 			catch (Exception)
 			{
-				m_log.Error("[MONEY SERVER] ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
+				m_log.Error("[MONEY SERVER]: ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
 				Environment.Exit(1);
 			}
 		}

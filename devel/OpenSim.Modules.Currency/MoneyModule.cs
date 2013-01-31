@@ -232,7 +232,7 @@ namespace OpenSim.Modules.Currency
 				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
 				if (m_cacertFilename!="")
 				{
-					NSLCertVerify.setCA(m_cacertFilename);
+					NSLCertVerify.SetPrivateCA(m_cacertFilename);
 				}
 
 
