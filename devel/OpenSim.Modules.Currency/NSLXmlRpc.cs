@@ -70,12 +70,9 @@ namespace NSL.Network.XmlRpc
 			request.Timeout = timeout;
 			//request.KeepAlive = false;
 
-			if (cert!=null) {
-				m_log.InfoFormat("[MONEY NSL RPC] Client Cert");
-				request.ClientCertificates.Add(cert); 			// 自身の証明書
-			}
-			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 			request.UserAgent = "DTL/NSL Money Module";
+			if (cert!=null) request.ClientCertificates.Add(cert); 			// 自身の証明書
+			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 
 			//
 			Stream stream = request.GetRequestStream();

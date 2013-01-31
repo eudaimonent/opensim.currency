@@ -35,7 +35,7 @@ using System.Reflection;
 using System.Timers;
 //using System.Security.Authentication;
 //using System.Security.Cryptography;
-//using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.X509Certificates;
 
 using HttpServer;
 using Nini.Config;
@@ -48,7 +48,7 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
 
 using NSL.Certificate.Tools;
-//using NSL.Network.HttpServer;
+
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -61,10 +61,10 @@ namespace OpenSim.Grid.MoneyServer
 		private uint m_moneyServerPort = 8008;
 		private string m_hostName = "localhost";
 
-		private string m_certFilename	 = "";
-		private string m_certPassword	 = "";
-		private bool   m_checkClientCert = false;
-		//private X509Certificate2 m_cert  = null;
+		private string m_certFilename	  = "";
+		private string m_certPassword	  = "";
+		private bool   m_checkClientCert  = false;
+		private X509Certificate2 m_cacert = null;
 
 		private int DEAD_TIME;
 		private int MAX_DB_CONNECTION;
@@ -123,13 +123,13 @@ namespace OpenSim.Grid.MoneyServer
 			ReadIniConfig();
 
 			try {
-				if (m_certFilename!="")
-				{
-					//HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+				if (m_certFilename!="") {
+					if (m_checkClientCert) {
+						HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateClientCertificate;
+					}
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
-				else
-				{
+				else {
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
@@ -137,15 +137,13 @@ namespace OpenSim.Grid.MoneyServer
 				m_httpServer.Start();
 				base.StartupSpecific();
 			}
-			catch (Exception e)
-			{
+			//
+			catch (Exception e) {
                 m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
                 m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
                 m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
                 Environment.Exit(1);
 			}
-
-			//
 
 			//TODO : Add some console commands here
 		}
@@ -185,11 +183,11 @@ namespace OpenSim.Grid.MoneyServer
 
 				m_certFilename = m_config.GetString("ServerCertFilename", "");
 				m_certPassword = m_config.GetString("ServerCertPassword", "");
-				//if (m_certFilename!="")
-				//{
-				//	m_cert = new X509Certificate2(m_certFilename, m_certPassword);
-				//}
+
+				string cacertfile = m_config.GetString("CACertFilename", "");
+				if (cacertfile!="") m_cacert = new X509Certificate2(cacertfile);
 			}
+			//
 			catch (Exception)
 			{
 				m_log.Error("[MONEY SERVER] ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
@@ -219,7 +217,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		protected virtual void SetupMoneyServices()
 		{
-			m_log.Info("[DATA]: Connecting to Money Storage Server");
+			m_log.Info("[MONEY SERVER]: Connecting to Money Storage Server");
 			m_moneyDBService = new MoneyDBService();
 			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();

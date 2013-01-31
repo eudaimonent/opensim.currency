@@ -77,17 +77,56 @@ namespace NSL.Certificate.Tools
 
 
 
-/*
-        RemoteCertificateNotAvailable = 1, // 証明書が利用できません。
-        RemoteCertificateNameMismatch = 2, // 証明書名が不一致です。
-        RemoteCertificateChainErrors = 4,  // ChainStatus が空でない配列を返しました。
-*/
+		/*
+		SslPolicyErrors:
+        	RemoteCertificateNotAvailable = 1, // 証明書が利用できません。
+        	RemoteCertificateNameMismatch = 2, // 証明書名が不一致です。
+        	RemoteCertificateChainErrors  = 4, // ChainStatus が空でない配列を返しました。
+		*/
+
+
+		//
+		//
+		//
 		public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			m_log.InfoFormat("[NSL CERT VERIFY] ValidateServerCertificate");
+			//m_log.InfoFormat("[NSL CERT VERIFY] ValidateServerCertificate");
 
 			if (obj is HttpWebRequest) {
-			m_log.InfoFormat("[NSL CERT VERIFY] obj is HttpWebRequest");
+				//
+				HttpWebRequest Request = (HttpWebRequest)obj;
+
+				if (Request.Headers.Get("NoVerifyCert")=="true") {
+					return true;
+				}
+
+				if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+					return false;
+				}
+
+				bool valid = checkCert((X509Certificate2)certificate);
+				return valid;
+			}
+
+			//
+			else if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) { 
+				return false;
+			}
+
+			return true;
+		}
+
+
+
+		//
+		//
+		//
+		public static bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		{
+			m_log.InfoFormat("[NSL CERT VERIFY] ValidateClientCertificate ({0})", sslPolicyErrors);
+
+			if (obj is HttpWebRequest) {
+				m_log.InfoFormat("[NSL CERT VERIFY] obj is HttpWebRequest");
 				//
 				HttpWebRequest Request = (HttpWebRequest)obj;
 
@@ -110,28 +149,14 @@ namespace NSL.Certificate.Tools
 
 			//
 			else if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) { 
-			m_log.InfoFormat("[NSL CERT VERIFY] obj is ?");
 				return false;
 			}
 
 			return true;
 		}
 
+
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
