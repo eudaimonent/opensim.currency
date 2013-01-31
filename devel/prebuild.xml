@@ -143,6 +143,7 @@
       <Reference name="Mono.Addins"/>
       <Reference name="OpenMetaverseTypes"/>
       <Reference name="OpenMetaverse"/>
+      <Reference name="HttpServer_OpenSim"/>
       <Reference name="OpenSim.Region.Framework" />
       <Reference name="OpenSim.Framework"/>
       <Reference name="OpenSim.Framework.Console"/>

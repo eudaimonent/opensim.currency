@@ -37,6 +37,7 @@ using System.Timers;
 //using System.Security.Cryptography;
 //using System.Security.Cryptography.X509Certificates;
 
+using HttpServer;
 using Nini.Config;
 using log4net;
 
@@ -47,7 +48,7 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Data;
 
 using NSL.Certificate.Tools;
-using NSL.Network.HttpServer;
+//using NSL.Network.HttpServer;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -124,11 +125,12 @@ namespace OpenSim.Grid.MoneyServer
 			try {
 				if (m_certFilename!="")
 				{
-					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+					//HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else
 				{
-					m_httpServer = new NSLBaseHttpServer(m_moneyServerPort, false);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();

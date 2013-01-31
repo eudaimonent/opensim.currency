@@ -21,6 +21,8 @@ using log4net;
 
 namespace NSL.Certificate.Tools 
 {
+	//
+	//
 	public static class NSLCertVerify
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -55,6 +57,7 @@ namespace NSL.Certificate.Tools
 
 
 
+		//
 		public static bool checkCert(X509Certificate2 cert)
 		{
 			if (m_chain==null || m_cacert==null) {
@@ -115,6 +118,23 @@ namespace NSL.Certificate.Tools
 		}
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
