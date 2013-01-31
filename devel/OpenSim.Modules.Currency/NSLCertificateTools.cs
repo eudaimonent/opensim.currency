@@ -104,7 +104,7 @@ namespace NSL.Certificate.Tools
 			}
 
 			// ChainErrors 以外は全てエラーとする．
-			if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
 
@@ -124,8 +124,10 @@ namespace NSL.Certificate.Tools
 		//
 		public static bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
+			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate ({0})", sslPolicyErrors);
+
 			// ChainErrors 以外は全てエラーとする．
-			if (sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
 
@@ -133,7 +135,7 @@ namespace NSL.Certificate.Tools
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. CN = {0}", certificate2.GetName());
+				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetName());
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
