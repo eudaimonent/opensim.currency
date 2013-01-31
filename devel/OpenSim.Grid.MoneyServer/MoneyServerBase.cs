@@ -72,7 +72,7 @@ namespace OpenSim.Grid.MoneyServer
 		private MoneyXmlRpcModule m_moneyXmlRpcModule;
 		private MoneyDBService m_moneyDBService;
 
-        private NSLCertVerify m_certVerify;
+        private NSLCertVerify m_certVerify = new NSLCertVerify();	// クライアント認証用
 
 		private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
 		private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
@@ -124,13 +124,9 @@ namespace OpenSim.Grid.MoneyServer
 
 			ReadIniConfig();
 
-            m_certVerify = new NSLCertVerify();
 
 			try {
 				if (m_certFilename!="") {
-                    //if (m_checkClientCert && HttpContextFactory.ClientCertificateValidationCallback!=null) {
-					//	HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateClientCertificate;
-					//}
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else {
@@ -139,13 +135,13 @@ namespace OpenSim.Grid.MoneyServer
 
 				SetupMoneyServices();
 
-                lock (m_certVerify)
-                {
-                    if (m_checkClientCert)
-                    {
+                lock (m_certVerify) {
+                    if (m_checkClientCert) {
+                m_log.ErrorFormat("-----------------------------------------------");
                         HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
                     }
                     m_httpServer.Start();
+ 					HttpContextFactory.ClientCertificateValidationCallback = null;
                 }
                 base.StartupSpecific();
 			}
@@ -202,7 +198,8 @@ namespace OpenSim.Grid.MoneyServer
 
 				m_cacertFilename = m_config.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
-					NSLCertVerify.SetPrivateCA(m_cacertFilename);
+				m_log.ErrorFormat("m_certVerify.SetPrivateCA = {0}", m_cacertFilename);
+            		m_certVerify.SetPrivateCA(m_cacertFilename);
 				}
 				else {
 					m_checkClientCert = false;

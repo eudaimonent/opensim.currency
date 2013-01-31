@@ -28,14 +28,14 @@ namespace NSL.Certificate.Tools
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		private static X509Certificate2 m_cacert = null;
-		private static X509Chain m_chain = null;
-
-        //private static Dictionary<string, string> m_clientDic = new Dictionary<string, string>();
+		private X509Certificate2 m_cacert = null;
+		private X509Chain m_chain = null;
 
 
         public NSLCertVerify()
         {
+			m_cacert = null;
+			m_chain  = null;
         }
 
 
@@ -45,7 +45,7 @@ namespace NSL.Certificate.Tools
         }
 
 
-		public static void SetPrivateCA(string certfile)
+		public void SetPrivateCA(string certfile)
 	  	{
 			m_cacert = new X509Certificate2(certfile);
             m_chain  = new X509Chain();
@@ -74,7 +74,7 @@ namespace NSL.Certificate.Tools
 
 
 		//
-		public static bool CheckPrivateChain(X509Certificate2 cert)
+		public bool CheckPrivateChain(X509Certificate2 cert)
 		{
 			if (m_chain==null || m_cacert==null) {
 				return false;
@@ -105,7 +105,7 @@ namespace NSL.Certificate.Tools
 		//
 		//
 		//
-        public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate ({0})", sslPolicyErrors);
 
@@ -125,7 +125,10 @@ namespace NSL.Certificate.Tools
 			X509Certificate2 certificate2 = new X509Certificate2(certificate);
 
 			bool valid = CheckPrivateChain(certificate2);
-			if (!valid) {
+			if (valid) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Server Certification. {0}", certificate2.GetName());
+			}
+			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Server Certification.");
 			}
 			return valid;
@@ -150,10 +153,6 @@ namespace NSL.Certificate.Tools
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetName());
-                /*
-				lock(m_clientDic) {
-					m_clientDic.Add(certificate2.GetName(), "  ");
-				}*/
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");

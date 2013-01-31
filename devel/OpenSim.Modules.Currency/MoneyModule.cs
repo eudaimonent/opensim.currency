@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -130,6 +131,8 @@ namespace OpenSim.Modules.Currency
 		private string m_settle_url	  	 = "";
 		private string m_settle_message  = "";
 		private bool   m_settle_user  	 = false;
+
+		private NSLCertVerify m_certVerify = new NSLCertVerify();	// サーバ認証用
 
 
 		/// <summary>   
@@ -233,10 +236,12 @@ namespace OpenSim.Modules.Currency
 
 				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
-					NSLCertVerify.SetPrivateCA(m_cacertFilename);
+					m_certVerify.SetPrivateCA(m_cacertFilename);
+					ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 				}
 				else {
 					m_checkServerCert = false;
+					ServicePointManager.ServerCertificateValidationCallback = null;
 				}
 
 

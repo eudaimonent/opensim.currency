@@ -37,7 +37,7 @@ namespace NSL.Network.XmlRpc
 	  		_params = new ArrayList();
 
 			// サーバ認証
-			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+			//ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 	  	}
 
@@ -48,7 +48,7 @@ namespace NSL.Network.XmlRpc
 			_params = parameters;
 
 			// サーバ認証
-			ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
+			//ServicePointManager.ServerCertificateValidationCallback = NSLCertVerify.ValidateServerCertificate;
 			//ServicePointManager.CertificatePolicy = new NSLCertPolicy(); 
 		}
 
@@ -60,8 +60,7 @@ namespace NSL.Network.XmlRpc
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 			if (request==null)
 			{
-				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, 
-								XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
+				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
 			}
 
 			request.Method = "POST";

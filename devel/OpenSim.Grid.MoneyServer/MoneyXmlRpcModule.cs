@@ -31,6 +31,7 @@ using System.Text;
 using System.Reflection;
 using System.Collections;
 using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -70,6 +71,9 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
 		private X509Certificate2 m_cert  = null;
+
+		private NSLCertVerify m_certVerify = new NSLCertVerify();	// サーバ認証用
+
 
 		// Update Balance Messages
 		private string m_BalanceMessageLandSale 	= "Paid the Money L${0} for Land.";
@@ -147,12 +151,13 @@ namespace OpenSim.Grid.MoneyServer
 
 			m_cacertFilename = m_config.GetString("CACertFilename", "");
 			if (m_cacertFilename!="") {
-				NSLCertVerify.SetPrivateCA(m_cacertFilename);
+				m_certVerify.SetPrivateCA(m_cacertFilename);
+				ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 			}
 			else {
 				m_checkServerCert = false;
+				ServicePointManager.ServerCertificateValidationCallback = null;
 			}
-
 
 
 			// Update Balance Messages
