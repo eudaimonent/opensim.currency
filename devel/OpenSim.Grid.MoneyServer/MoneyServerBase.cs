@@ -137,7 +137,6 @@ namespace OpenSim.Grid.MoneyServer
 
                 lock (m_certVerify) {
                     if (m_checkClientCert) {
-                m_log.ErrorFormat("-----------------------------------------------");
                         HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
                     }
                     m_httpServer.Start();
