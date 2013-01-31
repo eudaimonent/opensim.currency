@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+ * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,6 +231,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			m_moneyDBService = new MoneyDBService();
 			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
+
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
 			m_moneyXmlRpcModule.Initialise(m_version, m_config, m_moneyDBService, this);
 			m_moneyXmlRpcModule.PostInitialise();

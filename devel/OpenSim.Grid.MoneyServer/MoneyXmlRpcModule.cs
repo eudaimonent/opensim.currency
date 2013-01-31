@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+ * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -232,6 +232,8 @@ namespace OpenSim.Grid.MoneyServer
 			if (requestData.ContainsKey("userServIP")) 			  userServerIP = (string)requestData["userServIP"];
 			if (requestData.ContainsKey("openSimServIP")) 		  simIP = (string)requestData["openSimServIP"];
 			if (requestData.ContainsKey("userName")) 			  avatarName = (string)requestData["userName"];
+
+			//m_log.InfoFormat("[MONEY RPC]: handleClientLogin: client UUID is {0}", clientUUID);
 
 			if (avatarName=="") {
 				responseData["success"] = false;

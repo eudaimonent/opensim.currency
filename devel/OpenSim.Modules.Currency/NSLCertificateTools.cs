@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Net;
@@ -27,8 +28,10 @@ namespace NSL.Certificate.Tools
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		public static X509Certificate2 m_cacert = null;
-		public static X509Chain m_chain = null;
+		private static X509Certificate2 m_cacert = null;
+		private static X509Chain m_chain = null;
+
+        private static Dictionary<string, string> m_clientDic = new Dictionary<string, string>();
 
 
 		public static void SetPrivateCA(string certfile)
@@ -136,6 +139,14 @@ namespace NSL.Certificate.Tools
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetName());
+				
+				lock(m_clientDic) {
+
+					m_clientDic.Add(certificate2.GetName(), "  ");
+
+
+
+				}
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
