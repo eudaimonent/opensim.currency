@@ -72,6 +72,8 @@ namespace OpenSim.Grid.MoneyServer
 		private MoneyXmlRpcModule m_moneyXmlRpcModule;
 		private MoneyDBService m_moneyDBService;
 
+        private NSLCertPolicy m_certVerify;
+
 		private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
 		private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
 		private Dictionary<string, string> m_webSessionDic = new Dictionary<string, string>();
@@ -122,20 +124,30 @@ namespace OpenSim.Grid.MoneyServer
 
 			ReadIniConfig();
 
+            m_certVerify = new NSLCertVerify();
+
 			try {
 				if (m_certFilename!="") {
-					if (m_checkClientCert) {
-						HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateClientCertificate;
-					}
+                    //if (m_checkClientCert && HttpContextFactory.ClientCertificateValidationCallback!=null) {
+					//	HttpContextFactory.ClientCertificateValidationCallback = NSLCertVerify.ValidateClientCertificate;
+					//}
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 				}
 				else {
-					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
+                    m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
-				m_httpServer.Start();
-				base.StartupSpecific();
+
+                lock (m_certVerify)
+                {
+                    if (m_checkClientCert)
+                    {
+                        HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
+                    }
+                    m_httpServer.Start();
+                }
+                base.StartupSpecific();
 			}
 			//
 			catch (Exception e) {

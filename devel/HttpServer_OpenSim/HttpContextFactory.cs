@@ -20,7 +20,8 @@ namespace HttpServer
         private readonly ILogWriter _logWriter;
 
         // by Fumi.Iseki
-        public static RemoteCertificateValidationCallback ClientCertificateValidationCallback = null;
+        public  static RemoteCertificateValidationCallback ClientCertificateValidationCallback = null;
+        private RemoteCertificateValidationCallback _clientCallback = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpContextFactory"/> class.
@@ -33,6 +34,9 @@ namespace HttpServer
             _logWriter = writer;
             _bufferSize = bufferSize;
             _factory = factory;
+
+            // by Fumi.Iseki
+            _clientCallback = new RemoteCertificateValidationCallback(ClientCertificateValidationCallback);
         }
 
         ///<summary>
@@ -129,9 +133,8 @@ namespace HttpServer
         {
 			var networkStream = new ReusableSocketNetworkStream(socket, true);
             var remoteEndPoint = (IPEndPoint) socket.RemoteEndPoint;
-       
-            //var sslStream = new SslStream(networkStream, false);
-            var sslStream = new SslStream(networkStream, false, ClientCertificateValidationCallback);  // by Fumi.Iseki
+
+            var sslStream = new SslStream(networkStream, false, _clientCallback);   // by Fumi.Iseki
             try
             {
                 //TODO: this may fail

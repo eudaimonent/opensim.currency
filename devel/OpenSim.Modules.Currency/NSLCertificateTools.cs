@@ -24,14 +24,25 @@ namespace NSL.Certificate.Tools
 {
 	//
 	//
-	public static class NSLCertVerify
+	public class NSLCertVerify
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private static X509Certificate2 m_cacert = null;
 		private static X509Chain m_chain = null;
 
-        private static Dictionary<string, string> m_clientDic = new Dictionary<string, string>();
+        //private static Dictionary<string, string> m_clientDic = new Dictionary<string, string>();
+
+
+        public NSLCertVerify()
+        {
+        }
+
+
+        public NSLCertVerify(string certfile)
+        {
+            SetPrivateCA(certfile);
+        }
 
 
 		public static void SetPrivateCA(string certfile)
@@ -94,7 +105,7 @@ namespace NSL.Certificate.Tools
 		//
 		//
 		//
-		public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public static bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate ({0})", sslPolicyErrors);
 
@@ -125,7 +136,7 @@ namespace NSL.Certificate.Tools
 		//
 		//
 		//
-		public static bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		public bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate ({0})", sslPolicyErrors);
 
@@ -139,14 +150,10 @@ namespace NSL.Certificate.Tools
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetName());
-				
+                /*
 				lock(m_clientDic) {
-
 					m_clientDic.Add(certificate2.GetName(), "  ");
-
-
-
-				}
+				}*/
 			}
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
