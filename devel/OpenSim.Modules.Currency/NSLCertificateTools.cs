@@ -57,7 +57,7 @@ namespace NSL.Certificate.Tools
 
 
 /*
-		public static void SetPrivateCA(string pfxfile, string passwd)
+		public void SetPrivateCA(string pfxfile, string passwd)
 	  	{
 			X509Certificate2 cert = new X509Certificate2(pfxfile, passwd);
 			byte[] bytes = cert.Export(X509ContentType.Cert, passwd);
@@ -112,12 +112,13 @@ namespace NSL.Certificate.Tools
 			if (obj is HttpWebRequest) {
 				//
 				HttpWebRequest Request = (HttpWebRequest)obj;
-				if (Request.Headers.Get("NoVerifyCert")=="true") {
+				string noVerify = Request.Headers.Get("NoVerifyCert");
+				if (noVerify!=null && noVerify.ToLower()=="true") {
 					return true;
 				}
 			}
 
-			// ChainErrors 以外は全てエラーとする．
+			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
@@ -143,7 +144,7 @@ namespace NSL.Certificate.Tools
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate ({0})", sslPolicyErrors);
 
-			// ChainErrors 以外は全てエラーとする．
+			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
 				return false;
 			}
