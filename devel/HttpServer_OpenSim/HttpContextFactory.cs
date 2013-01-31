@@ -36,7 +36,10 @@ namespace HttpServer
             _factory = factory;
 
             // by Fumi.Iseki
-            _clientCallback = new RemoteCertificateValidationCallback(ClientCertificateValidationCallback);
+            if (ClientCertificateValidationCallback != null)
+            {
+                _clientCallback = new RemoteCertificateValidationCallback(ClientCertificateValidationCallback);
+            }
         }
 
         ///<summary>
