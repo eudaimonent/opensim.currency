@@ -141,7 +141,7 @@ namespace HttpServer
             try
             {
                 //TODO: this may fail
-                if (ClientCertificateValidationCallback == null)    // by Fumi.Iseki
+                if (_clientCallback == null)    // by Fumi.Iseki
                 {
                     sslStream.AuthenticateAsServer(certificate, false, protocol, false);
                 }
