@@ -46,6 +46,7 @@ using OpenSim.Data.MySQL.MySQLMoneyDataWrapper;
 using OpenSim.Modules.Currency;
 
 using NSL.Network.XmlRpc;
+using NSL.Certificate.Tools;
 
 
 namespace OpenSim.Grid.MoneyServer
@@ -54,18 +55,20 @@ namespace OpenSim.Grid.MoneyServer
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		private int    m_defaultBalance  = 0;
+		private int	m_defaultBalance  = 0;
 		//
 		private bool   m_forceTransfer   = false;
-		private string m_bankerAvatar    = "";
+		private string m_bankerAvatar	= "";
 
 		private bool   m_scriptSendMoney = false;
 		private string m_scriptAccessKey = "";
 		private string m_scriptIPaddress = "127.0.0.1";
 
-		private bool   m_checkClientCert = false;
-		private string m_certFilename    = "";
-		private string m_certPassword    = "";
+		private bool   m_checkServerCert = false;
+		private string m_cacertFilename  = "";
+
+		private string m_certFilename	 = "";
+		private string m_certPassword	 = "";
 		private X509Certificate2 m_cert  = null;
 
 		// Update Balance Messages
@@ -111,7 +114,7 @@ namespace OpenSim.Grid.MoneyServer
 			m_opensimVersion = opensimVersion;
 			m_moneyDBService = moneyDBService;
 			m_moneyCore = moneyCore;
-			m_config = config;
+			m_config = config;		// [MoneyServer] Section
 
 			m_defaultBalance = m_config.GetInt("DefaultBalance", 1000);
 
@@ -129,27 +132,40 @@ namespace OpenSim.Grid.MoneyServer
 			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
 			m_scriptIPaddress = m_config.GetString("MoneyScriptIPaddress", "127.0.0.1");
 
-			string checkcert = m_config.GetString("CheckClientCert", "false");
-			if (checkcert.ToLower()=="true") m_checkClientCert = true;
 
-			m_certFilename = m_config.GetString("ServerCertFilename", "");
-			m_certPassword = m_config.GetString("ServerCertPassword", "");
-			if (m_certFilename!="") 
-			{
+			// クライアント証明書
+			m_certFilename = m_config.GetString("ClientCertFilename", "");
+			m_certPassword = m_config.GetString("ClientCertPassword", "");
+			if (m_certFilename!="") {
 				m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 			}
+
+
+			// サーバ認証
+			string checkcert = m_config.GetString("CheckServerCert", "false");
+			if (checkcert.ToLower()=="true") m_checkServerCert = true;
+
+			m_cacertFilename = m_config.GetString("CACertFilename", "");
+			if (m_cacertFilename!="") {
+				NSLCertVerify.SetPrivateCA(m_cacertFilename);
+			}
+			else {
+				m_checkServerCert = false;
+			}
+
+
 
 			// Update Balance Messages
 			m_BalanceMessageLandSale	 = m_config.GetString("BalanceMessageLandSale", 	m_BalanceMessageLandSale);
 			m_BalanceMessageRcvLandSale	 = m_config.GetString("BalanceMessageRcvLandSale", 	m_BalanceMessageRcvLandSale);
 			m_BalanceMessageSendGift	 = m_config.GetString("BalanceMessageSendGift",		m_BalanceMessageSendGift);
 			m_BalanceMessageReceiveGift  = m_config.GetString("BalanceMessageReceiveGift",	m_BalanceMessageReceiveGift);
-			m_BalanceMessagePayCharge    = m_config.GetString("BalanceMessagePayCharge",	m_BalanceMessagePayCharge);
-			m_BalanceMessageBuyObject    = m_config.GetString("BalanceMessageBuyObject", 	m_BalanceMessageBuyObject); 
-			m_BalanceMessageGetMoney     = m_config.GetString("BalanceMessageGetMoney", 	m_BalanceMessageGetMoney); 
-			m_BalanceMessageBuyMoney     = m_config.GetString("BalanceMessageBuyMoney", 	m_BalanceMessageBuyMoney); 
+			m_BalanceMessagePayCharge	 = m_config.GetString("BalanceMessagePayCharge",	m_BalanceMessagePayCharge);
+			m_BalanceMessageBuyObject	 = m_config.GetString("BalanceMessageBuyObject", 	m_BalanceMessageBuyObject); 
+			m_BalanceMessageGetMoney	 = m_config.GetString("BalanceMessageGetMoney", 	m_BalanceMessageGetMoney); 
+			m_BalanceMessageBuyMoney	 = m_config.GetString("BalanceMessageBuyMoney", 	m_BalanceMessageBuyMoney); 
 			m_BalanceMessageReceiveMoney = m_config.GetString("BalanceMessageReceiveMoney", m_BalanceMessageReceiveMoney);
-			m_BalanceMessageRollBack     = m_config.GetString("BalanceMessageRollBack", 	m_BalanceMessageRollBack);
+			m_BalanceMessageRollBack	 = m_config.GetString("BalanceMessageRollBack", 	m_BalanceMessageRollBack);
 
 			m_sessionDic = m_moneyCore.GetSessionDic();
 			m_secureSessionDic = m_moneyCore.GetSecureSessionDic();
@@ -1178,16 +1194,16 @@ namespace OpenSim.Grid.MoneyServer
 		/// <returns>Hashtable with success=>bool and other values</returns>   
 		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method, string uri)
 		{
-			//m_log.InfoFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest:");
+			m_log.InfoFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest: to {0}", uri);
 
 			if (reqParams.Count<=0 || string.IsNullOrEmpty(method)) return null;
 
-			if (m_checkClientCert)
+			if (m_checkServerCert)
 			{
 				if (!uri.StartsWith("https://")) 
 				{
-					m_log.ErrorFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest: CheckClientCert is true, but protocol is not HTTPS. Please check INI file");
-					return null; 
+					m_log.InfoFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest: CheckClientCert is true, but protocol is not HTTPS. Please check INI file");
+					//return null; 
 				}
 			}
 			else
@@ -1208,7 +1224,7 @@ namespace OpenSim.Grid.MoneyServer
 				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
 				//moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_checkClientCert, MONEYMODULE_REQUEST_TIMEOUT);
+				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{

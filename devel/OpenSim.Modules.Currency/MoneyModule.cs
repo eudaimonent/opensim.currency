@@ -218,21 +218,25 @@ namespace OpenSim.Modules.Currency
 				}
 				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
-				string checkcert = economyConfig.GetString("CheckServerCert", "false");
-				if (checkcert.ToLower()=="true") m_checkServerCert = true;
 
+				// クライアント証明書
 				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
 				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
-				if (m_certFilename!="")
-				{
+				if (m_certFilename!="") {
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 				}
 
-				//
+
+				// サーバ認証
+				string checkcert = economyConfig.GetString("CheckServerCert", "false");
+				if (checkcert.ToLower()=="true") m_checkServerCert = true;
+
 				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
-				if (m_cacertFilename!="")
-				{
+				if (m_cacertFilename!="") {
 					NSLCertVerify.SetPrivateCA(m_cacertFilename);
+				}
+				else {
+					m_checkServerCert = false;
 				}
 
 
@@ -1647,8 +1651,8 @@ namespace OpenSim.Modules.Currency
 			{
 				if (!m_moneyServURL.StartsWith("https://"))
 				{
-					m_log.ErrorFormat("[MONEY]: genericCurrencyXMLRPCRequest: CheckServerCert is true, but protocol is not HTTPS. Please check INI file");
-					return null;
+					m_log.InfoFormat("[MONEY]: genericCurrencyXMLRPCRequest: CheckServerCert is true, but protocol is not HTTPS. Please check INI file");
+					//return null;
 				}
 			}
 			else

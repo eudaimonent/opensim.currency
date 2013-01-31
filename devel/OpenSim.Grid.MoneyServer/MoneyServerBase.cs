@@ -178,9 +178,13 @@ namespace OpenSim.Grid.MoneyServer
 				DEAD_TIME  = m_config.GetInt   ("ExpiredTime", 120);
 				m_hostName = m_config.GetString("HostName", "localhost");	// be not used
 
+
+				// サーバ証明書
 				m_certFilename = m_config.GetString("ServerCertFilename", "");
 				m_certPassword = m_config.GetString("ServerCertPassword", "");
 
+
+				// クライアント認証
 				string checkcert = m_config.GetString("CheckClientCert", "false");
 				if (checkcert.ToLower()=="true") m_checkClientCert = true;
 
@@ -191,6 +195,7 @@ namespace OpenSim.Grid.MoneyServer
 				else {
 					m_checkClientCert = false;
 				}
+
 			}
 			//
 			catch (Exception)
@@ -223,6 +228,7 @@ namespace OpenSim.Grid.MoneyServer
 		protected virtual void SetupMoneyServices()
 		{
 			m_log.Info("[MONEY SERVER]: Connecting to Money Storage Server");
+
 			m_moneyDBService = new MoneyDBService();
 			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
