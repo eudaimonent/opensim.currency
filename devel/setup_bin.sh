@@ -13,7 +13,7 @@ if [ ! -f $OPNSIMPATH/OpenSim.Framework.Servers.HttpServer.dll.orig ]; then
 	cp -f OpenSim/OpenSim.Framework.Servers.HttpServer.dll $OPNSIMPATH
 fi
 
-if [ ! -f $OPNSIMPATH/HttpServer_OpenSim.dll $OPNSIMPATH/HttpServer_OpenSim.dll.orig ]; then
+if [ ! -f $OPNSIMPATH/HttpServer_OpenSim.dll.orig ]; then
 	mv $OPNSIMPATH/HttpServer_OpenSim.dll $OPNSIMPATH/HttpServer_OpenSim.dll.orig
 	cp -f HttpServer_OpenSim/HttpServer_OpenSim.dll $OPNSIMPATH
 fi
