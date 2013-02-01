@@ -359,6 +359,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleTransaction:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData  = new Hashtable();
@@ -499,6 +501,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleForceTransaction:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData  = new Hashtable();
@@ -631,6 +635,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleAddBankerMoney:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData  = new Hashtable();
@@ -747,6 +753,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleSendMoneyBalance(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleSendMoneyBalance:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -876,6 +884,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handlePayMoneyCharge(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handlePayMoneyCharge:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1099,6 +1109,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleGetBalance:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
@@ -1169,6 +1181,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleClientLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleClientLogout:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1360,6 +1374,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleCancelTransfer:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
@@ -1412,6 +1428,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleGetTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleGetTransaction:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData   = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1494,6 +1512,8 @@ namespace OpenSim.Grid.MoneyServer
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleWebLogin:");
 
+			setSSLCommonName(request);
+
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
 			Hashtable responseData = new Hashtable();
@@ -1534,6 +1554,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleWebLogout(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleWebLogout:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1578,6 +1600,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleWebGetBalance(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleWebGetBalance:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1651,6 +1675,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleWebGetTransaction(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleWebGetTransaction:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
@@ -1748,6 +1774,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleWebGetTransactionNum(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleWebGetTransactionNum:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
