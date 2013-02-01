@@ -56,10 +56,10 @@ namespace OpenSim.Grid.MoneyServer
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		private int	m_defaultBalance  = 0;
+		private int	   m_defaultBalance  = 0;
 		//
 		private bool   m_forceTransfer   = false;
-		private string m_bankerAvatar	= "";
+		private string m_bankerAvatar	 = "";
 
 		private bool   m_scriptSendMoney = false;
 		private string m_scriptAccessKey = "";
@@ -71,6 +71,8 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
 		private X509Certificate2 m_cert  = null;
+ 
+		private string m_sslCommonName   = "";
 
 		private NSLCertVerify m_certVerify = new NSLCertVerify();	// サーバ認証用
 
@@ -209,6 +211,25 @@ namespace OpenSim.Grid.MoneyServer
 
 
 
+		private void setSSLCommonName(XmlRpcRequest request)
+		{
+			if (request.Params.Count>4) {
+				m_sslCommonName = (string)request.Params[4];
+			}
+			else {
+				m_sslCommonName = "";
+			}
+		}
+
+
+		public string SSLCommonName
+		{
+			get { return m_sslCommonName;}
+		}
+
+
+
+
 		/// <summary>
 		/// Get the user balance when user entering a parcel.
 		/// </summary>
@@ -217,6 +238,8 @@ namespace OpenSim.Grid.MoneyServer
 		public XmlRpcResponse handleClientLogin(XmlRpcRequest request, IPEndPoint remoteClient)
 		{
 			//m_log.InfoFormat("[MONEY RPC]: handleClientLogin:");
+
+			setSSLCommonName(request);
 
 			Hashtable requestData = (Hashtable)request.Params[0];
 			XmlRpcResponse response = new XmlRpcResponse();
