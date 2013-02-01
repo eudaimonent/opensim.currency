@@ -128,20 +128,17 @@ namespace OpenSim.Grid.MoneyServer
 			try {
 				if (m_certFilename!="") {
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
+					//
+                	if (m_checkClientCert) {
+                		HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
+                	}
 				}
 				else {
                     m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
-
-                lock (m_certVerify) {
-                    if (m_checkClientCert) {
-                        HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
-                    }
-                    m_httpServer.Start();
- 					HttpContextFactory.ClientCertificateValidationCallback = null;
-                }
+                m_httpServer.Start();
                 base.StartupSpecific();
 			}
 			//
@@ -197,7 +194,6 @@ namespace OpenSim.Grid.MoneyServer
 
 				m_cacertFilename = m_config.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
-				m_log.ErrorFormat("m_certVerify.SetPrivateCA = {0}", m_cacertFilename);
             		m_certVerify.SetPrivateCA(m_cacertFilename);
 				}
 				else {
