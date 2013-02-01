@@ -1,4 +1,4 @@
-// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+// * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/ 
 // * See CONTRIBUTORS.TXT for a full list of copyright holders.
 // *
 // * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,7 @@ namespace OpenSim.Modules.Currency
 		private string m_settle_message  = "";
 		private bool   m_settle_user  	 = false;
 
-		private NSLCertVerify m_certVerify = new NSLCertVerify();	// サーバ認証用
+		private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// サーバ認証用
 
 
 		/// <summary>   

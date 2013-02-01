@@ -72,7 +72,7 @@ namespace OpenSim.Grid.MoneyServer
 		private MoneyXmlRpcModule m_moneyXmlRpcModule;
 		private MoneyDBService m_moneyDBService;
 
-        private NSLCertVerify m_certVerify = new NSLCertVerify();	// クライアント認証用
+        private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// クライアント認証用
 
 		private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
 		private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();

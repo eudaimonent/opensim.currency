@@ -16,32 +16,28 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
 using log4net;
-//using Nwc.XmlRpc;
 
 
 
 namespace NSL.Certificate.Tools 
 {
 	//
-	//
-	public class NSLCertVerify
+	public class NSLCertificateVerify
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private X509Certificate2 m_cacert = null;
 		private X509Chain m_chain = null;
 
-        public string clientCName = "";
 
-
-        public NSLCertVerify()
+        public NSLCertificateVerify()
         {
 			m_cacert = null;
 			m_chain  = null;
         }
 
 
-        public NSLCertVerify(string certfile)
+        public NSLCertificateVerify(string certfile)
         {
             SetPrivateCA(certfile);
         }
@@ -74,7 +70,8 @@ namespace NSL.Certificate.Tools
 */
 
 
-
+        //
+        //
 		//
 		public bool CheckPrivateChain(X509Certificate2 cert)
 		{
@@ -103,7 +100,6 @@ namespace NSL.Certificate.Tools
         	RemoteCertificateChainErrors  = 4, // ChainStatus が空でない配列を返しました。
 		*/
 
-
 		//
 		//
 		//
@@ -126,17 +122,17 @@ namespace NSL.Certificate.Tools
 			}
 
 			X509Certificate2 certificate2 = new X509Certificate2(certificate);
-
+            string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
+ 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Valid Server Certification. {0}", certificate2.GetName());
+                m_log.InfoFormat("[NSL CERT VERIFY]: Valid Server Certification for {0}", simplename);
 			}
 			else {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Server Certification.");
+				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Server Certification for {0}", simplename);
 			}
 			return valid;
 		}
-
 
 
 		//
@@ -152,14 +148,14 @@ namespace NSL.Certificate.Tools
 			}
 
 			X509Certificate2 certificate2 = new X509Certificate2(certificate);
+            string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
-                m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification. {0}", certificate2.GetNameInfo(X509NameType.SimpleName, false));
-                clientCName = certificate2.GetNameInfo(X509NameType.SimpleName, false);
-			}
+                m_log.InfoFormat("[NSL CERT VERIFY]: Valid Client Certification for {0}", simplename);
+ 			}
 			else {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification.");
+                m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Client Certification for {0}", simplename);
 			}
 			return valid;
 		}
@@ -168,10 +164,8 @@ namespace NSL.Certificate.Tools
 
 
 
-
-
-
-	public class NSLCertPolicy : ICertificatePolicy
+    //
+    public class NSLCertificatePolicy : ICertificatePolicy
 	{
 //		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
