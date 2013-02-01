@@ -124,7 +124,7 @@ namespace OpenSim.Grid.MoneyServer
 
 			ReadIniConfig();
 
-
+			//
 			try {
                 HttpContextFactory.ClientCertificateValidationCallback = null;
 				//
@@ -145,7 +145,7 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			//
 			catch (Exception e) {
-                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Fail to start HTTPS process");
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Failed to start HTTPS process");
                 m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
                 m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
                 Environment.Exit(1);
