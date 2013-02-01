@@ -38,7 +38,8 @@ namespace HttpServer
             // by Fumi.Iseki
             if (ClientCertificateValidationCallback != null)
             {
-                _clientCallback = new RemoteCertificateValidationCallback(ClientCertificateValidationCallback);
+                _clientCallback = ClientCertificateValidationCallback;
+                ClientCertificateValidationCallback = null;
             }
         }
 
@@ -137,7 +138,8 @@ namespace HttpServer
 			var networkStream = new ReusableSocketNetworkStream(socket, true);
             var remoteEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 
-            var sslStream = new SslStream(networkStream, false, _clientCallback);   // by Fumi.Iseki
+            // by Fumi.Iseki
+            var sslStream = new SslStream(networkStream, false, new RemoteCertificateValidationCallback(_clientCallback));
             try
             {
                 //TODO: this may fail
