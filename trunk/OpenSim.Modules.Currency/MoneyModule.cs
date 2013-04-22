@@ -689,12 +689,22 @@ namespace OpenSim.Modules.Currency
 					if (mod!=null)
 					{
 						UUID receiverId = sceneObj.OwnerID;
+						ulong regionHandle = sceneObj.RegionHandle;
+						bool ret = TransferMoney(remoteClient.AgentId, receiverId, salePrice, 
+													(int)TransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
+						if (ret)
+						{
+							mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice);
+						}
+
+						/*
 						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
 						{
 							ulong regionHandle = sceneObj.RegionHandle;
 							TransferMoney(remoteClient.AgentId, receiverId, salePrice,
 											(int)TransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
 						}
+						*/
 					}
 				}
 				else
