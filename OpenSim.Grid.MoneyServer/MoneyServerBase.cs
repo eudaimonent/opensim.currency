@@ -126,7 +126,8 @@ namespace OpenSim.Grid.MoneyServer
 
 				SetupMoneyServices();
 				m_httpServer.Start();
-				base.StartupSpecific();
+				//
+				base.StartupSpecific();	// OpenSim/Framework/Servers/BaseOpenSimServer.cs 
 			}
 			catch (Exception e)
 			{
@@ -144,6 +145,7 @@ namespace OpenSim.Grid.MoneyServer
 		protected void ReadIniConfig()
 		{
 			MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
+			Config = moneyConfig.m_config;		// for base.StartupSpecific()
 
 			try {
 				// [Startup]
