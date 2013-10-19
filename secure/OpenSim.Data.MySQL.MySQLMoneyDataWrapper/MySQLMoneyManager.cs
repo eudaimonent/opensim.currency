@@ -83,7 +83,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     throw new Exception("Connection error while using connection string ["+connectString+"]", e);
                 }
 
-                m_log.Info("[MYSQL]: Connection established");
+                m_log.Info("[MySQL]: Connection established");
             }
 
             catch(Exception e)
