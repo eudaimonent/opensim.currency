@@ -44,7 +44,7 @@ namespace NSL.XmlRpc
 
 		public XmlRpcResponse certSend(String url, X509Certificate2 cert, bool checkCert, Int32 timeout)
 	  	{
-			m_log.InfoFormat("[MONEY NSL RPC] XmlRpcResponse certSend: connect to {0}", url);
+			m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: connect to {0}", url);
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 

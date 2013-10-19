@@ -131,9 +131,9 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			catch (Exception e)
 			{
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Fail to start HTTPS process");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: Please Check Certificate File or Password. Exit");
-                m_log.ErrorFormat("[MONEY SERVER] StartupSpecific: {0}", e);
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Fail to start HTTPS process");
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
+                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
                 Environment.Exit(1);
 			}
 
@@ -182,7 +182,7 @@ namespace OpenSim.Grid.MoneyServer
 			}
 			catch (Exception)
 			{
-				m_log.Error("[MONEY SERVER] ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
+				m_log.Error("[MONEY SERVER]: ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");
 				Environment.Exit(1);
 			}
 		}
@@ -209,7 +209,7 @@ namespace OpenSim.Grid.MoneyServer
 
 		protected virtual void SetupMoneyServices()
 		{
-			m_log.Info("[DATA]: Connecting to Money Storage Server");
+			m_log.Info("[MONEY SERVER]: Connecting to Money Storage Server");
 			m_moneyDBService = new MoneyDBService();
 			m_moneyDBService.Initialise(connectionString, MAX_DB_CONNECTION);
 			m_moneyXmlRpcModule = new MoneyXmlRpcModule();
