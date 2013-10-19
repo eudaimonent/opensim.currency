@@ -83,7 +83,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     throw new Exception("Connection error while using connection string ["+connectString+"]", e);
                 }
 
-                m_log.Info("[MYSQL]: Connection established");
+                m_log.Info("[MySQL]: Connection established");
             }
 
             catch(Exception e)
@@ -160,7 +160,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             }
             catch (Exception e)
             {
-                m_log.Error("[MYSQL] Error checking or creating tables: " + e.ToString());
+                m_log.Error("[MySQL]: Error checking or creating tables: " + e.ToString());
                 throw new Exception("Error checking or creating tables: " + e.ToString());
             }
 
@@ -301,7 +301,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         /// </summary>
         public void Reconnect()
         {
-            m_log.Info("[Money DB] Reconnecting database");
+            m_log.Info("[Money DB]: Reconnecting database");
             lock (dbcon)
             {
                 try
@@ -309,7 +309,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     dbcon.Close();
                     dbcon = new MySqlConnection(connectString);
                     dbcon.Open();
-					m_log.Info("[Money DB] Reconnected database");
+					m_log.Info("[Money DB]: Reconnected database");
                 }
                 catch (Exception e)
                 {
@@ -413,7 +413,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             }
             catch (Exception e)
             {
-                m_log.Error("[Money DB] withdraw money error " + e.ToString());
+                m_log.Error("[Money DB]: withdraw money error " + e.ToString());
                 return false;
             }
 
@@ -449,7 +449,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             }
             catch (Exception e)
             {
-                m_log.Error("[Money DB] withdraw money error " + e.ToString());
+                m_log.Error("[Money DB]: withdraw money error " + e.ToString());
                 return false;
             }
 
@@ -563,7 +563,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                     catch (Exception e)
                     {
-                        m_log.Error("[MySQL] get transaction from DB failed: " + e.ToString());
+                        m_log.Error("[MySQL]: get transaction from DB failed: " + e.ToString());
                         return false;
                     }
                     if (secureCode == secure)
@@ -602,7 +602,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                     catch (Exception e)
                     {
-                        m_log.Error("[MySQL] Fetching transaction failed: " + e.ToString());
+                        m_log.Error("[MySQL]: Fetching transaction failed: " + e.ToString());
                         return null;
                     }
 
@@ -662,7 +662,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
                         catch (Exception e)
                         {
-                            m_log.Error("[MySQL] Fetching transaction failed: " + e.ToString());
+                            m_log.Error("[MySQL]: Fetching transaction failed: " + e.ToString());
                             return null;
                         }
 
@@ -725,7 +725,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                     catch (Exception e)
                     {
-                        m_log.Error("[MYSQL] Fetching UserInfo failed: " + e.ToString());
+                        m_log.Error("[MySQL]: Fetching UserInfo failed: " + e.ToString());
                         return null;
                     }
                 }
@@ -778,7 +778,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     }
                     catch (Exception e)
                     {
-                        m_log.Error("[MYSQL] Unable to get transaction info: " + e.ToString());
+                        m_log.Error("[MySQL]: Unable to get transaction info: " + e.ToString());
                         return -1;
                     }
                 }
