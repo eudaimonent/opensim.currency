@@ -18,6 +18,7 @@ namespace HttpServer
         private readonly Queue<HttpClientContext> _contextQueue = new Queue<HttpClientContext>();
         private readonly IRequestParserFactory _factory;
         private readonly ILogWriter _logWriter;
+        private readonly ContextTimeoutManager _contextTimeoutManager;
 
         // by Fumi.Iseki
         public  static RemoteCertificateValidationCallback ClientCertificateValidationCallback = null;
@@ -34,6 +35,7 @@ namespace HttpServer
             _logWriter = writer;
             _bufferSize = bufferSize;
             _factory = factory;
+            _contextTimeoutManager = new ContextTimeoutManager(ContextTimeoutManager.MonitorType.Thread);
 
             // by Fumi.Iseki
             if (ClientCertificateValidationCallback != null)
@@ -84,7 +86,9 @@ namespace HttpServer
 			context.IsSecured = isSecured;
 			context.RemotePort = endPoint.Port.ToString();
 			context.RemoteAddress = endPoint.Address.ToString();
-			context.Start();
+			_contextTimeoutManager.StartMonitoringContext(context);
+            context.Start();
+
             return context;
         }
 
@@ -117,6 +121,7 @@ namespace HttpServer
             }
             else
             {
+               
                 imp.Close();
             }
         }
@@ -188,6 +193,14 @@ namespace HttpServer
         }
 
         #endregion
+
+        /// <summary>
+        /// Server is shutting down so shut down the factory
+        /// </summary>
+        public void Shutdown()
+        {
+            _contextTimeoutManager.StopMonitoring();
+        }
     }
 
 	/// <summary>
@@ -351,5 +364,10 @@ namespace HttpServer
         /// A request have been received from one of the contexts.
         /// </summary>
         event EventHandler<RequestEventArgs> RequestReceived;
+
+        /// <summary>
+        /// Server is shutting down so shut down the factory
+        /// </summary>
+        void Shutdown();
     }
 }

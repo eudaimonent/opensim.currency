@@ -6,7 +6,6 @@ using System.Text;
 using HttpServer.Exceptions;
 using HttpServer.Parser;
 
-// by Fumi.Iseki
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
@@ -27,26 +26,11 @@ namespace HttpServer
         private readonly IHttpRequestParser _parser;
         private readonly int _bufferSize;
         private IHttpRequest _currentRequest;
-        private Socket _sock;
+        private readonly Socket _sock;
 
         public bool Available = true;
         private bool _endWhenDone = false;
-        public bool StreamPassedOff = false;
-        public int MonitorStartMS = 0;
-        public int MonitorKeepaliveMS = 0;
-        public bool TriggerKeepalive = false;
-        public int TimeoutFirstLine = 70000; // 70 seconds
-        public int TimeoutRequestReceived = 180000; // 180 seconds
 
-        // The difference between this and request received is on POST more time is needed before we get the full request.
-        public int TimeoutFullRequestProcessed = 1200000; // 20 minutes
-        public int TimeoutKeepAlive = 400000; // 400 seconds before keepalive timeout
-
-        public bool FirstRequestLineReceived;
-        public bool FullRequestReceived;
-        public bool FullRequestProcessed;
-        
-        public bool StopMonitoring;
 		/// <summary>
 		/// This context have been cleaned, which means that it can be reused.
 		/// </summary>
@@ -90,10 +74,10 @@ namespace HttpServer
             _parser.HeaderReceived += OnHeaderReceived;
             _parser.BodyBytesReceived += OnBodyBytesReceived;
             _currentRequest = new HttpRequest();
-            Available = false;
+
             IsSecured = secured;
             _stream = stream;
-            _sock = sock;
+           
             _buffer = new byte[bufferSize];
 
             // by Fumi.Iseki
@@ -146,7 +130,6 @@ namespace HttpServer
             _currentRequest.Method = e.HttpMethod;
             _currentRequest.HttpVersion = e.HttpVersion;
             _currentRequest.UriPath = e.UriPath;
-            FirstRequestLineReceived = true;
         }
 
         /// <summary>
@@ -188,31 +171,17 @@ namespace HttpServer
         {
         	if (Stream == null) 
 				return;
-            if (StreamPassedOff)
-                return;
-            _sock = null;
             
         	Stream.Dispose();
         	Stream = null;
         	_currentRequest.Clear();
         	_bytesLeft = 0;
-            
-            FirstRequestLineReceived = false;
-            FullRequestReceived = false;
-            FullRequestProcessed = false;
-            MonitorStartMS = 0;
-            StopMonitoring = false;
-            MonitorKeepaliveMS = 0;
-            TriggerKeepalive = false;
-
         	Cleaned(this, EventArgs.Empty);
         	_parser.Clear();
         }
 
         public void Close()
         {
-            if (StreamPassedOff)
-                return;
             Cleanup();
             Available = true;
         }
@@ -284,19 +253,6 @@ namespace HttpServer
                 {
                     if (Stream is ReusableSocketNetworkStream)
                         ((NetworkStream)Stream).Flush();
-                    if (_currentRequest.Connection == ConnectionType.Close)
-                        _sock = null;
-                    
-                }
-                if (error == SocketError.TimedOut)
-                {
-                    try
-                    {
-                        if (Stream != null)
-                            Stream.Close();
-                        _sock = null;
-                    }
-                    catch {} // Best Try
                 }
                 //Stream.Close();
                 Disconnected(this, new DisconnectedEventArgs(error));
@@ -311,18 +267,7 @@ namespace HttpServer
         {
             try
             {
-                int bytesRead = 0;
-
-                try
-                {
-                    bytesRead = Stream.EndRead(ar);
-                }
-                catch (NullReferenceException)
-                {
-                    Disconnect(SocketError.ConnectionReset);
-                    return;
-                }
-
+                int bytesRead = Stream.EndRead(ar);
                 if (bytesRead == 0)
                 {
                     Disconnect(SocketError.ConnectionReset);
@@ -370,7 +315,7 @@ namespace HttpServer
 					Buffer.BlockCopy(_buffer, offset, _buffer, 0, _bytesLeft - offset);
 
                 _bytesLeft -= offset;
-                if (Stream != null && Stream.CanRead && !StreamPassedOff)
+				if (Stream != null && Stream.CanRead)
 					Stream.BeginRead(_buffer, _bytesLeft, _buffer.Length - _bytesLeft, OnReceive, null);
 				else
 				{
@@ -429,16 +374,7 @@ namespace HttpServer
 
             _currentRequest.Body.Seek(0, SeekOrigin.Begin);
             RequestReceived(this, new RequestEventArgs(_currentRequest));
-            
-            FullRequestReceived = true;
-
-            if (_currentRequest.Connection == ConnectionType.Close)
-                _sock = null;
-            else
-                TriggerKeepalive = true;
-
-            if (!StreamPassedOff)
-			    _currentRequest.Clear();
+			_currentRequest.Clear();
         }
 
         /// <summary>
@@ -469,9 +405,6 @@ namespace HttpServer
             byte[] buffer = Encoding.ASCII.GetBytes(response);
 
             Send(buffer);
-            if (_currentRequest.Connection == ConnectionType.Close)
-                FullRequestProcessed = true;
-            
         }
 
         /// <summary>
@@ -547,19 +480,6 @@ namespace HttpServer
         /// A request have been received in the context.
         /// </summary>
         public event EventHandler<RequestEventArgs> RequestReceived = delegate{};
-        
-        public HTTPNetworkContext GiveMeTheNetworkStreamIKnowWhatImDoing()
-        {
-            _endWhenDone = true;
-            StreamPassedOff = true;
-            _parser.RequestCompleted -= OnRequestCompleted;
-            _parser.RequestLineReceived -= OnRequestLine;
-            _parser.HeaderReceived -= OnHeaderReceived;
-            _parser.BodyBytesReceived -= OnBodyBytesReceived;
-            _parser.Clear();
-            
-            return new HTTPNetworkContext() { Socket = _sock ,Stream = _stream as NetworkStream};
-        }
 
         public void Dispose()
         {
