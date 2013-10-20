@@ -58,8 +58,8 @@ namespace NSL.Network.XmlRpc
 			request.ContentType = "text/xml";
 			request.AllowWriteStreamBuffering = true;
 			request.Timeout = timeout;
-            request.UserAgent = "NSLXmlRpcRequest";
-            //
+			request.UserAgent = "NSLXmlRpcRequest";
+			//
 			if (clientCert!=null) request.ClientCertificates.Add(clientCert); 	// 自身の証明書
 			if (!checkServerCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 

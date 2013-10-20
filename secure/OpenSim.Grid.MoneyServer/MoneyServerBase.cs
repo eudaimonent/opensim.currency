@@ -72,7 +72,7 @@ namespace OpenSim.Grid.MoneyServer
 		private MoneyXmlRpcModule m_moneyXmlRpcModule;
 		private MoneyDBService m_moneyDBService;
 
-        private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// クライアント認証用
+		private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// クライアント認証用
 
 		private Dictionary<string, string> m_sessionDic = new Dictionary<string, string>();
 		private Dictionary<string, string> m_secureSessionDic = new Dictionary<string, string>();
@@ -126,29 +126,29 @@ namespace OpenSim.Grid.MoneyServer
 
 			//
 			try {
-                HttpContextFactory.ClientCertificateValidationCallback = null;
+				HttpContextFactory.ClientCertificateValidationCallback = null;
 				//
 				if (m_certFilename!="") {
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
 					//
-                	if (m_checkClientCert) {
-                		HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
-                	}
+					if (m_checkClientCert) {
+						HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
+					}
 				}
 				else {
-                    m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
+					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
-                m_httpServer.Start();
-                base.StartupSpecific();
+				m_httpServer.Start();
+				base.StartupSpecific();
 			}
 			//
 			catch (Exception e) {
-                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Failed to start HTTPS process");
-                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
-                m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
-                Environment.Exit(1);
+				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Failed to start HTTPS process");
+				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
+				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
+				Environment.Exit(1);
 			}
 
 			//TODO : Add some console commands here
@@ -196,7 +196,7 @@ namespace OpenSim.Grid.MoneyServer
 
 				m_cacertFilename = m_config.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
-            		m_certVerify.SetPrivateCA(m_cacertFilename);
+					m_certVerify.SetPrivateCA(m_cacertFilename);
 				}
 				else {
 					m_checkClientCert = false;

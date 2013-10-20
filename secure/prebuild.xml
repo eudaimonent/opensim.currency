@@ -50,24 +50,24 @@
       <Reference name="System.Data"/>
       <Reference name="System.Drawing"/>
       <Reference name="System.Runtime.Remoting"/>
-      <Reference name="Axiom.MathLib"/>
-      <Reference name="Nini" />
-      <Reference name="log4net"/>
-      <Reference name="XMLRPC"/>
-      <Reference name="MySql.Data"/>
-      <Reference name="Mono.Addins"/>
-      <Reference name="OpenMetaverseTypes"/>
-      <Reference name="OpenMetaverse"/>
-      <Reference name="OpenSim.Region.Framework" />
-      <Reference name="OpenSim.Framework"/>
-      <Reference name="OpenSim.Framework.Console"/>
-      <Reference name="OpenSim.Framework.Servers"/>
-      <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-      <Reference name="OpenSim.Framework.Communications"/>
-      <Reference name="OpenSim.Region.Physics.Manager"/>
-      <Reference name="OpenSim.Services.Interfaces"/>
-      <Reference name="OpenSim.Server.Base"/>
-      <Reference name="OpenSim.Data" />
+      <Reference name="Axiom.MathLib.dll" path="../../bin/"/>
+      <Reference name="Nini.dll" path="../../bin/"/>
+      <Reference name="log4net.dll" path="../../bin/"/>
+      <Reference name="XMLRPC.dll" path="../../bin/"/>
+      <Reference name="MySql.Data" path="../../bin/"/>
+      <Reference name="Mono.Addins.dll" path="../../bin/"/>
+      <Reference name="OpenMetaverseTypes.dll" path="../../bin/"/>
+      <Reference name="OpenMetaverse.dll" path="../../bin/"/>
+      <Reference name="OpenSim.Region.Framework" path="../../bin/"/>
+      <Reference name="OpenSim.Framework" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Console" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Servers" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Servers.HttpServer" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Communications" path="../../bin/"/>
+      <Reference name="OpenSim.Region.Physics.Manager" path="../../bin/"/>
+      <Reference name="OpenSim.Services.Interfaces" path="../../bin/"/>
+      <Reference name="OpenSim.Server.Base" path="../../bin/"/>
+      <Reference name="OpenSim.Data" path="../../bin/"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
       </Files>
@@ -91,26 +91,24 @@
       <Reference name="System.Xml"/>
       <Reference name="System.Drawing"/>
       <Reference name="System.Runtime.Remoting"/>
-      <Reference name="Axiom.MathLib"/>
-      <Reference name="Nini" />
-      <Reference name="log4net"/>
-      <Reference name="XMLRPC"/>
-      <Reference name="Mono.Addins"/>
-      <Reference name="OpenMetaverse"/>
-      <Reference name="OpenMetaverseTypes"/>
-      <Reference name="OpenMetaverse.StructuredData"/>
-      <Reference name="HttpServer_OpenSim"/>
-      <Reference name="OpenSim.Region.Framework" />
-      <Reference name="OpenSim.Framework"/>
-      <Reference name="OpenSim.Framework.Console"/>
-      <Reference name="OpenSim.Framework.Servers"/>
-      <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-      <Reference name="OpenSim.Framework.Monitoring"/>
-      <Reference name="OpenSim.Framework.Communications"/>
-      <Reference name="OpenSim.Region.Physics.Manager"/>
-      <Reference name="OpenSim.Services.Interfaces"/>
-      <Reference name="OpenSim.Server.Base"/>
-      <Reference name="OpenSim.Data"/>
+      <Reference name="Axiom.MathLib.dll" path="../../bin/"/>
+      <Reference name="Nini.dll" path="../../bin"/>
+      <Reference name="log4net.dll" path="../../bin"/>
+      <Reference name="XMLRPC.dll" path="../../bin"/>
+      <Reference name="Mono.Addins.dll" path="../../bin"/>
+      <Reference name="OpenMetaverseTypes.dll" path="../../bin"/>
+      <Reference name="OpenMetaverse.dll" path="../../bin"/>
+      <Reference name="HttpServer_OpenSim.dll" path="../../bin"/>
+      <Reference name="OpenSim.Region.Framework" path="../../bin"/>
+      <Reference name="OpenSim.Framework" path="../../bin"/>
+      <Reference name="OpenSim.Framework.Console" path="../../bin"/>
+      <Reference name="OpenSim.Framework.Servers" path="../../bin"/>
+      <Reference name="OpenSim.Framework.Servers.HttpServer" path="../../bin"/>
+      <Reference name="OpenSim.Framework.Communications" path="../../bin"/>
+      <Reference name="OpenSim.Region.Physics.Manager" path="../../bin"/>
+      <Reference name="OpenSim.Services.Interfaces" path="../../bin"/>
+      <Reference name="OpenSim.Server.Base" path="../../bin"/>
+      <Reference name="OpenSim.Data" path="../../bin"/>
       <Files>
         <Match pattern="*.cs" recurse="true"/>
       </Files>
@@ -135,25 +133,25 @@
       <Reference name="System.Data"/>
       <Reference name="System.Drawing"/>
       <Reference name="System.Runtime.Remoting"/>
-      <Reference name="Axiom.MathLib"/>
-      <Reference name="Nini" />
-      <Reference name="log4net"/>
-      <Reference name="XMLRPC"/>
-      <Reference name="MySql.Data"/>
-      <Reference name="Mono.Addins"/>
-      <Reference name="OpenMetaverseTypes"/>
-      <Reference name="OpenMetaverse"/>
-      <Reference name="HttpServer_OpenSim"/>
-      <Reference name="OpenSim.Region.Framework" />
-      <Reference name="OpenSim.Framework"/>
-      <Reference name="OpenSim.Framework.Console"/>
-      <Reference name="OpenSim.Framework.Servers"/>
-      <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-      <Reference name="OpenSim.Framework.Communications"/>
-      <Reference name="OpenSim.Region.Physics.Manager"/>
-      <Reference name="OpenSim.Services.Interfaces"/>
-      <Reference name="OpenSim.Server.Base"/>
-      <Reference name="OpenSim.Data" />
+      <Reference name="Axiom.MathLib.dll" path="../../bin/"/>
+      <Reference name="Nini.dll" path="../../bin/"/>
+      <Reference name="log4net.dll" path="../../bin/"/>
+      <Reference name="XMLRPC.dll" path="../../bin/"/>
+      <Reference name="MySql.Data" path="../../bin/"/>
+      <Reference name="Mono.Addins.dll" path="../../bin/"/>
+      <Reference name="OpenMetaverseTypes.dll" path="../../bin/"/>
+      <Reference name="OpenMetaverse.dll" path="../../bin/"/>
+      <Reference name="HttpServer_OpenSim.dll" path="../../bin"/>
+      <Reference name="OpenSim.Region.Framework" path="../../bin/"/>
+      <Reference name="OpenSim.Framework" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Console" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Servers" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Servers.HttpServer" path="../../bin/"/>
+      <Reference name="OpenSim.Framework.Communications" path="../../bin/"/>
+      <Reference name="OpenSim.Region.Physics.Manager" path="../../bin/"/>
+      <Reference name="OpenSim.Services.Interfaces" path="../../bin/"/>
+      <Reference name="OpenSim.Server.Base" path="../../bin/"/>
+      <Reference name="OpenSim.Data" path="../../bin/"/>
       <Reference name="OpenSim.Data.MySQL.MySQLMoneyDataWrapper" path="../bin/"/>
       <Reference name="OpenSim.Modules.Currency" path="../bin/"/>
       <Files>
