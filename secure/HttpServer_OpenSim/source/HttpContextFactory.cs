@@ -144,16 +144,18 @@ namespace HttpServer
             var remoteEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 
             // by Fumi.Iseki
-            var sslStream = new SslStream(networkStream, false, new RemoteCertificateValidationCallback(_clientCallback));
+            SslStream sslStream = null;
             try
             {
                 //TODO: this may fail
                 if (_clientCallback == null)    // by Fumi.Iseki
                 {
+                    sslStream = new SslStream(networkStream, false);
                     sslStream.AuthenticateAsServer(certificate, false, protocol, false);
                 }
                 else
                 {
+                    sslStream = new SslStream(networkStream, false, new RemoteCertificateValidationCallback(_clientCallback));
                     sslStream.AuthenticateAsServer(certificate, true, protocol, false);
                 }
                 return CreateContext(true, remoteEndPoint, sslStream, socket);
