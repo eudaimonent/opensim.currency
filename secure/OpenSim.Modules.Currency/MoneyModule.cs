@@ -282,6 +282,7 @@ namespace OpenSim.Modules.Currency
 				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
 				if (m_certFilename!="") {
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+					m_log.InfoFormat("[MONEY]: Loaded Client Cert File " + m_certFilename);
 				}
 
 
@@ -293,6 +294,7 @@ namespace OpenSim.Modules.Currency
 				if (m_cacertFilename!="") {
 					m_certVerify.SetPrivateCA(m_cacertFilename);
 					ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
+					m_log.InfoFormat("[MONEY]: Loaded CA Cert File " + m_cacertFilename);
 				}
 				else {
 					m_checkServerCert = false;
