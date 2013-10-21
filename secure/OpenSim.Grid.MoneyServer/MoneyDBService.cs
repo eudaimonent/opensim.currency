@@ -67,10 +67,10 @@ namespace OpenSim.Grid.MoneyServer
             if (connectionString != string.Empty)
             {
                 m_moneyManager = new MySQLMoneyManager(connectionString);
-                m_log.Info("Creating " + m_maxConnections + " DB connections...");
+                //m_log.Info("Creating " + m_maxConnections + " DB connections...");
                 for (int i = 0; i < m_maxConnections; i++)
                 {
-                    m_log.Info("Connecting to DB... [" + i + "]");
+                    //m_log.Info("Connecting to DB... [" + i + "]");
                     MySQLSuperManager msm = new MySQLSuperManager();
                     msm.Manager = new MySQLMoneyManager(connectionString);
                     m_dbconnections.Add(i, msm);

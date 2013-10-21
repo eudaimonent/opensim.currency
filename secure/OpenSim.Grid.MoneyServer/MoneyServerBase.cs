@@ -185,14 +185,12 @@ namespace OpenSim.Grid.MoneyServer
 				DEAD_TIME  = m_config.GetInt   ("ExpiredTime", 120);
 				m_hostName = m_config.GetString("HostName", "localhost");	// be not used
 
-
 				// サーバ証明書
 				m_certFilename = m_config.GetString("ServerCertFilename", "");
 				m_certPassword = m_config.GetString("ServerCertPassword", "");
 				if (m_certFilename!="") {
 					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute HTTPS comunication. Cert file is " + m_certFilename);
 				}
-
 
 				// クライアント認証
 				string checkcert = m_config.GetString("CheckClientCert", "false");

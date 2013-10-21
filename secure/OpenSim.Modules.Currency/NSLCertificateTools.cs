@@ -140,10 +140,9 @@ namespace NSL.Certificate.Tools
 		// obj is SslStream
 		public bool ValidateClientCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			//m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate ({0})", sslPolicyErrors);
-
 			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Policy Error ({0})", sslPolicyErrors);
 				return false;
 			}
 
