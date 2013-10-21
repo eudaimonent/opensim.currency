@@ -159,6 +159,7 @@ namespace OpenSim.Grid.MoneyServer
 		protected void ReadIniConfig()
 		{
 			MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
+			Config = moneyConfig.m_config;      // for base.StartupSpecific()
 
 			try {
 				// [Startup]
@@ -188,6 +189,9 @@ namespace OpenSim.Grid.MoneyServer
 				// サーバ証明書
 				m_certFilename = m_config.GetString("ServerCertFilename", "");
 				m_certPassword = m_config.GetString("ServerCertPassword", "");
+				if (m_certFilename!="") {
+					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute HTTPS comunication. Cert file is " + m_certFilename);
+				}
 
 
 				// クライアント認証
@@ -201,7 +205,9 @@ namespace OpenSim.Grid.MoneyServer
 				else {
 					m_checkClientCert = false;
 				}
-
+				if (m_checkClientCert) {
+					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute Authentication of Clients. CA file is " + m_cacertFilename);
+				}
 			}
 			//
 			catch (Exception)
