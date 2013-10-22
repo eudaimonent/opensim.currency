@@ -138,14 +138,13 @@ namespace OpenSim.Grid.MoneyServer
 			m_scriptAccessKey = m_config.GetString("MoneyScriptAccessKey", "");
 			m_scriptIPaddress = m_config.GetString("MoneyScriptIPaddress", "127.0.0.1");
 
-
 			// クライアント証明書
 			m_certFilename = m_config.GetString("ClientCertFilename", "");
 			m_certPassword = m_config.GetString("ClientCertPassword", "");
 			if (m_certFilename!="") {
 				m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+				m_log.Info("[MONEY RPC]: Initialise: Issue Authentication of Client. Cert file is " + m_cacertFilename);
 			}
-
 
 			// サーバ認証
 			string checkcert = m_config.GetString("CheckServerCert", "false");
@@ -155,6 +154,7 @@ namespace OpenSim.Grid.MoneyServer
 			if (m_cacertFilename!="") {
 				m_certVerify.SetPrivateCA(m_cacertFilename);
 				ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
+				m_log.Info("[MONEY RPC]: Initialise: Execute Authentication of Server. CA file is " + m_cacertFilename);
 			}
 			else {
 				m_checkServerCert = false;
