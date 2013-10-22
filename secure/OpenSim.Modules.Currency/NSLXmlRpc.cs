@@ -9,6 +9,7 @@ using System.Collections;
 using System.IO;
 using System.Xml;
 using System.Net;
+using System.Net.Security;
 using System.Text;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -43,7 +44,7 @@ namespace NSL.Network.XmlRpc
 		}
 
 
-		public XmlRpcResponse certSend(String url, X509Certificate2 clientCert, bool checkServerCert, Int32 timeout)
+		public XmlRpcResponse certSend(String url, X509Certificate2 clientCert, NSLCertificateVerify certVerify, bool checkServerCert, Int32 timeout)
 	  	{
 			m_log.InfoFormat("[MONEY NSL RPC]: NSLXmlRpcReques: certSend: connect to {0}", url);
 
@@ -61,6 +62,7 @@ namespace NSL.Network.XmlRpc
 			//
 			if (clientCert!=null) request.ClientCertificates.Add(clientCert); 	// 自身の証明書
 			if (!checkServerCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
+			else ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(certVerify.ValidateServerCertificate);
 
 			//
 			Stream stream = request.GetRequestStream();

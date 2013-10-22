@@ -1271,7 +1271,7 @@ namespace OpenSim.Grid.MoneyServer
 				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
 				//moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
+				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_certVerify, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)
 			{
