@@ -125,7 +125,6 @@ namespace NSL.Certificate.Tools
 				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Simple Name is \"{0}\"", simplename);
 				return false;
 			}
-			return true;
 
 			//X509Certificate2 certificate2 = new X509Certificate2(certificate);
             //string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
@@ -137,8 +136,7 @@ namespace NSL.Certificate.Tools
 			else {
 				m_log.InfoFormat("[NSL CERT VERIFY]: Failed to Verify Server Certification for \"{0}\"", simplename);
 			}
-			//return valid;
-			return true;
+			return valid;
 		}
 
 
