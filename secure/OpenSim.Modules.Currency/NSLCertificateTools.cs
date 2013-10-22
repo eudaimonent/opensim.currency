@@ -121,8 +121,8 @@ namespace NSL.Certificate.Tools
 
 			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
-				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Policy Error!", sslPolicyErrors);
 				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Simple Name is \"{0}\"", simplename);
+				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Policy Error!", sslPolicyErrors);
 				return false;
 			}
 
@@ -147,14 +147,18 @@ namespace NSL.Certificate.Tools
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Policy is ({0})", sslPolicyErrors);
 
+			X509Certificate2 certificate2 = new X509Certificate2(certificate);
+            string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
+
 			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Simple Name is \"{0}\"", simplename);
 				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Policy Error!");
 				return false;
 			}
 
-			X509Certificate2 certificate2 = new X509Certificate2(certificate);
-            string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
+			//X509Certificate2 certificate2 = new X509Certificate2(certificate);
+            //string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
