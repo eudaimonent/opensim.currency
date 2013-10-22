@@ -19,7 +19,6 @@ using Nwc.XmlRpc;
 using NSL.Certificate.Tools;
 
 
-
 namespace NSL.Network.XmlRpc 
 {
 	public class NSLXmlRpcRequest : XmlRpcRequest
@@ -46,7 +45,7 @@ namespace NSL.Network.XmlRpc
 
 		public XmlRpcResponse certSend(String url, X509Certificate2 clientCert, bool checkServerCert, Int32 timeout)
 	  	{
-			//m_log.InfoFormat("[MONEY NSL RPC]: NSLXmlRpcReques: certSend: connect to {0}", url);
+			m_log.InfoFormat("[MONEY NSL RPC]: NSLXmlRpcReques: certSend: connect to {0}", url);
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 			if (request==null)

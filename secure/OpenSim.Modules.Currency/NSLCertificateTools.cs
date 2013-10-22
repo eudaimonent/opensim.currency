@@ -105,7 +105,7 @@ namespace NSL.Certificate.Tools
 		//
         public bool ValidateServerCertificate(object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			//m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate ({0})", sslPolicyErrors);
+			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Policy is ({0})", sslPolicyErrors);
 
 			if (obj is HttpWebRequest) {
 				//
@@ -118,6 +118,7 @@ namespace NSL.Certificate.Tools
 
 			// None, ChainErrors 以外は全てエラーとする．
 			if (sslPolicyErrors!=SslPolicyErrors.None && sslPolicyErrors!=SslPolicyErrors.RemoteCertificateChainErrors) {
+				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateServerCertificate: Policy Error!", sslPolicyErrors);
 				return false;
 			}
 
