@@ -1,4 +1,4 @@
-// * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+// * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
 // * See CONTRIBUTORS.TXT for a full list of copyright holders.
 // *
 // * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Net;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -48,7 +49,8 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-using NSL.XmlRpc;
+using NSL.Certificate.Tools;
+using NSL.Network.XmlRpc;
 
 
 
@@ -93,6 +95,7 @@ namespace OpenSim.Modules.Currency
 		// Stipend Credits
 		StipendPayment  = 10000
 	}
+
 
 /*
 	public enum OpenMetaverse.MoneyTransactionType : int
@@ -171,11 +174,12 @@ namespace OpenSim.Modules.Currency
 
 		private string m_moneyServURL	 = string.Empty;
 		private string m_userServIP		 = string.Empty;
-		public BaseHttpServer HttpServer;
+		public  BaseHttpServer HttpServer;
 
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
 		private bool   m_checkServerCert = false;
+		private string m_cacertFilename	 = "";
 		private X509Certificate2 m_cert	 = null;
 
 		//
@@ -183,6 +187,8 @@ namespace OpenSim.Modules.Currency
 		private string m_settle_url	  	 = "";
 		private string m_settle_message  = "";
 		private bool   m_settle_user  	 = false;
+
+		private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// サーバ認証用
 
 
 		/// <summary>   
@@ -271,15 +277,29 @@ namespace OpenSim.Modules.Currency
 				}
 				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
+				// クライアント証明書
+				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
+				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
+				if (m_certFilename!="") {
+					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+					m_log.InfoFormat("[MONEY]: Issue Authentication of Client. Cert File is " + m_certFilename);
+				}
+
+				// サーバ認証
 				string checkcert = economyConfig.GetString("CheckServerCert", "false");
 				if (checkcert.ToLower()=="true") m_checkServerCert = true;
 
-				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
-				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
-				if (m_certFilename!="" && m_certPassword!="")
-				{
-					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
+				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
+				if (m_cacertFilename!="") {
+					m_certVerify.SetPrivateCA(m_cacertFilename);
+					ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
+					m_log.InfoFormat("[MONEY]: Execute Authentication of Server. CA Cert File is " + m_cacertFilename);
 				}
+				else {
+					m_checkServerCert = false;
+					ServicePointManager.ServerCertificateValidationCallback = null;
+				}
+
 
 				// Settlement
 				m_use_web_settle = economyConfig.GetBoolean("SettlementByWeb", false);
@@ -578,7 +598,7 @@ namespace OpenSim.Modules.Currency
 			IClientAPI client = agent.ControllingClient;
 
 			LoginMoneyServer(client, out balance);
-//			client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance);
+			//client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance);
 			client.SendMoneyBalance(UUID.Zero, true, new byte[0], balance, 0, UUID.Zero, false, UUID.Zero, false, 0, String.Empty);
 
 			client.OnMoneyBalanceRequest 	+= OnMoneyBalanceRequest;
@@ -670,7 +690,7 @@ namespace OpenSim.Modules.Currency
 
 		/**/
 		// for OnValidateLandBuy event
-		//		For Aurora-Sim, OnParcelBuy event function is already defined         
+		//		For Aurora-Sim, OnParcelBuy event function is already defined
 		//		in OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
@@ -755,21 +775,12 @@ namespace OpenSim.Modules.Currency
 					{
 						UUID receiverId = sceneObj.OwnerID;
 						ulong regionHandle = sceneObj.RegionHandle;
-						bool ret = TransferMoney(remoteClient.AgentId, receiverId, salePrice, 
-													(int)MoneyTransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
+						bool ret = TransferMoney(remoteClient.AgentId, receiverId, salePrice,
+												(int)MoneyTransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
 						if (ret)
 						{
 							mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice);
 						}
-
-						/*
-						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
-						{
-							ulong regionHandle = sceneObj.RegionHandle;
-							TransferMoney(remoteClient.AgentId, receiverId, salePrice,
-											(int)MoneyTransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
-						}
-						*/
 					}
 				}
 				else
@@ -958,7 +969,7 @@ namespace OpenSim.Modules.Currency
 								string msg = "";
 								if (requestParam.Contains("Message")) msg = (string)requestParam["Message"];
 								//client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"]);
-								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"], 
+								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"],
 																					0, UUID.Zero, false, UUID.Zero, false, 0, String.Empty);
 								ret = true;
 							}
@@ -1716,8 +1727,8 @@ namespace OpenSim.Modules.Currency
 			{
 				if (!m_moneyServURL.StartsWith("https://"))
 				{
-					m_log.ErrorFormat("[MONEY]: genericCurrencyXMLRPCRequest: CheckServerCert is true, but protocol is not HTTPS. Please check INI file");
-					return null;
+					m_log.InfoFormat("[MONEY]: genericCurrencyXMLRPCRequest: CheckServerCert is true, but protocol is not HTTPS. Please check INI file");
+					//return null;
 				}
 			}
 			else
@@ -1829,7 +1840,7 @@ namespace OpenSim.Modules.Currency
 				Hashtable paramTable = new Hashtable();
 				paramTable["userServIP"]			= m_userServIP;
 				paramTable["clientUUID"]			= client.AgentId.ToString();
-				paramTable["clientSessionID"]	    = client.SessionId.ToString();			
+				paramTable["clientSessionID"]		= client.SessionId.ToString();			
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
 				paramTable["transactionID"]			= transactionID;
 
