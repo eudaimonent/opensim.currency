@@ -31,6 +31,19 @@ if [ ! -f $OPNSIMPATH/MoneyServer.exe.config ]; then
 	cp $CONFIGPATH/MoneyServer.exe.config $OPNSIMPATH
 fi
 
+# Sample Server Cert file 1
 if [ ! -f $OPNSIMPATH/SineWaveCert.pfx ]; then
 	cp $CONFIGPATH/SineWaveCert.pfx $OPNSIMPATH
 fi
+
+# Sample Server Cert file 2 (JOGRID.NET)
+if [ ! -f $OPNSIMPATH/server_cert.p12 ]; then
+	cp $CONFIGPATH/server_cert.p12 $OPNSIMPATH
+fi
+
+# CA Cert file of JOGRID,NET
+if [ ! -f $OPNSIMPATH/cacert.crt ]; then
+	cp $CONFIGPATH/cacert.crt $OPNSIMPATH
+fi
+
+
