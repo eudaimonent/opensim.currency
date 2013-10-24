@@ -1,0 +1,33 @@
+[Economy]
+    ;# {SellEnabled} {} {Enable selling for 0?} {true false} true
+    ; The default economy module only implements just enough to allow free actions (transfer of objects, etc).
+    ; There is no intention to implement anything further in core OpenSimulator.
+    ; This functionality has to be provided by third party modules.
+
+    ;; Enables selling things for $0.  Default is true.
+    SellEnabled = true
+
+    UserServer = "http://jogrid.net:8003"
+    CurrencyServer = "https://jogrid.net:8008/"
+    EconomyModule = DTLNSLMoneyModule
+
+    ;
+    ;ClientCertFilename = "jogrid_region.p12"
+    ;ClientCertPassword = ""
+
+    ;CheckServerCert = true
+    ;CACertFilename  = "jogrid_cacert.crt"
+
+    ;
+    SettlementByWeb   = true
+    SettlementURL     = "http://www.jogrid.net"
+    SettlementMessage = "Goto the settlement of accounts Web page. (Testing now)"
+
+    ;# {PriceUpload} {} {Price for uploading?} {} 0
+    ;; Money Unit fee to upload textures, animations etc.  Default is 0.
+    PriceUpload = 10
+
+    ;# {PriceGroupCreate} {} {Fee for group creation} {} 0
+    ;; Money Unit fee to create groups.  Default is 0.
+    PriceGroupCreate = 10
+
