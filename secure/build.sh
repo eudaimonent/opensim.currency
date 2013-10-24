@@ -11,7 +11,7 @@ rm -f bin/*
 yes | mono ../bin/Prebuild.exe /clean
 
 ./runprebuild.sh
-xbuild
+xbuild || exit 1
 
 echo
 cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll $OPNSIMPATH
