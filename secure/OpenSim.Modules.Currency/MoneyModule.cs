@@ -1,4 +1,4 @@
-// * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/ 
+// * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
 // * See CONTRIBUTORS.TXT for a full list of copyright holders.
 // *
 // * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,8 @@ namespace OpenSim.Modules.Currency
 	}
 
 
-/*	public enum OpenMetaverse.MoneyTransactionType : int
+/*
+	public enum OpenMetaverse.MoneyTransactionType : int
 	{
 		None = 0,
 		FailSimulatorTimeout = 1,
@@ -153,6 +154,7 @@ namespace OpenSim.Modules.Currency
 */
 
 
+
 	// 
 	[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "MoneyModule")]
 	public class MoneyModule : IMoneyModule, ISharedRegionModule
@@ -174,11 +176,10 @@ namespace OpenSim.Modules.Currency
 		private string m_userServIP		 = string.Empty;
 		public  BaseHttpServer HttpServer;
 
-		private bool   m_checkServerCert = false;
-		private string m_cacertFilename	 = "";
-
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
+		private bool   m_checkServerCert = false;
+		private string m_cacertFilename	 = "";
 		private X509Certificate2 m_cert	 = null;
 
 		//
@@ -386,7 +387,7 @@ namespace OpenSim.Modules.Currency
 			scene.EventManager.OnMakeChildAgent		+= MakeChildAgent;
 
 			// for OpenSim
-			scene.EventManager.OnMoneyTransfer	+= MoneyTransferAction;
+			scene.EventManager.OnMoneyTransfer		+= MoneyTransferAction;
 			scene.EventManager.OnValidateLandBuy	+= ValidateLandBuy;
 			scene.EventManager.OnLandBuy 			+= processLandBuy;
 		}
@@ -691,7 +692,7 @@ namespace OpenSim.Modules.Currency
 
 		/**/
 		// for OnValidateLandBuy event
-		//		For Aurora-Sim, OnParcelBuy event function is already defined		 
+		//		For Aurora-Sim, OnParcelBuy event function is already defined
 		//		in OpenSim/Region/CoreModules/World/Land/ParcelManagementModule.cs
 		private void ValidateLandBuy(Object sender, EventManager.LandBuyArgs landBuyEvent)
 		{
@@ -970,7 +971,7 @@ namespace OpenSim.Modules.Currency
 								if (requestParam.Contains("Message")) msg = (string)requestParam["Message"];
 								//client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"]);
 								client.SendMoneyBalance(UUID.Random(), true, Utils.StringToBytes(msg), (int)requestParam["Balance"],
-																				0, UUID.Zero, false, UUID.Zero, false, 0, String.Empty);
+																					0, UUID.Zero, false, UUID.Zero, false, 0, String.Empty);
 								ret = true;
 							}
 						}
