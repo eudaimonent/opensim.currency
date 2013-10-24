@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+ * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without

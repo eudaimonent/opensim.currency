@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+ * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     throw new Exception("Connection error while using connection string ["+connectString+"]", e);
                 }
 
-                m_log.Info("[MySQL]: Connection established");
+                //m_log.Info("[MySQL]: Connection established");
             }
 
             catch(Exception e)
@@ -147,13 +147,16 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                     switch (nVer)
                     {
                         case 2: //Rev.2
-                            UpdateTransactionTable();
-                            break;
-                        case 3://Rev.3
                             UpdateTransactionTable2();
                             break;
-                        case 4://Rev.4
+                        case 3: //Rev.3
                             UpdateTransactionTable3();
+                            break;
+                        case 4: //Rev.4
+                            UpdateTransactionTable4();
+                            break;
+                        case 5: //Rev.5
+                            UpdateTransactionTable5();
                             break;
                     }
                 }
@@ -193,9 +196,10 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             sql += "`time` int(11) NOT NULL,";
             sql += "`secure` varchar(36) NOT NULL,";
             sql += "`status` tinyint(1) NOT NULL,";
+            sql += "`commonName` varchar(128) default NULL,";
             sql += "`description` varchar(255) default NULL,";
             sql += "PRIMARY KEY (`UUID`))";
-            sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.5';";
+            sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.6';";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.ExecuteNonQuery();
         }
@@ -209,7 +213,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             sql += "`avatar` varchar(50) NOT NULL,";
             sql += "`pass` varchar(36) DEFAULT NULL,";
             sql += "PRIMARY KEY(`user`))";
-            sql += "Engine = InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.1';";
+            sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.1';";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.ExecuteNonQuery();
         }
@@ -218,9 +222,9 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
 
         /// <summary>
-        /// update transation table from Rev.2 to the latest version( Rev.5)
+        /// update transaction table from Rev.2 to the latest version(Rev.6)
         /// </summary>
-        private void UpdateTransactionTable()
+        private void UpdateTransactionTable2()
         {
             string sql = string.Empty;
             sql += "BEGIN;";
@@ -228,42 +232,62 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             sql += "ADD(`objectUUID` varchar(36) DEFAULT NULL),";
             sql += "ADD(`secure` varchar(36) NOT NULL),";
             sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-            sql += "COMMENT = 'Rev.5';";
+            sql += "ADD(`commonName` varchar(128) NOT NULL),";
+            sql += "COMMENT = 'Rev.6';";
             sql += "COMMIT;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.ExecuteNonQuery();
         }
 
         /// <summary>
-        /// update transaction table from Rev.3 to the latest version(Rev.5)
-        /// </summary>
-        private void UpdateTransactionTable2()
-        {
-            string sql = string.Empty;
-            sql += "BEGIN;";
-            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-            sql += "ADD(`secure` varchar(36) NOT NULL),";
-            sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-            sql += "COMMENT = 'Rev.5';";
-            sql += "COMMIT;";
-            MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-            cmd.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        ///  update transaction table from Rev.4 to the latest version(Rev.5)
+        /// update transaction table from Rev.3 to the latest version(Rev.6)
         /// </summary>
         private void UpdateTransactionTable3()
         {
             string sql = string.Empty;
             sql += "BEGIN;";
             sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+            sql += "ADD(`secure` varchar(36) NOT NULL),";
             sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-            sql += "COMMENT = 'Rev.5';";
+            sql += "ADD(`commonName` varchar(128) NOT NULL),";
+            sql += "COMMENT = 'Rev.6';";
             sql += "COMMIT;";
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.ExecuteNonQuery();
         }
+
+        /// <summary>
+        /// update transaction table from Rev.4 to the latest version(Rev.6)
+        /// </summary>
+        private void UpdateTransactionTable4()
+        {
+            string sql = string.Empty;
+            sql += "BEGIN;";
+            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+            sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
+            sql += "ADD(`commonName` varchar(128) NOT NULL),";
+            sql += "COMMENT = 'Rev.6';";
+            sql += "COMMIT;";
+            MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+            cmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// update transaction table from Rev.5 to the latest version(Rev.6)
+        /// </summary>
+        private void UpdateTransactionTable5()
+        {
+            string sql = string.Empty;
+            sql += "BEGIN;";
+            sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+            sql += "ADD(`commonName` varchar(128) NOT NULL),";
+            sql += "COMMENT = 'Rev.6';";
+            sql += "COMMIT;";
+            MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+            cmd.ExecuteNonQuery();
+        }
+
+
 
         private Dictionary<string,string> CheckTables()
         {

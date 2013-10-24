@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Contributors, http://www.nsl.tuis.ac.jp/, http://opensimulator.org/
+ * Copyright (c) Contributors, http://opensimulator.org/, http://www.nsl.tuis.ac.jp/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,10 +67,10 @@ namespace OpenSim.Grid.MoneyServer
             if (connectionString != string.Empty)
             {
                 m_moneyManager = new MySQLMoneyManager(connectionString);
-                m_log.Info("Creating " + m_maxConnections + " DB connections...");
+                //m_log.Info("Creating " + m_maxConnections + " DB connections...");
                 for (int i = 0; i < m_maxConnections; i++)
                 {
-                    m_log.Info("Connecting to DB... [" + i + "]");
+                    //m_log.Info("Connecting to DB... [" + i + "]");
                     MySQLSuperManager msm = new MySQLSuperManager();
                     msm.Manager = new MySQLMoneyManager(connectionString);
                     m_dbconnections.Add(i, msm);

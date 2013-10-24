@@ -18,11 +18,11 @@ using Nwc.XmlRpc;
 
 
 
-namespace NSL.XmlRpc 
+namespace NSL.Network.XmlRpc 
 {
 	public class NSLXmlRpcRequest : XmlRpcRequest
 	{
-        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		private Encoding _encoding = new ASCIIEncoding();
 		private XmlRpcRequestSerializer _serializer = new XmlRpcRequestSerializer();
@@ -42,26 +42,24 @@ namespace NSL.XmlRpc
 		}
 
 
-		public XmlRpcResponse certSend(String url, X509Certificate2 cert, bool checkCert, Int32 timeout)
+		public XmlRpcResponse certSend(String url, X509Certificate2 clientCert, bool checkServerCert, Int32 timeout)
 	  	{
 			m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: connect to {0}", url);
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
 			if (request==null)
 			{
-				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, 
-								XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
+				throw new XmlRpcException(XmlRpcErrorCodes.TRANSPORT_ERROR, XmlRpcErrorCodes.TRANSPORT_ERROR_MSG +": Could not create request with " + url);
 			}
 
 			request.Method = "POST";
 			request.ContentType = "text/xml";
 			request.AllowWriteStreamBuffering = true;
 			request.Timeout = timeout;
-			//request.KeepAlive = false;
+			request.UserAgent = "NSLXmlRpcRequest";
 
-			if (cert!=null) request.ClientCertificates.Add(cert); 			// 自身の証明書
-			if (!checkCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
+			if (clientCert!=null) request.ClientCertificates.Add(clientCert);	// 自身の証明書
+			if (!checkServerCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
 
 			Stream stream = request.GetRequestStream();
 			XmlTextWriter xml = new XmlTextWriter(stream, _encoding);
