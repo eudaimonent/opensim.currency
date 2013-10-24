@@ -277,7 +277,6 @@ namespace OpenSim.Modules.Currency
 				}
 				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
-
 				// クライアント証明書
 				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
 				m_certPassword = economyConfig.GetString("ClientCertPassword", "");
@@ -285,7 +284,6 @@ namespace OpenSim.Modules.Currency
 					m_cert = new X509Certificate2(m_certFilename, m_certPassword);
 					m_log.InfoFormat("[MONEY]: Issue Authentication of Client. Cert File is " + m_certFilename);
 				}
-
 
 				// サーバ認証
 				string checkcert = economyConfig.GetString("CheckServerCert", "false");
@@ -776,11 +774,12 @@ namespace OpenSim.Modules.Currency
 					if (mod!=null)
 					{
 						UUID receiverId = sceneObj.OwnerID;
-						if (mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice))
+						ulong regionHandle = sceneObj.RegionHandle;
+						bool ret = TransferMoney(remoteClient.AgentId, receiverId, salePrice,
+												(int)MoneyTransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
+						if (ret)
 						{
-							ulong regionHandle = sceneObj.RegionHandle;
-							TransferMoney(remoteClient.AgentId, receiverId, salePrice,
-											(int)MoneyTransactionType.PayObject, sceneObj.UUID, regionHandle, "Object Buy");
+							mod.BuyObject(remoteClient, categoryID, localID, saleType, salePrice);
 						}
 					}
 				}
@@ -1509,7 +1508,7 @@ namespace OpenSim.Modules.Currency
 				Hashtable paramTable = new Hashtable();
 				paramTable["avatarUserServIP"] = m_userServIP;
 				paramTable["avatarID"] 		   = avatarID.ToString();
-				paramTable["transactionType"]  = (int)TransactionType.ReferBonus;
+				paramTable["transactionType"]  = (int)MoneyTransactionType.ReferBonus;
 				paramTable["amount"] 		   = amount;
 				paramTable["secretAccessCode"] = secretCode;
 				paramTable["description"] 	   = "Bonus to Avatar";
@@ -1748,7 +1747,6 @@ namespace OpenSim.Modules.Currency
 			try
 			{
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				//moneyServResp = moneyModuleReq.certSend(m_moneyServURL, m_cert, m_certVerify, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 				moneyServResp = moneyModuleReq.certSend(m_moneyServURL, m_cert, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)

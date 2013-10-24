@@ -124,28 +124,29 @@ namespace OpenSim.Grid.MoneyServer
 
 			ReadIniConfig();
 
-			//
 			try {
 				HttpContextFactory.ClientCertificateValidationCallback = null;
 				//
-				if (m_certFilename!="") {
+				if (m_certFilename!="")
+				{
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
-					//
 					if (m_checkClientCert) {
 						HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
 					}
 				}
-				else {
+				else
+				{
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, false);
 				}
 
 				SetupMoneyServices();
 				m_httpServer.Start();
-				base.StartupSpecific();
+				base.StartupSpecific();		// OpenSim/Framework/Servers/BaseOpenSimServer.cs 
 			}
-			//
-			catch (Exception e) {
-				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Failed to start HTTPS process");
+
+			catch (Exception e)
+			{
+				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Fail to start HTTPS process");
 				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: Please Check Certificate File or Password. Exit");
 				m_log.ErrorFormat("[MONEY SERVER]: StartupSpecific: {0}", e);
 				Environment.Exit(1);
@@ -159,7 +160,7 @@ namespace OpenSim.Grid.MoneyServer
 		protected void ReadIniConfig()
 		{
 			MoneyServerConfigSource moneyConfig = new MoneyServerConfigSource();
-			Config = moneyConfig.m_config;      // for base.StartupSpecific()
+			Config = moneyConfig.m_config;	// for base.StartupSpecific()
 
 			try {
 				// [Startup]
@@ -207,7 +208,7 @@ namespace OpenSim.Grid.MoneyServer
 					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute Authentication of Clients. CA file is " + m_cacertFilename);
 				}
 			}
-			//
+
 			catch (Exception)
 			{
 				m_log.Error("[MONEY SERVER]: ReadIniConfig: Fail to setup configure. Please check MoneyServer.ini. Exit");

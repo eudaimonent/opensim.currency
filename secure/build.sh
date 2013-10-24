@@ -4,7 +4,7 @@ CONFIGPATH=./config
 OPNSIMPATH=../bin
 
 echo "=========================="
-echo "DTL/NSL_CURRENCY"
+echo "Secure DTL/NSL_CURRENCY"
 echo "=========================="
 
 rm -f bin/*

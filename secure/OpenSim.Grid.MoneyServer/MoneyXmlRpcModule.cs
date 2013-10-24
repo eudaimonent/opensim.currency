@@ -71,10 +71,10 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
 		private X509Certificate2 m_cert  = null;
- 
+
 		private string m_sslCommonName   = "";
 
-		private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();	// サーバ認証用
+		private NSLCertificateVerify m_certVerify = new NSLCertificateVerify();		// サーバ認証用
 
 
 		// Update Balance Messages
@@ -160,7 +160,6 @@ namespace OpenSim.Grid.MoneyServer
 				m_checkServerCert = false;
 				ServicePointManager.ServerCertificateValidationCallback = null;
 			}
-
 
 			// Update Balance Messages
 			m_BalanceMessageLandSale	 = m_config.GetString("BalanceMessageLandSale", 	m_BalanceMessageLandSale);
@@ -1241,7 +1240,7 @@ namespace OpenSim.Grid.MoneyServer
 		/// <returns>Hashtable with success=>bool and other values</returns>   
 		private Hashtable genericCurrencyXMLRPCRequest(Hashtable reqParams, string method, string uri)
 		{
-			m_log.InfoFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest: to {0}", uri);
+			//m_log.InfoFormat("[MONEY RPC]: genericCurrencyXMLRPCRequest: to {0}", uri);
 
 			if (reqParams.Count<=0 || string.IsNullOrEmpty(method)) return null;
 
@@ -1271,7 +1270,6 @@ namespace OpenSim.Grid.MoneyServer
 				//XmlRpcRequest moneyModuleReq = new XmlRpcRequest(method, arrayParams);
 				//moneyServResp = moneyModuleReq.Send(uri, MONEYMODULE_REQUEST_TIMEOUT);
 				NSLXmlRpcRequest moneyModuleReq = new NSLXmlRpcRequest(method, arrayParams);
-				//moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_certVerify, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 				moneyServResp = moneyModuleReq.certSend(uri, m_cert, m_checkServerCert, MONEYMODULE_REQUEST_TIMEOUT);
 			}
 			catch (Exception ex)

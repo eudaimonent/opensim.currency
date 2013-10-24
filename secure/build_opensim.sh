@@ -3,9 +3,9 @@
 CONFIGPATH=./config
 OPNSIMPATH=../bin
 
-echo "==================================="
+echo "======================================"
 echo "OpenSim for Secure DTL/NSL_CURRENCY"
-echo "==================================="
+echo "======================================"
 
 
 if [ ! -f ../bin/HttpServer_OpenSim.dll.orig ]; then
