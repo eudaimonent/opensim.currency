@@ -212,7 +212,8 @@ namespace OpenSim.Grid.MoneyServer
 		//
 		//
 		//
-		private void GetSSLCommonName(XmlRpcRequest request)
+		//private void GetSSLCommonName(XmlRpcRequest request)
+		public string GetSSLCommonName(XmlRpcRequest request)
 		{
 			if (request.Params.Count>4) {
 				m_sslCommonName = (string)request.Params[4];
@@ -220,6 +221,7 @@ namespace OpenSim.Grid.MoneyServer
 			else {
 				m_sslCommonName = "";
 			}
+			return m_sslCommonName;
 		}
 
 
