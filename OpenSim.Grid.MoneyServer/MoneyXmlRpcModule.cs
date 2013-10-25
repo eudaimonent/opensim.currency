@@ -420,6 +420,7 @@ namespace OpenSim.Grid.MoneyServer
 						transaction.Time = time;
 						transaction.SecureCode = UUID.Random().ToString();
 						transaction.Status = (int)Status.PENDING_STATUS;
+						transaction.CommonName  = GetSSLCommonName();
 						transaction.Description = description + " " + DateTime.Now.ToString();
 
 						UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
@@ -563,6 +564,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
+				transaction.CommonName  = GetSSLCommonName();
 				transaction.Description = description + " " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
@@ -696,6 +698,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
+				transaction.CommonName  = GetSSLCommonName();
 				transaction.Description = description + " " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
@@ -827,6 +830,7 @@ namespace OpenSim.Grid.MoneyServer
 				transaction.Time = time;
 				transaction.SecureCode = UUID.Random().ToString();
 				transaction.Status = (int)Status.PENDING_STATUS;
+				transaction.CommonName  = GetSSLCommonName();
 				transaction.Description = description + " " + DateTime.Now.ToString();
 
 				UserInfo rcvr = m_moneyDBService.FetchUserInfo(toID);
@@ -943,6 +947,7 @@ namespace OpenSim.Grid.MoneyServer
 						transaction.Time = time;
 						transaction.SecureCode = UUID.Random().ToString();
 						transaction.Status = (int)Status.PENDING_STATUS;
+						transaction.CommonName  = GetSSLCommonName();
 						transaction.Description = description + " " + DateTime.Now.ToString();
 
 						bool result = m_moneyDBService.addTransaction(transaction);

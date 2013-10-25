@@ -485,8 +485,9 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             bool bRet = false;
             string sql = string.Empty;
             sql += "INSERT INTO " + Table_of_Transaction;
-            sql += " (`UUID`,`sender`,`receiver`,`amount`,`objectUUID`,`regionHandle`,`type`,`time`,`secure`,`status`,`description`) VALUES";
-            sql += " (?transID,?sender,?receiver,?amount,?objID,?regionHandle,?type,?time,?secure,?status,?desc)";
+            sql += " (`UUID`,`sender`,`receiver`,`amount`,`objectUUID`,`regionHandle`,`type`,`time`,`secure`,`status`,`commonName`,`description`) VALUES";
+            sql += " (?transID,?sender,?receiver,?amount,?objID,?regionHandle,?type,?time,?secure,?status,?cname,?desc)";
+
             MySqlCommand cmd = new MySqlCommand(sql, dbcon);
             cmd.Parameters.AddWithValue("?transID", transaction.TransUUID.ToString());
             cmd.Parameters.AddWithValue("?sender", transaction.Sender);
@@ -497,8 +498,10 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             cmd.Parameters.AddWithValue("?type", transaction.Type);
             cmd.Parameters.AddWithValue("?time", transaction.Time);
             cmd.Parameters.AddWithValue("?secure", transaction.SecureCode);
-            cmd.Parameters.AddWithValue("status", transaction.Status);
+            cmd.Parameters.AddWithValue("?status", transaction.Status);
+            cmd.Parameters.AddWithValue("?cname", transaction.CommonName);
             cmd.Parameters.AddWithValue("?desc", transaction.Description);
+
             try
             {
                 if (cmd.ExecuteNonQuery() > 0)
@@ -622,6 +625,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                         transactionData.Type = Convert.ToInt32(r["type"]);
                         transactionData.Time = Convert.ToInt32(r["time"]);
                         transactionData.Status = Convert.ToInt32(r["status"]);
+                        transactionData.CommonName  = (string)r["commonName"];
                         transactionData.Description = (string)r["description"];
                     }
                     catch (Exception e)
@@ -680,6 +684,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
                             transactionData.Type = Convert.ToInt32(r["type"]);
                             transactionData.Time = Convert.ToInt32(r["time"]);
                             transactionData.Status = Convert.ToInt32(r["status"]);
+                            transactionData.CommonName  = (string)r["commonName"];
                             transactionData.Description = (string)r["description"];
                             rows.Add(transactionData);
                         }
