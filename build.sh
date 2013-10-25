@@ -4,14 +4,14 @@ CONFIGPATH=./config
 OPNSIMPATH=../bin
 
 echo "=========================="
-echo "DTL/NSL_CURRENCY"
+echo "Secure DTL/NSL_CURRENCY"
 echo "=========================="
 
 rm -f bin/*
 yes | mono ../bin/Prebuild.exe /clean
 
 ./runprebuild.sh
-xbuild
+xbuild || exit 1
 
 echo
 cp bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll $OPNSIMPATH
@@ -31,6 +31,14 @@ if [ ! -f $OPNSIMPATH/MoneyServer.exe.config ]; then
 	cp $CONFIGPATH/MoneyServer.exe.config $OPNSIMPATH
 fi
 
+# Sample Server Cert file 1 for MoneyServer.exe
 if [ ! -f $OPNSIMPATH/SineWaveCert.pfx ]; then
 	cp $CONFIGPATH/SineWaveCert.pfx $OPNSIMPATH
 fi
+
+# Sample Server Cert file 2 (JOGRID.NET) for MoneyServer.exe. No password
+if [ ! -f $OPNSIMPATH/server_cert.p12 ]; then
+	cp $CONFIGPATH/server_cert.p12 $OPNSIMPATH
+fi
+
+
