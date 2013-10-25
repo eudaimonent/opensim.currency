@@ -1,7 +1,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  OpenSim 0.7.x用 DTL/NSL Money Servefor Linux/Unix
+//  OpenSim DTL/NSL Secure Money Server for Linux/Unix
 //                                                        by Fumi.Iseki and NSL '11 5/7
 //                                                        http://www.nsl.tuis.ac.jp
 
@@ -25,6 +25,11 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
  # cd opensim-0.7.x-source
  # tar xzfv opensim.currency-0.7.x.tar.gz 
+
+ # mv bin/HttpServer_OpenSim.dll HttpServer_OpenSim.dll.orig
+ # cp opensim.currency-0.7.x/HttpServer_OpenSim/bin/HttpServer_OpenSim.dll bin
+ # patch -p1 < opensim.currency-0.7.x/opensim.patch
+
  # ./runprebuild.sh && nant clean && nant
  # cd opensim.currency-0.7.x
  # ./build.sh
