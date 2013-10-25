@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Text;
 using OpenMetaverse;
 
+
 namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 {
     public class TransactionData
@@ -46,6 +47,8 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         string m_objectID = string.Empty;
         string m_regionHandle = string.Empty;
         string m_secureCode = string.Empty;
+        string m_commonName = string.Empty;
+
         //public TransactionData(string uuid, string sender, string receiver,
         //    int amount, int time, int status, string description)
         //{
@@ -109,8 +112,13 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
             get { return m_secureCode; }
             set { m_secureCode = value; }
         }
-
+        public string CommonName
+        {
+            get { return m_commonName; }
+            set { m_commonName = value; }
+        }
     }
+
 
     public enum Status
     { 
