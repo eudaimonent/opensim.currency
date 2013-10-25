@@ -14,6 +14,6 @@ if [ ! -f ../bin/HttpServer_OpenSim.dll.orig ]; then
 fi
 
 cd ..
-patch -p1 < ./opensim.currency.secure/patch/opensim.patch 
+patch -p1 < ./opensim.currency/patch/opensim.patch 
 ./build.sh || exit 1
 
