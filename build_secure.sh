@@ -3,9 +3,9 @@
 CONFIGPATH=./config
 OPNSIMPATH=../bin
 
-echo "======================================"
-echo "OpenSim for Secure DTL/NSL_CURRENCY"
-echo "======================================"
+echo "=============================================="
+echo "Rebuild OpenSim for Secure DTL/NSL_CURRENCY"
+echo "=============================================="
 
 
 if [ ! -f ../bin/HttpServer_OpenSim.dll.orig ]; then
@@ -14,10 +14,6 @@ if [ ! -f ../bin/HttpServer_OpenSim.dll.orig ]; then
 fi
 
 cd ..
-patch -p1 < ./opensim.currency.secure/opensim.patch 
-./build.sh || exit 1
-
-#
-cd ./opensim.currency.secure
+patch -p1 < ./opensim.currency.secure/patch/opensim.patch 
 ./build.sh || exit 1
 

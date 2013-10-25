@@ -3,9 +3,9 @@
 CONFIGPATH=./config
 OPNSIMPATH=../bin
 
-echo "=========================="
-echo "Secure DTL/NSL_CURRENCY"
-echo "=========================="
+echo "==================="
+echo "DTL/NSL_CURRENCY"
+echo "==================="
 
 rm -f bin/*
 yes | mono ../bin/Prebuild.exe /clean
