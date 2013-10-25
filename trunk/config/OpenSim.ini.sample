@@ -12,11 +12,11 @@
     EconomyModule = DTLNSLMoneyModule
 
     ;
-    ClientCertFilename = "jogrid_region.p12"
-    ClientCertPassword = ""
+    ;ClientCertFilename = "jogrid_region.p12"
+    ;ClientCertPassword = ""
 
-    CheckServerCert = true
-    CACertFilename  = "jogrid_cacert.crt"
+    ;CheckServerCert = true
+    ;CACertFilename  = "jogrid_cacert.crt"
 
     ;
     SettlementByWeb   = true
