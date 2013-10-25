@@ -120,18 +120,23 @@ namespace OpenSim.Grid.MoneyServer
 
 		protected override void StartupSpecific()
 		{
-			m_log.Info("[MONEY SERVER]: Starting HTTPS process");
+			m_log.Info("[MONEY SERVER]: Setup HTTP Server process");
 
 			ReadIniConfig();
 
 			try {
-				HttpContextFactory.ClientCertificateValidationCallback = null;
-				//
+				//HttpContextFactory.ClientCertificateValidationCallback = null;
+				Type typeHttpContextFactory = typeof(HttpContextFactory);
+				FieldInfo finfo = typeHttpContextFactory.GetField("ClientCertificateValidationCallback");
+				if (finfo!=null) finfo.SetValue(new HttpContextFactory(null, 0, null), null);
+				
 				if (m_certFilename!="")
 				{
 					m_httpServer = new BaseHttpServer(m_moneyServerPort, true, m_certFilename, m_certPassword);
-					if (m_checkClientCert) {
-						HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
+					if (m_checkClientCert && finfo!=null) {
+						//HttpContextFactory.ClientCertificateValidationCallback = m_certVerify.ValidateClientCertificate;
+						finfo.SetValue(new HttpContextFactory(null, 0, null), (RemoteCertificateValidationCallback)m_certVerify.ValidateClientCertificate);
+						m_log.Info("[MONEY SERVER]: Set RemoteCertificateValidationCallback");
 					}
 				}
 				else
