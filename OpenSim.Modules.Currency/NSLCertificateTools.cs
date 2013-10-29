@@ -25,16 +25,17 @@ namespace NSL.Certificate.Tools
 	{
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-		private X509Certificate2 m_cacert = null;
-		//private X509Certificate m_cacrl  = null;
 		private X509Chain m_chain = null;
+		private X509Certificate2 m_cacert = null;
+
+		private Mono.Security.X509.X509Crl m_clientcrl  = null;
 
 
 		public NSLCertificateVerify()
 		{
-			m_cacert = null;
-			//m_cacrl  = null;
-			m_chain  = null;
+			m_chain  	= null;
+			m_cacert 	= null;
+			m_clientcrl = null;
 		}
 
 
@@ -44,91 +45,45 @@ namespace NSL.Certificate.Tools
 		}
 
 
+		public NSLCertificateVerify(string certfile, string crlfile)
+		{
+			SetPrivateCA (certfile);
+			SetPrivateCRL(crlfile);
+		}
+
+
 		public void SetPrivateCA(string certfile)
 	  	{
-
-			m_cacert = new X509Certificate2(certfile);
-			//m_cacrl  = new X509Certificate(crlfile);
-			m_chain  = new X509Chain();
-
-			m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
-
-			//m_chain.ChainPolicy.ExtraStore.Add(m_cacrl);
-			m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-			//m_chain.ChainPolicy.RevocationMode = X509RevocationMode.Offline;
-			m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
-
-
-			try{
-				//Mono.Security.X509.X509Crl crl = null;
-
-/*
-				X509Store store = new X509Store(crlfile, StoreLocation.CurrentUser);
-				store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-				X509Certificate2Collection collection = (X509Certificate2Collection)store.Certificates;
-*/
-
-				//string crlfile = "/usr/local/opensim_server/bin/cacrl.crt";
-
-				//Mono.Security.X509.X509Crl crl = Mono.Security.X509.X509Crl.CreateFromFile(crlfile);
-				//m_log.InfoFormat("----> {0}", crl.Entries.Count);
-				//m_log.InfoFormat("----> {0}", crl.Item(0));
-
-			//	m_chain.ChainPolicy.ExtraStore.Add(crl);
-			//	IEnumerator myEnumerator = crl.Entries.GetEnumerator(); 
-  			//	while ( myEnumerator.MoveNext() ) 
-    		//			m_log.InfoFormat( " {0}", myEnumerator.Current ); 
-/*
-
-				using (FileStream fs = File.OpenRead(crlfile))
-		 		{
-					byte[] data = new byte[fs.Length];
-					fs.Read(data, 0, data.Length);
-					fs.Close();
-
-					crl = new Mono.Security.X509.X509Crl(data);
-					//
-					//System.Security.Cryptography.AsnEncodedData asndata = new System.Security.Cryptography.AsnEncodedData("CRL", data);
-					//X509Extension extension = new X509Extension("CRL", data, false);
-
-					//m_cacert.Extensions = new X509Extension(new System.Security.Cryptography.AsnEncodedData(data), true);
-				}
-				using (FileStream fs = File.OpenRead(crlfile))
-		 		{
-					byte[] data = new byte[fs.Length];
-					fs.Read(data, 0, data.Length);
-					fs.Close();
-
-					System.Security.Cryptography.AsnEncodedData asndata = new System.Security.Cryptography.AsnEncodedData("", data);
-					//X509Extension extension = new X509Extension("CRL", data, false);
-
-					//m_cacert.Extensions = new X509Extension(new System.Security.Cryptography.AsnEncodedData(data), true);
-				}
-*/
-
+			try {
+				m_cacert = new X509Certificate2(certfile);
 			}
 			catch (Exception ex)
 			{
-				m_log.ErrorFormat("ERROR: {0}", ex);
+				m_cacert = null;
+				m_log.ErrorFormat("[SET PRIVATE CA]: CA File reading error [{0}]. {1}", certfile, ex);
+			}
 
+			if (m_cacert!=null) {
+				m_chain = new X509Chain();
+				m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
+				m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+				m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
 			}
 	  	}
 
 
-/*
-		public void SetPrivateCA(string pfxfile, string passwd)
+		public void SetPrivateCRL(string crlfile)
 	  	{
-			X509Certificate2 cert = new X509Certificate2(pfxfile, passwd);
-			byte[] bytes = cert.Export(X509ContentType.Cert, passwd);
-
-			m_cacert = new X509Certificate2(bytes);
-			m_chain  = new X509Chain();
-
-			m_chain.ChainPolicy.ExtraStore.Add(m_cacert);
-			m_chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-			m_chain.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
+			try {
+				m_clientcrl = Mono.Security.X509.X509Crl.CreateFromFile(crlfile);
+			}
+			catch (Exception ex)
+			{
+				m_clientcrl = null;
+				m_log.ErrorFormat("[SET PRIVATE CRL]: CRL File reading error [{0}]. {1}", crlfile, ex);
+			}
 	  	}
-*/
+
 
 
 		//
@@ -205,17 +160,6 @@ namespace NSL.Certificate.Tools
 		{
 			m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Policy is ({0})", sslPolicyErrors);
 
-				string crlfile = "/usr/local/opensim_server/bin/cacrl.crt";
-				Mono.Security.X509.X509Crl crl = Mono.Security.X509.X509Crl.CreateFromFile(crlfile);
-				Mono.Security.X509.X509Certificate monocert = new Mono.Security.X509.X509Certificate(certificate.GetRawCertData());
-
-				Mono.Security.X509.X509Crl.X509CrlEntry entry = crl.GetCrlEntry(monocert);
-				if (entry!=null) {
-					m_log.InfoFormat("XXXXXXX RevocationDate > {0}", entry.RevocationDate.ToString());
-					return false;
-				}
-
-
 			X509Certificate2 certificate2 = new X509Certificate2(certificate);
 			string simplename = certificate2.GetNameInfo(X509NameType.SimpleName, false);
 
@@ -224,6 +168,19 @@ namespace NSL.Certificate.Tools
 				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Simple Name is \"{0}\"", simplename);
 				m_log.InfoFormat("[NSL CERT VERIFY]: ValidateClientCertificate: Policy Error!");
 				return false;
+			}
+
+			// check CRL
+			if (m_clientcrl!=null) {
+				Mono.Security.X509.X509Certificate monocert = new Mono.Security.X509.X509Certificate(certificate.GetRawCertData());
+				Mono.Security.X509.X509Crl.X509CrlEntry entry = m_clientcrl.GetCrlEntry(monocert);
+				if (entry!=null) {
+					m_log.InfoFormat("[NSL CERT VERIFY]: Common Name \"{0}\" was revoked at {1}", simplename, entry.RevocationDate.ToString());
+					return false;
+				}
+			}
+			else {
+				m_log.InfoFormat("[NSL CERT VERIFY]: Client CRL is null");
 			}
 
 			bool valid = CheckPrivateChain(certificate2);
@@ -235,7 +192,6 @@ namespace NSL.Certificate.Tools
 			}
 			return valid;
 		}
-
 	}
 
 
@@ -243,7 +199,7 @@ namespace NSL.Certificate.Tools
 	//
 	public class NSLCertificatePolicy : ICertificatePolicy
 	{
-//		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+		//private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		public bool CheckValidationResult(ServicePoint srvPoint, X509Certificate certificate, WebRequest request, int certificateProblem)
 		{

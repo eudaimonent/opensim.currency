@@ -64,6 +64,7 @@ namespace OpenSim.Grid.MoneyServer
 		private string m_certFilename	 = "";
 		private string m_certPassword	 = "";
 		private string m_cacertFilename  = "";
+		private string m_clcrlFilename	 = "";
 		private bool   m_checkClientCert = false;
 
 		private int DEAD_TIME;
@@ -209,14 +210,21 @@ namespace OpenSim.Grid.MoneyServer
 				if (checkcert.ToLower()=="true") m_checkClientCert = true;
 
 				m_cacertFilename = m_config.GetString("CACertFilename", "");
-				if (m_cacertFilename!="") {
+				m_clcrlFilename  = m_config.GetString("ClientCrlFilename", "");
+				//
+				if (m_checkClientCert && m_cacertFilename!="") {
 					m_certVerify.SetPrivateCA(m_cacertFilename);
+					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute Authentication of Clients. CA  file is " + m_cacertFilename);
 				}
 				else {
 					m_checkClientCert = false;
 				}
+
 				if (m_checkClientCert) {
-					m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute Authentication of Clients. CA file is " + m_cacertFilename);
+					if (m_clcrlFilename!="") {
+						m_certVerify.SetPrivateCRL(m_clcrlFilename);
+						m_log.Info("[MONEY SERVER]: ReadIniConfig: Execute Authentication of Clients. CRL file is " + m_clcrlFilename);
+					}
 				}
 			}
 
