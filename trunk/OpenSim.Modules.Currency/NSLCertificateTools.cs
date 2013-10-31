@@ -179,9 +179,6 @@ namespace NSL.Certificate.Tools
 					return false;
 				}
 			}
-			else {
-				m_log.InfoFormat("[NSL CERT VERIFY]: Client CRL is null");
-			}
 
 			bool valid = CheckPrivateChain(certificate2);
 			if (valid) {
