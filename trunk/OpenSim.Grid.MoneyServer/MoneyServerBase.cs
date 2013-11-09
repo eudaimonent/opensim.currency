@@ -85,6 +85,7 @@ namespace OpenSim.Grid.MoneyServer
 		public MoneyServerBase()
 		{
 			m_console = new LocalConsole("Money ");
+//			m_console = new CommandConsole("Money ");
 			MainConsole.Instance = m_console;
 		}
 
