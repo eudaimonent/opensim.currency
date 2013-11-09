@@ -11,7 +11,7 @@ echo "=============================================="
 
 function xbuild_opensim()
 {
-	./runprebuild.sh
+	./runprebuild.sh vs2010
 	xbuild /target:CLean
 	xbuild || return 1
 
