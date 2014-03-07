@@ -58,19 +58,27 @@ namespace NSL.Network.XmlRpc
 			request.Timeout = timeout;
 			request.UserAgent = "NSLXmlRpcRequest";
 
-			if (clientCert!=null) request.ClientCertificates.Add(clientCert);	// 自身の証明書
-			if (!checkServerCert) request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
+			if (clientCert!=null) {
+				request.ClientCertificates.Add(clientCert);	// 自身の証明書
+			}
+			if (!checkServerCert) {
+				request.Headers.Add("NoVerifyCert", "true");	// 相手の証明書を検証しない
+			}
 
 			Stream stream = request.GetRequestStream();
 			XmlTextWriter xml = new XmlTextWriter(stream, _encoding);
 			_serializer.Serialize(xml, this);
 			xml.Flush();
 			xml.Close();
+m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: 99997777777777777777777777777777777");
 
 			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: xxxx7777777777777777777777777777777");
 			StreamReader input = new StreamReader(response.GetResponseStream());
 
+m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: yyyy7777777777777777777777777777777");
 			string inputXml = input.ReadToEnd();
+m_log.InfoFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: zzzz7777777777777777777777777777777");
 			XmlRpcResponse resp = (XmlRpcResponse)_deserializer.Deserialize(inputXml);
 
 			input.Close();
