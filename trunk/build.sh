@@ -8,7 +8,7 @@ echo "DTL/NSL_CURRENCY"
 echo "==================="
 
 rm -f  bin/*
-rm -rf */obj/*
+rm -rf OpenSim.*/obj/*
 yes | mono ../bin/Prebuild.exe /clean
 
 ./runprebuild.sh
