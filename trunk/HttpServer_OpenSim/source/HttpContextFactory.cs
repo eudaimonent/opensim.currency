@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -144,11 +144,14 @@ namespace HttpServer
             var remoteEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 
             // by Fumi.Iseki
+            //var sslStream = new SslStream(networkStream, false);
             SslStream sslStream = null;
             try
             {
                 //TODO: this may fail
-                if (_clientCallback == null)    // by Fumi.Iseki
+                // bu Fumi.Iseki
+                //sslStream.AuthenticateAsServer(certificate, false, protocol, false);
+                if (_clientCallback == null)
                 {
                     sslStream = new SslStream(networkStream, false);
                     sslStream.AuthenticateAsServer(certificate, false, protocol, false);
@@ -158,6 +161,7 @@ namespace HttpServer
                     sslStream = new SslStream(networkStream, false, new RemoteCertificateValidationCallback(_clientCallback));
                     sslStream.AuthenticateAsServer(certificate, true, protocol, false);
                 }
+
                 return CreateContext(true, remoteEndPoint, sslStream, socket);
             }
             catch (IOException err)
