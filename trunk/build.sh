@@ -7,8 +7,8 @@ echo "==================="
 echo "DTL/NSL_CURRENCY"
 echo "==================="
 
-rm -f bin/*
-rm -f */obj
+rm -f  bin/*
+rm -rf */obj/*
 yes | mono ../bin/Prebuild.exe /clean
 
 ./runprebuild.sh
