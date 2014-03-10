@@ -67,7 +67,14 @@ namespace NSL.Network.XmlRpc
 			xml.Flush();
 			xml.Close();
 
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+			HttpWebResponse response = null;
+			//HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+			try { 
+				response = (HttpWebResponse)request.GetResponse();
+			}
+			catch (Exception ex) {
+				m_log.ErrorFormat("[MONEY NSL RPC]: XmlRpcResponse certSend: GetResponse Error: {0}", ex);
+			}
 			StreamReader input = new StreamReader(response.GetResponseStream());
 
 			string inputXml = input.ReadToEnd();

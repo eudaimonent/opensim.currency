@@ -292,13 +292,14 @@ namespace OpenSim.Modules.Currency
 				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
 					m_certVerify.SetPrivateCA(m_cacertFilename);
-					ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
+					//ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 					m_log.InfoFormat("[MONEY]: Execute Authentication of Server. CA Cert File is " + m_cacertFilename);
 				}
 				else {
 					m_checkServerCert = false;
-					ServicePointManager.ServerCertificateValidationCallback = null;
+					//ServicePointManager.ServerCertificateValidationCallback = null;	// nullは× ．trueを返す関数を設定する．
 				}
+				ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 
 
 				// Settlement
