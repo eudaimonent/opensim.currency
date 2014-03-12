@@ -45,7 +45,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
 		// by Fumi.Iseki
 		private string Table_of_Transaction = "transactions";
-		private string Table_of_Balance	 = "balances";
+		private string Table_of_Balance	 	= "balances";
 		private string Table_of_UserInfo	= "userinfo";
 		//private string Table_of_UserInfo	= "currency_users";	// for Aurora-Sim
 
@@ -82,15 +82,15 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 				}
 				catch (Exception e)
 				{
-					throw new Exception("Connection error while using connection string ["+connectString+"]", e);
+					throw new Exception("[Money DB]: Connection error while using connection string ["+connectString+"]", e);
 				}
 
-				//m_log.Info("[MySQL]: Connection established");
+				m_log.Info("[Money DB]: Connection established");
 			}
 
 			catch(Exception e)
 			{
-				throw new Exception("Error initialising MySql Database: " + e.ToString());
+				throw new Exception("[Money DB]: Error initialising MySql Database: " + e.ToString());
 			}
 
 			try
@@ -105,7 +105,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("Error creating balance table: " + e.ToString());
+						throw new Exception("[Money DB]: Error creating balance table: " + e.ToString());
 					}
 				}
 
@@ -117,7 +117,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("Unable to create currency userinfo table: " + e.ToString());
+						throw new Exception("[Money DB]: Unable to create currency userinfo table: " + e.ToString());
 					}
 				}
 
@@ -129,7 +129,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("Error creating transaction table: " + e.ToString());
+						throw new Exception("[Money DB]: Error creating transaction table: " + e.ToString());
 					}
 				}
 				else // check transaction table version
@@ -162,8 +162,8 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[MySQL]: Error checking or creating tables: " + e.ToString());
-				throw new Exception("Error checking or creating tables: " + e.ToString());
+				m_log.Error("[Money DB]: Error checking or creating tables: " + e.ToString());
+				throw new Exception("[Money DB]: Error checking or creating tables: " + e.ToString());
 			}
 		}
 
@@ -201,6 +201,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			sql += "`commonName` varchar(128) default NULL,";
 			sql += "`description` varchar(255) default NULL,";
 			sql += "PRIMARY KEY (`UUID`))";
+			//sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.7';";
 			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.6';";
 			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
 			cmd.ExecuteNonQuery();
@@ -210,6 +211,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private void CreateUserTable()
 		{
 			string sql = string.Empty;
+
 			sql += "CREATE TABLE `" + Table_of_UserInfo + "`(";
 			sql += "`user` varchar(128) NOT NULL,";
 			sql += "`simip` varchar(64) NOT NULL,";
@@ -229,6 +231,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private void UpdateTransactionTable2()
 		{
 			string sql = string.Empty;
+
 			sql += "BEGIN;";
 			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
 			sql += "ADD(`objectUUID` varchar(36) DEFAULT NULL),";
@@ -248,6 +251,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private void UpdateTransactionTable3()
 		{
 			string sql = string.Empty;
+
 			sql += "BEGIN;";
 			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
 			sql += "ADD(`secure` varchar(36) NOT NULL),";
@@ -266,6 +270,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private void UpdateTransactionTable4()
 		{
 			string sql = string.Empty;
+
 			sql += "BEGIN;";
 			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
 			sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
@@ -283,6 +288,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private void UpdateTransactionTable5()
 		{
 			string sql = string.Empty;
+
 			sql += "BEGIN;";
 			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
 			sql += "ADD(`commonName` varchar(128) NOT NULL),";
@@ -397,7 +403,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 						}
 						catch (Exception e)
 						{
-							throw new Exception("Error checking tables" + e.ToString());
+							throw new Exception("[Money DB]: Error checking tables" + e.ToString());
 						}
 					}
 					r.Close();
@@ -424,7 +430,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 				}
 				catch (Exception e)
 				{
-					m_log.Error("Unable to reconnect to database" + e.ToString());
+					m_log.Error("[Money DB]: Unable to reconnect to database" + e.ToString());
 				}
 			}
 		}
@@ -598,7 +604,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: withdraw money error " + e.ToString());
+				m_log.Error("[Money DB]: give money error " + e.ToString());
 				return false;
 			}
 
@@ -641,7 +647,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("Error adding transation to DB: " + e.ToString());
+				m_log.Error("[Money DB]: Error adding transation to DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -666,7 +672,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("Error updating transation in DB: " + e.ToString());
+				m_log.Error("[Money DB]: Error updating transation in DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -693,7 +699,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("Error updating transation in DB: " + e.ToString());
+				m_log.Error("[Money DB]: Error updating transation in DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -725,7 +731,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[MySQL]: get transaction from DB failed: " + e.ToString());
+						m_log.Error("[Money DB]: get transaction from DB failed: " + e.ToString());
 						return false;
 					}
 					if (secureCode == secure) bRet = true;
@@ -766,7 +772,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[MySQL]: Fetching transaction failed: " + e.ToString());
+						m_log.Error("[Money DB]: Fetching transaction failed: " + e.ToString());
 						return null;
 					}
 
@@ -828,7 +834,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
 						catch (Exception e)
 						{
-							m_log.Error("[MySQL]: Fetching transaction failed: " + e.ToString());
+							m_log.Error("[Money DB]: Fetching transaction failed: " + e.ToString());
 							return null;
 						}
 
@@ -864,7 +870,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[MySQL]: Unable to get transaction info: " + e.ToString());
+						m_log.Error("[Money DB]: Unable to get transaction info: " + e.ToString());
 						return -1;
 					}
 				}
@@ -902,7 +908,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("Unable to add user information to database: " + e.ToString());
+				m_log.Error("[Money DB]: Unable to add user information to database: " + e.ToString());
 				bRet = false;
 			}
 
@@ -932,7 +938,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[MySQL]: Fetching UserInfo failed: " + e.ToString());
+						m_log.Error("[Money DB]: Fetching UserInfo failed: " + e.ToString());
 						return null;
 					}
 				}
