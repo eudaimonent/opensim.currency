@@ -173,7 +173,6 @@ namespace OpenSim.Modules.Currency
 		private IConfigSource m_config;
 
 		private string m_moneyServURL	 = string.Empty;
-		private string m_userServIP		 = string.Empty;
 		public  BaseHttpServer HttpServer;
 
 		private string m_certFilename	 = "";
@@ -248,14 +247,6 @@ namespace OpenSim.Modules.Currency
 			{
 				m_config = source;
 
-				// [Startup] secion
-				IConfig networkConfig = m_config.Configs["Network"];
-
-				m_userServIP = "";
-				if (networkConfig.Contains("user_server_url")) {
-					m_userServIP = Util.GetHostFromURL(networkConfig.GetString("user_server_url")).ToString();
-				}
-
 				// [Economy] section
 				IConfig economyConfig = m_config.Configs["Economy"];
 
@@ -272,10 +263,6 @@ namespace OpenSim.Modules.Currency
 
 				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
 
-				if (m_userServIP=="") {
-					m_userServIP = Util.GetHostFromURL(economyConfig.GetString("UserServer")).ToString();
-				}
-				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
 				// クライアント証明書
 				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
@@ -292,12 +279,10 @@ namespace OpenSim.Modules.Currency
 				m_cacertFilename = economyConfig.GetString("CACertFilename", "");
 				if (m_cacertFilename!="") {
 					m_certVerify.SetPrivateCA(m_cacertFilename);
-					//ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 					m_log.InfoFormat("[MONEY]: Execute Authentication of Server. CA Cert File is " + m_cacertFilename);
 				}
 				else {
 					m_checkServerCert = false;
-					//ServicePointManager.ServerCertificateValidationCallback = null;	// nullは× ．trueを返す関数を設定する．
 				}
 				ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(m_certVerify.ValidateServerCertificate);
 
@@ -1225,7 +1210,8 @@ namespace OpenSim.Modules.Currency
 
 			bool ret = false;
 
-			if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
+			//if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
+			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
@@ -1267,7 +1253,8 @@ namespace OpenSim.Modules.Currency
 
 			bool ret = false;
 
-			if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
+			//if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
+			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
 				if (requestParam.Contains("clientUUID") &&
@@ -1343,9 +1330,7 @@ namespace OpenSim.Modules.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["senderUserServIP"] 		= m_userServIP;
 				paramTable["senderID"] 				= sender.ToString();
-				paramTable["receiverUserServIP"]	= m_userServIP;
 				paramTable["receiverID"] 			= receiver.ToString();
 				paramTable["senderSessionID"] 		= senderClient.SessionId.ToString();
 				paramTable["senderSecureSessionID"] = senderClient.SecureSessionId.ToString();
@@ -1400,9 +1385,7 @@ namespace OpenSim.Modules.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["senderUserServIP"] 	 = m_userServIP;
 				paramTable["senderID"] 			 = sender.ToString();
-				paramTable["receiverUserServIP"] = m_userServIP;
 				paramTable["receiverID"] 		 = receiver.ToString();
 				paramTable["transactionType"] 	 = type;
 				paramTable["objectID"] 			 = objectID.ToString();
@@ -1452,7 +1435,6 @@ namespace OpenSim.Modules.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["bankerUserServIP"] 	= m_userServIP;
 				paramTable["bankerID"] 			= bankerID.ToString();
 				paramTable["transactionType"] 	= (int)TransactionType.BuyMoney;
 				paramTable["amount"] 			= amount;
@@ -1507,7 +1489,6 @@ namespace OpenSim.Modules.Currency
 			{
 				// Fill parameters for money transfer XML-RPC.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["avatarUserServIP"] = m_userServIP;
 				paramTable["avatarID"] 		   = avatarID.ToString();
 				paramTable["transactionType"]  = (int)MoneyTransactionType.ReferBonus;
 				paramTable["amount"] 		   = amount;
@@ -1577,7 +1558,6 @@ namespace OpenSim.Modules.Currency
 				paramTable["amount"] 				= amount;
 				paramTable["regionHandle"] 			= regionHandle.ToString();
 				paramTable["description"] 			= description;
-				paramTable["senderUserServIP"] 		= m_userServIP;
 
 				// Generate the request for transfer.   
 				Hashtable resultTable = genericCurrencyXMLRPCRequest(paramTable, "PayMoneyCharge");
@@ -1639,7 +1619,6 @@ namespace OpenSim.Modules.Currency
 
 				// Login the Money Server.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["userServIP"] 			= m_userServIP;
 				paramTable["openSimServIP"] 		= scene.RegionInfo.ServerURI.Replace(scene.RegionInfo.InternalEndPoint.Port.ToString(), 
 																						 scene.RegionInfo.HttpPort.ToString());
 				paramTable["userName"] 				= userName;
@@ -1690,7 +1669,6 @@ namespace OpenSim.Modules.Currency
 			{
 				// Log off from the Money Server.   
 				Hashtable paramTable = new Hashtable();
-				paramTable["userServIP"] 			= m_userServIP;
 				paramTable["clientUUID"] 			= client.AgentId.ToString();
 				paramTable["clientSessionID"] 		= client.SessionId.ToString();
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
@@ -1790,7 +1768,6 @@ namespace OpenSim.Modules.Currency
 				if (!string.IsNullOrEmpty(m_moneyServURL))
 				{
 					Hashtable paramTable = new Hashtable();
-					paramTable["userServIP"] 			= m_userServIP;
 					paramTable["clientUUID"] 			= client.AgentId.ToString();
 					paramTable["clientSessionID"] 		= client.SessionId.ToString();
 					paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
@@ -1839,7 +1816,6 @@ namespace OpenSim.Modules.Currency
 			if (!string.IsNullOrEmpty(m_moneyServURL))
 			{
 				Hashtable paramTable = new Hashtable();
-				paramTable["userServIP"]			= m_userServIP;
 				paramTable["clientUUID"]			= client.AgentId.ToString();
 				paramTable["clientSessionID"]		= client.SessionId.ToString();			
 				paramTable["clientSecureSessionID"] = client.SecureSessionId.ToString();
