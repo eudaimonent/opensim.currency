@@ -7,7 +7,6 @@
     ;; Enables selling things for $0.  Default is true.
     SellEnabled = true
 
-    UserServer = "http://jogrid.net:8003"
     CurrencyServer = "https://jogrid.net:8008/"
     EconomyModule = DTLNSLMoneyModule
 
