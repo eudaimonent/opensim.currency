@@ -170,12 +170,26 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					{
 						case 2: //Rev.2
 							UpdateTransactionTable2();
+							UpdateTransactionTable3();
+							UpdateTransactionTable4();
+							UpdateTransactionTable5();
+							UpdateTransactionTable6();
+							break;
 						case 3: //Rev.3
 							UpdateTransactionTable3();
+							UpdateTransactionTable4();
+							UpdateTransactionTable5();
+							UpdateTransactionTable6();
+							break;
 						case 4: //Rev.4
 							UpdateTransactionTable4();
+							UpdateTransactionTable5();
+							UpdateTransactionTable6();
+							break;
 						case 5: //Rev.5
 							UpdateTransactionTable5();
+							UpdateTransactionTable6();
+							break;
 						case 6: //Rev.6
 							UpdateTransactionTable6();
 							break;
@@ -475,7 +489,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		/// </summary>
 		private void UpdateTransactionTable6()
 		{
-			m_log.Info("[MONEY DB]: Converting Transaction Table... Please wait...");
+			m_log.Info("[MONEY DB]: Converting Transaction Table...");
 			string sql = string.Empty;
 
 			sql = "SELECT COUNT(*) FROM " + Table_of_Transaction;
