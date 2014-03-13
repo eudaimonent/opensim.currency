@@ -127,6 +127,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
         FAILED_STATUS = 2
     }
 
+
     public class UserInfo
     {
         string m_userID = string.Empty;

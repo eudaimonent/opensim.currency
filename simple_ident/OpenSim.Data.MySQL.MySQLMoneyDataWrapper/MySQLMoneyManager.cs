@@ -44,9 +44,9 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
 		// by Fumi.Iseki
-		private string Table_of_Transaction = "transactions";
 		private string Table_of_Balance	 	= "balances";
 		private string Table_of_UserInfo	= "userinfo";
+		private string Table_of_Transaction = "transactions";
 		//private string Table_of_UserInfo	= "currency_users";	// for Aurora-Sim
 
 		private string connectString;
@@ -56,6 +56,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		private MySqlConnection dbcon;
   
 
+
 		public MySQLMoneyManager(string hostname,string database,string username ,string password,string cpooling, string port)
 		{
 			string s = "Server=" + hostname + ";Port=" + port + ";Database=" + database + ";User ID=" +
@@ -64,10 +65,12 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		}
 
 
+
 		public MySQLMoneyManager(string connect)
 		{
 			Initialise(connect);
 		}
+
 
 
 		private void Initialise(string connect)
@@ -82,21 +85,22 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 				}
 				catch (Exception e)
 				{
-					throw new Exception("[Money DB]: Connection error while using connection string ["+connectString+"]", e);
+					throw new Exception("[MONEY DB]: Connection error while using connection string ["+connectString+"]", e);
 				}
-
-				m_log.Info("[Money DB]: Connection established");
+				//m_log.Info("[MONEY DB]: Connection established");
 			}
 
 			catch(Exception e)
 			{
-				throw new Exception("[Money DB]: Error initialising MySql Database: " + e.ToString());
+				throw new Exception("[MONEY DB]: Error initialising MySql Database: " + e.ToString());
 			}
 
 			try
 			{
 				Dictionary<string,string> tableList = new Dictionary<string,string>();
 				tableList = CheckTables();
+
+				// Balances Table
 				if (!tableList.ContainsKey(Table_of_Balance))
 				{
 					try
@@ -105,10 +109,23 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("[Money DB]: Error creating balance table: " + e.ToString());
+						throw new Exception("[MONEY DB]: Error creating balance table: " + e.ToString());
+					}
+				}
+				else
+				{
+					string version = tableList[Table_of_Balance].Trim();
+					int nVer = getTableVersionNum(version);
+					switch (nVer)
+					{
+						case 1: //Rev.1
+							UpdateBalanceTable1();
+							break;
 					}
 				}
 
+				//
+				// UserInfo Table
 				if (!tableList.ContainsKey(Table_of_UserInfo))
 				{
 					try
@@ -117,10 +134,23 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("[Money DB]: Unable to create currency userinfo table: " + e.ToString());
+						throw new Exception("[MONEY DB]: Unable to create currency userinfo table: " + e.ToString());
+					}
+				}
+				else
+				{
+					string version = tableList[Table_of_UserInfo].Trim();
+					int nVer = getTableVersionNum(version);
+					switch (nVer)
+					{
+						case 1: //Rev.1
+							UpdateUserInfoTable1();
+							break;
 					}
 				}
 
+				//
+				// Transaction Table
 				if (!tableList.ContainsKey(Table_of_Transaction))
 				{
 					try
@@ -129,21 +159,13 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						throw new Exception("[Money DB]: Error creating transaction table: " + e.ToString());
+						throw new Exception("[MONEY DB]: Error creating transaction table: " + e.ToString());
 					}
 				}
 				else // check transaction table version
 				{
-					int nVer = 0;
 					string version = tableList[Table_of_Transaction].Trim();
-					Regex _commentPattenRegex = new Regex(@"\w+\.(?<ver>\d+)");
-					Match m = _commentPattenRegex.Match(version);
-					if (m.Success)
-					{
-						string ver = m.Groups["ver"].Value;
-						nVer = Convert.ToInt32(ver);
-
-					}
+					int nVer = getTableVersionNum(version);
 					switch (nVer)
 					{
 						case 2: //Rev.2
@@ -162,10 +184,27 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: Error checking or creating tables: " + e.ToString());
-				throw new Exception("[Money DB]: Error checking or creating tables: " + e.ToString());
+				m_log.Error("[MONEY DB]: Error checking or creating tables: " + e.ToString());
+				throw new Exception("[MONEY DB]: Error checking or creating tables: " + e.ToString());
 			}
 		}
+
+
+
+		private int getTableVersionNum(string version)
+		{
+			int nVer = 0;
+
+			Regex _commentPattenRegex = new Regex(@"\w+\.(?<ver>\d+)");
+			Match m = _commentPattenRegex.Match(version);
+			if (m.Success)
+			{
+				string ver = m.Groups["ver"].Value;
+				nVer = Convert.ToInt32(ver);
+			}
+			return nVer;
+		}
+
 
 
 		private void CreateBalanceTable()
@@ -177,10 +216,11 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			sql += "`balance` int(10) NOT NULL,";
 			sql += "`status` tinyint(2) default NULL,";
 			sql += "PRIMARY KEY (`user`))";
-			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.1';";
+			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.2';";
 			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
 			cmd.ExecuteNonQuery();
 		}
+
 
 
 		private void CreateTransactionTable()
@@ -201,11 +241,11 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			sql += "`commonName` varchar(128) default NULL,";
 			sql += "`description` varchar(255) default NULL,";
 			sql += "PRIMARY KEY (`UUID`))";
-			//sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.7';";
-			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.6';";
+			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.7';";
 			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
 			cmd.ExecuteNonQuery();
 		}
+
 
 
 		private void CreateUserTable()
@@ -218,109 +258,20 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			sql += "`avatar` varchar(50) NOT NULL,";
 			sql += "`pass` varchar(36) DEFAULT NULL,";
 			sql += "PRIMARY KEY(`user`))";
-			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.1';";
+			sql += "Engine=InnoDB DEFAULT CHARSET=utf8 COMMENT='Rev.2';";
 			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
 			cmd.ExecuteNonQuery();
 		}
 		   
 		
 
-		/// <summary>
-		/// update transaction table from Rev.2 to the latest version(Rev.6)
-		/// </summary>
-		private void UpdateTransactionTable2()
+
+		///////////////////////////////////////////////////////////////////////
+
+		//
+		private void UpdateBalanceTable1()
 		{
-			string sql = string.Empty;
-
-			sql += "BEGIN;";
-			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-			sql += "ADD(`objectUUID` varchar(36) DEFAULT NULL),";
-			sql += "ADD(`secure` varchar(36) NOT NULL),";
-			sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-			sql += "ADD(`commonName` varchar(128) NOT NULL),";
-			sql += "COMMENT = 'Rev.3';";
-			sql += "COMMIT;";
-			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-			cmd.ExecuteNonQuery();
-		}
-
-
-		/// <summary>
-		/// update transaction table from Rev.3 to the latest version(Rev.6)
-		/// </summary>
-		private void UpdateTransactionTable3()
-		{
-			string sql = string.Empty;
-
-			sql += "BEGIN;";
-			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-			sql += "ADD(`secure` varchar(36) NOT NULL),";
-			sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-			sql += "ADD(`commonName` varchar(128) NOT NULL),";
-			sql += "COMMENT = 'Rev.4';";
-			sql += "COMMIT;";
-			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-			cmd.ExecuteNonQuery();
-		}
-
-
-		/// <summary>
-		/// update transaction table from Rev.4 to the latest version(Rev.6)
-		/// </summary>
-		private void UpdateTransactionTable4()
-		{
-			string sql = string.Empty;
-
-			sql += "BEGIN;";
-			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-			sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
-			sql += "ADD(`commonName` varchar(128) NOT NULL),";
-			sql += "COMMENT = 'Rev.5';";
-			sql += "COMMIT;";
-			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-			cmd.ExecuteNonQuery();
-		}
-
-
-		/// <summary>
-		/// update transaction table from Rev.5 to the latest version(Rev.6)
-		/// </summary>
-		private void UpdateTransactionTable5()
-		{
-			string sql = string.Empty;
-
-			sql += "BEGIN;";
-			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-			sql += "ADD(`commonName` varchar(128) NOT NULL),";
-			sql += "COMMENT = 'Rev.6';";
-			sql += "COMMIT;";
-			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-			cmd.ExecuteNonQuery();
-		}
-
-
-		/// <summary>
-		/// update transaction table from Rev.6 to the latest version(Rev.7)
-		/// </summary>
-		private void UpdateTransactionTable6()
-		{
-			//return;
-			UpdateBalanceData6();
-
-			//
-			string sql = string.Empty;
-
-			sql += "BEGIN;";
-			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
-			sql += "COMMENT = 'Rev.7';";
-			sql += "COMMIT;";
-			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
-			cmd.ExecuteNonQuery();
-		}
-
-
-		private void UpdateBalanceData6()
-		{
+			m_log.Info("[MONEY DB]: Converting Balance Table...");
 			string sql = string.Empty;
 
 			sql = "SELECT COUNT(*) FROM " + Table_of_Balance;
@@ -372,7 +323,198 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 						cmd.Dispose();
 					}
 				}
+
+				//
+				sql  = "BEGIN;";
+				sql += "ALTER TABLE `" + Table_of_Balance + "`";
+				sql += "COMMENT = 'Rev.2';";
+				sql += "COMMIT;";
+				cmd = new MySqlCommand(sql, dbcon);
+				cmd.ExecuteNonQuery();
 			}
+		}
+
+
+
+		private void UpdateUserInfoTable1()
+		{
+			m_log.Info("[MONEY DB]: Converting UserInfo Table...");
+			string sql = string.Empty;
+
+			sql = "SELECT COUNT(*) FROM " + Table_of_UserInfo;
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			int resultCount = int.Parse(cmd.ExecuteScalar().ToString()); 
+			cmd.Dispose();
+
+			sql = "SELECT * FROM " + Table_of_UserInfo;
+			cmd = new MySqlCommand(sql, dbcon);
+			MySqlDataReader dbReader = cmd.ExecuteReader();
+
+			int l = 0;
+			string[,] row = new string[resultCount, dbReader.FieldCount];
+			while (dbReader.Read()) {
+				for (int i=0; i<dbReader.FieldCount; i++) {
+					row[l, i] = dbReader.GetString(i);
+				}
+				l++;
+			}
+			dbReader.Close();
+			cmd.Dispose();
+
+			bool updatedb = true;
+			for (int i=0; i<resultCount; i++) {
+				string uuid = Regex.Replace(row[i, 0], @"@.+$", "");
+				if (uuid!=row[i, 0]) {
+					UserInfo userInfo = fetchUserInfo(uuid);
+					if (userInfo==null) {
+						userInfo = new UserInfo();
+						userInfo.UserID  = uuid;
+						userInfo.SimIP   = row[i,1];
+						userInfo.Avatar  = row[i,2];
+						userInfo.PswHash = row[i,3];
+						updatedb = addUserInfo(userInfo);
+					}
+				}
+			}
+
+			// Delete
+			if (updatedb) {
+				for (int i=0; i<resultCount; i++) {
+					string uuid = Regex.Replace(row[i, 0], @"@.+$", "");
+					if (uuid!=row[i, 0]) {
+						sql = "DELETE FROM " + Table_of_UserInfo + " WHERE user = ?uuid";
+						cmd = new MySqlCommand(sql, dbcon);
+						cmd.Parameters.AddWithValue("?uuid", row[i,0]);
+						cmd.ExecuteNonQuery();
+						cmd.Dispose();
+					}
+				}
+
+				//
+				sql  = "BEGIN;";
+				sql += "ALTER TABLE `" + Table_of_UserInfo + "`";
+				sql += "COMMENT = 'Rev.2';";
+				sql += "COMMIT;";
+				cmd = new MySqlCommand(sql, dbcon);
+				cmd.ExecuteNonQuery();
+			}
+		}
+
+
+
+		/// <summary>
+		/// update transaction table from Rev.2 to Rev.3
+		/// </summary>
+		private void UpdateTransactionTable2()
+		{
+			string sql = string.Empty;
+
+			sql += "BEGIN;";
+			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+			sql += "ADD(`objectUUID` varchar(36) DEFAULT NULL),";
+			sql += "COMMENT = 'Rev.3';";
+			sql += "COMMIT;";
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			cmd.ExecuteNonQuery();
+		}
+
+
+		/// <summary>
+		/// update transaction table from Rev.3 to Rev.4
+		/// </summary>
+		private void UpdateTransactionTable3()
+		{
+			string sql = string.Empty;
+
+			sql += "BEGIN;";
+			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+			sql += "ADD(`secure` varchar(36) NOT NULL),";
+			sql += "COMMENT = 'Rev.4';";
+			sql += "COMMIT;";
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			cmd.ExecuteNonQuery();
+		}
+
+
+		/// <summary>
+		/// update transaction table from Rev.4 to Rev.5
+		/// </summary>
+		private void UpdateTransactionTable4()
+		{
+			string sql = string.Empty;
+
+			sql += "BEGIN;";
+			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+			sql += "ADD(`regionHandle` varchar(36) NOT NULL),";
+			sql += "COMMENT = 'Rev.5';";
+			sql += "COMMIT;";
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			cmd.ExecuteNonQuery();
+		}
+
+
+		/// <summary>
+		/// update transaction table from Rev.5 to Rev.6
+		/// </summary>
+		private void UpdateTransactionTable5()
+		{
+			string sql = string.Empty;
+
+			sql += "BEGIN;";
+			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+			sql += "ADD(`commonName` varchar(128) NOT NULL),";
+			sql += "COMMENT = 'Rev.6';";
+			sql += "COMMIT;";
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			cmd.ExecuteNonQuery();
+		}
+
+
+		/// <summary>
+		/// update transaction table from Rev.6 to Rev.7
+		/// </summary>
+		private void UpdateTransactionTable6()
+		{
+			m_log.Info("[MONEY DB]: Converting Transaction Table... Please wait...");
+			string sql = string.Empty;
+
+			sql = "SELECT COUNT(*) FROM " + Table_of_Transaction;
+			MySqlCommand cmd = new MySqlCommand(sql, dbcon);
+			int resultCount = int.Parse(cmd.ExecuteScalar().ToString()); 
+			cmd.Dispose();
+
+			sql = "SELECT UUID,sender,receiver FROM " + Table_of_Transaction;
+			cmd = new MySqlCommand(sql, dbcon);
+			MySqlDataReader dbReader = cmd.ExecuteReader();
+
+			int l = 0;
+			string[,] row = new string[resultCount, dbReader.FieldCount];
+			while (dbReader.Read()) {
+				for (int i=0; i<dbReader.FieldCount; i++) {
+					row[l, i] = dbReader.GetString(i);
+				}
+				l++;
+			}
+			dbReader.Close();
+			cmd.Dispose();
+
+			for (int i=0; i<resultCount; i++) {
+				string sender   = Regex.Replace(row[i, 1], @"@.+$", "");
+				string receiver = Regex.Replace(row[i, 2], @"@.+$", "");
+				sql = "UPDATE " + Table_of_Transaction + " SET sender = ?sender , receiver = ?receiver where UUID = ?uuid;";
+				cmd = new MySqlCommand(sql, dbcon);
+				cmd.Parameters.AddWithValue("?uuid", row[i,0]);
+				cmd.Parameters.AddWithValue("?sender", sender);
+				cmd.Parameters.AddWithValue("?receiver", receiver);
+				cmd.ExecuteNonQuery();
+			}
+
+			sql  = "BEGIN;";
+			sql += "ALTER TABLE `" + Table_of_Transaction + "`";
+			sql += "COMMENT = 'Rev.7';";
+			sql += "COMMIT;";
+			cmd = new MySqlCommand(sql, dbcon);
+			cmd.ExecuteNonQuery();
 		}
 
 
@@ -403,7 +545,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 						}
 						catch (Exception e)
 						{
-							throw new Exception("[Money DB]: Error checking tables" + e.ToString());
+							throw new Exception("[MONEY DB]: Error checking tables" + e.ToString());
 						}
 					}
 					r.Close();
@@ -418,7 +560,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 		/// </summary>
 		public void Reconnect()
 		{
-			m_log.Info("[Money DB]: Reconnecting database");
+			m_log.Info("[MONEY DB]: Reconnecting database");
 			lock (dbcon)
 			{
 				try
@@ -426,11 +568,11 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					dbcon.Close();
 					dbcon = new MySqlConnection(connectString);
 					dbcon.Open();
-					m_log.Info("[Money DB]: Reconnected database");
+					m_log.Info("[MONEY DB]: Reconnected database");
 				}
 				catch (Exception e)
 				{
-					m_log.Error("[Money DB]: Unable to reconnect to database" + e.ToString());
+					m_log.Error("[MONEY DB]: Unable to reconnect to database" + e.ToString());
 				}
 			}
 		}
@@ -466,7 +608,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			catch (Exception e)
 			{
 				m_log.ErrorFormat("[MoneyDB]: MySql failed to fetch balance {0}" + Environment.NewLine + e.ToString()
-					+ Environment.NewLine + "Reconnecting" + userID);
+															+ Environment.NewLine + "Reconnecting" + userID);
 				Reconnect();
 				return -2;
 			}
@@ -491,7 +633,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: update money error " + e.ToString());
+				m_log.Error("[MONEY DB]: update money error " + e.ToString());
 				return false;
 			}
 
@@ -566,7 +708,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: withdraw money error " + e.ToString());
+				m_log.Error("[MONEY DB]: withdraw money error " + e.ToString());
 				return false;
 			}
 
@@ -604,7 +746,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: give money error " + e.ToString());
+				m_log.Error("[MONEY DB]: give money error " + e.ToString());
 				return false;
 			}
 
@@ -647,7 +789,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: Error adding transation to DB: " + e.ToString());
+				m_log.Error("[MONEY DB]: Error adding transation to DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -672,7 +814,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: Error updating transation in DB: " + e.ToString());
+				m_log.Error("[MONEY DB]: Error updating transation in DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -699,7 +841,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: Error updating transation in DB: " + e.ToString());
+				m_log.Error("[MONEY DB]: Error updating transation in DB: " + e.ToString());
 				return false;
 			}
 			return bRet;
@@ -731,7 +873,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[Money DB]: get transaction from DB failed: " + e.ToString());
+						m_log.Error("[MONEY DB]: get transaction from DB failed: " + e.ToString());
 						return false;
 					}
 					if (secureCode == secure) bRet = true;
@@ -772,7 +914,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[Money DB]: Fetching transaction failed: " + e.ToString());
+						m_log.Error("[MONEY DB]: Fetching transaction failed: " + e.ToString());
 						return null;
 					}
 
@@ -785,7 +927,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
 
 
-		public TransactionData[] FetchTransaction(string userID, int startTime, int endTime, uint index,uint retNum)
+		public TransactionData[] FetchTransaction(string userID, int startTime, int endTime, uint index, uint retNum)
 		{
 			List<TransactionData> rows = new List<TransactionData>();
 			string sql = string.Empty;
@@ -834,7 +976,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 
 						catch (Exception e)
 						{
-							m_log.Error("[Money DB]: Fetching transaction failed: " + e.ToString());
+							m_log.Error("[MONEY DB]: Fetching transaction failed: " + e.ToString());
 							return null;
 						}
 
@@ -870,7 +1012,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[Money DB]: Unable to get transaction info: " + e.ToString());
+						m_log.Error("[MONEY DB]: Unable to get transaction info: " + e.ToString());
 						return -1;
 					}
 				}
@@ -908,7 +1050,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 			}
 			catch (Exception e)
 			{
-				m_log.Error("[Money DB]: Unable to add user information to database: " + e.ToString());
+				m_log.Error("[MONEY DB]: Unable to add user information to database: " + e.ToString());
 				bRet = false;
 			}
 
@@ -938,7 +1080,7 @@ namespace OpenSim.Data.MySQL.MySQLMoneyDataWrapper
 					}
 					catch (Exception e)
 					{
-						m_log.Error("[Money DB]: Fetching UserInfo failed: " + e.ToString());
+						m_log.Error("[MONEY DB]: Fetching UserInfo failed: " + e.ToString());
 						return null;
 					}
 				}
