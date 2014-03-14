@@ -29,9 +29,9 @@ if [ "$1" != '-R' ]; then
 	#
 	if [ ! -f ../bin/HttpServer_OpenSim.dll.orig ]; then
 		mv ../bin/HttpServer_OpenSim.dll ../bin/HttpServer_OpenSim.dll.orig
-		cp HttpServer_OpenSim/bin/HttpServer_OpenSim.dll ../bin
 	fi
 
+	cp HttpServer_OpenSim/bin/HttpServer_OpenSim.dll ../bin
 	cd ..
 	patch -p1 < ./opensim.currency/patch/opensim.patch || exit 1
 	xbuild_opensim || exit 1
