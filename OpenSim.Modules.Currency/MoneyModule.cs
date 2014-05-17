@@ -261,8 +261,8 @@ namespace OpenSim.Modules.Currency
 					m_log.InfoFormat("[MONEY]: The DTL/NSL MoneyModule is enabled");
 				}
 
-				m_sellEnabled = economyConfig.GetBoolean("SellEnabled", false);
-
+				m_sellEnabled  = economyConfig.GetBoolean("SellEnabled", false);
+				m_moneyServURL = economyConfig.GetString("CurrencyServer");
 
 				// クライアント証明書
 				m_certFilename = economyConfig.GetString("ClientCertFilename", "");
@@ -1210,7 +1210,6 @@ namespace OpenSim.Modules.Currency
 
 			bool ret = false;
 
-			//if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
@@ -1253,7 +1252,6 @@ namespace OpenSim.Modules.Currency
 
 			bool ret = false;
 
-			//if (request.Params.Count>0 && m_userServIP==remoteClient.Address.ToString())
 			if (request.Params.Count>0)
 			{
 				Hashtable requestParam = (Hashtable)request.Params[0];
