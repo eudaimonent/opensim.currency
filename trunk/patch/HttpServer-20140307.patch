@@ -83,7 +83,7 @@ diff -Nur HttpServer-/HttpContextFactory.cs HttpServer/HttpContextFactory.cs
              {
                  //TODO: this may fail
 -                sslStream.AuthenticateAsServer(certificate, false, protocol, false);
-+                // bu Fumi.Iseki
++                // by Fumi.Iseki
 +                //sslStream.AuthenticateAsServer(certificate, false, protocol, false);
 +                if (_clientCallback == null)
 +                {
