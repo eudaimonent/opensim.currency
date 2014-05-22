@@ -33,7 +33,12 @@ if [ "$1" != '-R' ]; then
 	cp -f HttpServer_OpenSim/bin/HttpServer_OpenSim.dll ../bin
 
 	cd ..
-	patch -p1 < ./opensim.currency/patch/opensim.patch || exit 1
+
+	PCHK=`grep "request.IHttpClientContext.SSLCommonName" OpenSim/Framework/Servers/HttpServer/BaseHttpServer.cs`
+
+	if [ "$PCHK" == "" ]; then
+		patch -p1 < ./opensim.currency/patch/opensim.patch || exit 1
+	fi
 	xbuild_opensim || exit 1
 	#
 else
