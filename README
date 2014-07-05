@@ -10,7 +10,7 @@
 0. Outline
 
  This Money Server is modified version of DTL Currency Processing (http://forge.opensimulator.org/gf/project/currency/).
- As for this, some bug fixes and some functionality expansions are done. And this can be operated by OpenSim 0.7.x. 
+ As for this, some bug fixes and some functionality expansions are done. And this can be operated by OpenSim 0.8.x. 
  But, Web Monitor function (ASP.NET) is removed from original DTL Currency. So, this version is less secure than original 
  version!! Please use this at Your Own Risk!!
 
@@ -18,15 +18,15 @@
 
 1. Install
 
- # cd opensim-0.7.x-source
- # tar xzfv opensim.currency-0.7.x.tar.gz 
+ # cd opensim-0.8.x-source
+ # tar xzfv opensim.currency-0.8.x.tar.gz 
  
  # mv bin/HttpServer_OpenSim.dll HttpServer_OpenSim.dll.orig
- # cp opensim.currency-0.7.x/HttpServer_OpenSim/bin/HttpServer_OpenSim.dll bin
- # patch -p1 < opensim.currency-0.7.x/opensim.patch
+ # cp opensim.currency-0.8.x/HttpServer_OpenSim/bin/HttpServer_OpenSim.dll bin
+ # patch -p1 < opensim.currency-0.8.x/opensim.patch
 
  # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-0.7.x
+ # cd opensim.currency-0.8.x
  # ./build.sh
 
 
@@ -35,7 +35,7 @@
 
 2-1. Money Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # vi bin/MoneyServer.ini 
 
   - Plese set hostname, database, username and password of MySQL at [MySql] section.
@@ -54,7 +54,7 @@
 
 2-2. Region Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # vi bin/OpenSim.ini 
 
  [Economy]
@@ -102,21 +102,21 @@
 
 3-1. Robust Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono Robust.exe
 
 
 3-2. Money Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono MoneyServer.exe
 
 
 3-3. Region Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono OpenSim.exe
 

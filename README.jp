@@ -10,7 +10,7 @@
 0. はじめに
 
 　これは DTL Currency Processing Project (http://forge.opensimulator.org/gf/project/currency/) 
-から Web Monitor を取り外して，いくつかのバグフィックスと 0.7.xで動作するようにパッチを充てた物
+から Web Monitor を取り外して，いくつかのバグフィックスと 0.8.xで動作するようにパッチを充てた物
 です．また幾つかの機能拡張も行っています．Web Monitor を取り外したのは，我々のターゲットが主に
 Linuxであるのに対して，この機能 ASP.NETで作動しており，Linux上で動作させるのが困難だったためです．
 
@@ -23,15 +23,15 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 1. インストール
 
- # cd opensim-0.7.x-source
- # tar xzfv opensim.currency-0.7.x.tar.gz 
+ # cd opensim-0.8.x-source
+ # tar xzfv opensim.currency-0.8.x.tar.gz 
 
  # mv bin/HttpServer_OpenSim.dll HttpServer_OpenSim.dll.orig
- # cp opensim.currency-0.7.x/HttpServer_OpenSim/bin/HttpServer_OpenSim.dll bin
- # patch -p1 < opensim.currency-0.7.x/opensim.patch
+ # cp opensim.currency-0.8.x/HttpServer_OpenSim/bin/HttpServer_OpenSim.dll bin
+ # patch -p1 < opensim.currency-0.8.x/opensim.patch
 
  # ./runprebuild.sh && nant clean && nant
- # cd opensim.currency-0.7.x
+ # cd opensim.currency-0.8.x
  # ./build.sh
 
 
@@ -42,7 +42,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
   bin/MoneyServer.ini の [MySql] に MySQLサーバにアクセスするための情報を追加する
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # vi bin/MoneyServer.ini 
 
   1. [MySql]セクションの hostname, database, username, password を設定する．
@@ -67,7 +67,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
   bin/OpenSim.ini に MoneyServerに接続するための設定を行う．Money Serverには HTTPS
 を使用して接続を行う．この際に使用するポート番号は 8008である．
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # vi bin/OpenSim.ini 
 
  [Economy]
@@ -117,14 +117,14 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 
 3-1. Robust Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono Robust.exe
 
 
 3-2. Money Server
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono MoneyServer.exe
 
@@ -132,7 +132,7 @@ Money Serverを誤魔化すことも不可能ではありません．つまり�
 3-2. Region Server
   Region Server は通常と同様に起動する．
 
- # cd opensim-0.7.x-source
+ # cd opensim-0.8.x-source
  # cd bin
  # mono OpenSim.exe
 
