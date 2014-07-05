@@ -1,0 +1,5 @@
+/usr/local/opensim_git/opensim.currency/OpenSim.Data.MySQL.MySQLMoneyDataWrapper/obj/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/usr/local/opensim_git/opensim.currency/bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll.mdb
+/usr/local/opensim_git/opensim.currency/bin/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
+/usr/local/opensim_git/opensim.currency/OpenSim.Data.MySQL.MySQLMoneyDataWrapper/obj/Debug/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll
+/usr/local/opensim_git/opensim.currency/OpenSim.Data.MySQL.MySQLMoneyDataWrapper/obj/Debug/OpenSim.Data.MySQL.MySQLMoneyDataWrapper.dll.mdb

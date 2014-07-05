@@ -1,0 +1,203 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+	<PropertyGroup>
+	  <ProjectType>Local</ProjectType>
+	  <ProductVersion>9.0.30729</ProductVersion>
+	  <SchemaVersion>2.0</SchemaVersion>
+	  <ProjectGuid>{84AEAC3C-0000-0000-0000-000000000000}</ProjectGuid>
+	  <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	  <ApplicationIcon></ApplicationIcon>
+	  <AssemblyKeyContainerName>
+	  </AssemblyKeyContainerName>
+	  <AssemblyName>OpenSim.Data.MySQL.MySQLMoneyDataWrapper</AssemblyName>
+	  <DefaultClientScript>JScript</DefaultClientScript>
+	  <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+	  <DefaultTargetSchema>IE50</DefaultTargetSchema>
+	  <DelaySign>false</DelaySign>
+	  <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+	  <OutputType>Library</OutputType>
+	  <AppDesignerFolder></AppDesignerFolder>
+	  <RootNamespace>OpenSim.Data.MySQL.MySQLMoneyDataWrapper</RootNamespace>
+	  <StartupObject></StartupObject>
+	  <StartArguments></StartArguments>
+	  <FileUpgradeFlags>
+	  </FileUpgradeFlags>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	  <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+	  <BaseAddress>285212672</BaseAddress>
+	  <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+	  <ConfigurationOverrideFile>
+	  </ConfigurationOverrideFile>
+	  <DefineConstants>TRACE;DEBUG</DefineConstants>
+	  <DocumentationFile></DocumentationFile>
+	  <DebugSymbols>True</DebugSymbols>
+	  <FileAlignment>4096</FileAlignment>
+	  <Optimize>False</Optimize>
+	  <OutputPath>../bin/</OutputPath>
+	  <RegisterForComInterop>False</RegisterForComInterop>
+	  <RemoveIntegerChecks>False</RemoveIntegerChecks>
+	  <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+	  <WarningLevel>4</WarningLevel>
+	  <NoStdLib>False</NoStdLib>
+	  <NoWarn></NoWarn>
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	  <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+	  <BaseAddress>285212672</BaseAddress>
+	  <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+	  <ConfigurationOverrideFile>
+	  </ConfigurationOverrideFile>
+	  <DefineConstants>TRACE</DefineConstants>
+	  <DocumentationFile></DocumentationFile>
+	  <DebugSymbols>False</DebugSymbols>
+	  <FileAlignment>4096</FileAlignment>
+	  <Optimize>True</Optimize>
+	  <OutputPath>../bin/</OutputPath>
+	  <RegisterForComInterop>False</RegisterForComInterop>
+	  <RemoveIntegerChecks>False</RemoveIntegerChecks>
+	  <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+	  <WarningLevel>4</WarningLevel>
+	  <NoStdLib>False</NoStdLib>
+	  <NoWarn></NoWarn>
+	  <PlatformTarget>AnyCPU</PlatformTarget>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Reference Include="Axiom.MathLib.dll" >
+		  <Name>Axiom.MathLib.dll</Name>
+		<HintPath>../../bin/Axiom.MathLib.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="log4net.dll" >
+		  <Name>log4net.dll</Name>
+		<HintPath>../../bin/log4net.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="Mono.Addins.dll" >
+		  <Name>Mono.Addins.dll</Name>
+		<HintPath>../../bin/Mono.Addins.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="MySql.Data" >
+		  <Name>MySql.Data</Name>
+		<HintPath>../../bin/MySql.Data.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="Nini.dll" >
+		  <Name>Nini.dll</Name>
+		<HintPath>../../bin/Nini.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenMetaverse.dll" >
+		  <Name>OpenMetaverse.dll</Name>
+		<HintPath>../../bin/OpenMetaverse.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenMetaverseTypes.dll" >
+		  <Name>OpenMetaverseTypes.dll</Name>
+		<HintPath>../../bin/OpenMetaverseTypes.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Data" >
+		  <Name>OpenSim.Data</Name>
+		<HintPath>../../bin/OpenSim.Data.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Framework" >
+		  <Name>OpenSim.Framework</Name>
+		<HintPath>../../bin/OpenSim.Framework.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Framework.Communications" >
+		  <Name>OpenSim.Framework.Communications</Name>
+		<HintPath>../../bin/OpenSim.Framework.Communications.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Framework.Console" >
+		  <Name>OpenSim.Framework.Console</Name>
+		<HintPath>../../bin/OpenSim.Framework.Console.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Framework.Servers" >
+		  <Name>OpenSim.Framework.Servers</Name>
+		<HintPath>../../bin/OpenSim.Framework.Servers.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Framework.Servers.HttpServer" >
+		  <Name>OpenSim.Framework.Servers.HttpServer</Name>
+		<HintPath>../../bin/OpenSim.Framework.Servers.HttpServer.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Region.Framework" >
+		  <Name>OpenSim.Region.Framework</Name>
+		<HintPath>../../bin/OpenSim.Region.Framework.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Region.Physics.Manager" >
+		  <Name>OpenSim.Region.Physics.Manager</Name>
+		<HintPath>../../bin/OpenSim.Region.Physics.Manager.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Server.Base" >
+		  <Name>OpenSim.Server.Base</Name>
+		<HintPath>../../bin/OpenSim.Server.Base.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="OpenSim.Services.Interfaces" >
+		  <Name>OpenSim.Services.Interfaces</Name>
+		<HintPath>../../bin/OpenSim.Services.Interfaces.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="System" >
+		  <Name>System</Name>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="System.Data" >
+		  <Name>System.Data</Name>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="System.Drawing" >
+		  <Name>System.Drawing</Name>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="System.Runtime.Remoting" >
+		  <Name>System.Runtime.Remoting</Name>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="System.Xml" >
+		  <Name>System.Xml</Name>
+		<Private>False</Private>
+	  </Reference>
+	  <Reference Include="XMLRPC.dll" >
+		  <Name>XMLRPC.dll</Name>
+		<HintPath>../../bin/XMLRPC.dll</HintPath>
+		<Private>False</Private>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Include="IMoneyManager.cs">
+		<SubType>Code</SubType>
+	  </Compile>
+	  <Compile Include="MySQLMoneyManager.cs">
+		<SubType>Code</SubType>
+	  </Compile>
+	  <Compile Include="MySQLSuperManager.cs">
+		<SubType>Code</SubType>
+	  </Compile>
+	  <Compile Include="TransactionData.cs">
+		<SubType>Code</SubType>
+	  </Compile>
+	  <Compile Include="Properties\AssemblyInfo.cs">
+		<SubType>Code</SubType>
+	  </Compile>
+  </ItemGroup>
+	<Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
+	<PropertyGroup>
+	  <PreBuildEvent>
+	  </PreBuildEvent>
+	  <PostBuildEvent>
+	  </PostBuildEvent>
+	</PropertyGroup>
+</Project>
