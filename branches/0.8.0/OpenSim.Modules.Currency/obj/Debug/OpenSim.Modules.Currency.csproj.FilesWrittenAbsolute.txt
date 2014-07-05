@@ -1,0 +1,5 @@
+/usr/local/opensim_git/opensim.currency/OpenSim.Modules.Currency/obj/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/usr/local/opensim_git/opensim.currency/bin/OpenSim.Modules.Currency.dll.mdb
+/usr/local/opensim_git/opensim.currency/bin/OpenSim.Modules.Currency.dll
+/usr/local/opensim_git/opensim.currency/OpenSim.Modules.Currency/obj/Debug/OpenSim.Modules.Currency.dll
+/usr/local/opensim_git/opensim.currency/OpenSim.Modules.Currency/obj/Debug/OpenSim.Modules.Currency.dll.mdb

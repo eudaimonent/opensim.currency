@@ -1,0 +1,5 @@
+/usr/local/opensim_git/opensim.currency/OpenSim.Grid.MoneyServer/obj/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/usr/local/opensim_git/opensim.currency/bin/MoneyServer.exe.mdb
+/usr/local/opensim_git/opensim.currency/bin/MoneyServer.exe
+/usr/local/opensim_git/opensim.currency/OpenSim.Grid.MoneyServer/obj/Debug/MoneyServer.exe
+/usr/local/opensim_git/opensim.currency/OpenSim.Grid.MoneyServer/obj/Debug/MoneyServer.exe.mdb
