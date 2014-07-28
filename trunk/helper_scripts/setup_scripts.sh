@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #
-# Setup helper scripts for OpenSim/Aurora-Sim 
-#                               by Fumi.Iseki
+# Setup helper scripts for OpenSim 
+#                                            by Fumi.Iseki
 #
 
 LANG=C
@@ -66,6 +66,24 @@ fi
 ########################################################################
 # Basic Scripts
 
+# download Junk BoX Library
+if [ -d jbxl ]; then
+    svn update jbxl
+else
+    svn co http://www.nsl.tuis.ac.jp/svn/php/jbxl/trunk jbxl
+fi
+
+if [ "$ONLY_DWNLD" = "NO" ]; then
+    if   [ "$SYMBL_LINK" = "YES" ]; then
+        ln -sf ../jbxl/jbxl_tools.php include/jbxl_tools.php
+        ln -sf ../jbxl/tools.func.php include/tools.func.php
+    elif [ "$SYMBL_LINK" = "NO" ]; then
+        cp -puf jbxl/jbxl_tools.php include/jbxl_tools.php
+        cp -puf jbxl/tools.func.php include/tools.func.php
+    fi
+fi
+
+
 # download flotsam_XmlRpcGroup
 if [ -d flotsam_XmlRpcGroup ]; then
     svn update flotsam_XmlRpcGroup
@@ -78,6 +96,7 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../flotsam_XmlRpcGroup/xmlgroups.php helper/xmlgroups.php
         ln -sf ../flotsam_XmlRpcGroup/xmlgroups_config.php helper/xmlgroups_config.php
         ln -sf ../flotsam_XmlRpcGroup/xmlrpc.php helper/xmlrpc.php
+        ln -sf ../flotsam_XmlRpcGroup/xmlrpci.php helper/xmlrpci.php
         if [ -d helper/phpxmlrpclib ]; then
             rm -rf helper/phpxmlrpclib
         fi
@@ -87,6 +106,7 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         cp -puf flotsam_XmlRpcGroup/xmlgroups.php helper/xmlgroups.php
         cp -puf flotsam_XmlRpcGroup/xmlgroups_config.php helper/xmlgroups_config.php
         cp -puf flotsam_XmlRpcGroup/xmlrpc.php helper/xmlrpc.php
+        cp -puf flotsam_XmlRpcGroup/xmlrpci.php helper/xmlrpci.php
         cp -Rpdf flotsam_XmlRpcGroup/phpxmlrpclib helper/phpxmlrpclib
         cp -puf flotsam_XmlRpcGroup/sql/groups.sql helper/sql/groups.sql
     fi
@@ -103,14 +123,14 @@ fi
 if [ "$ONLY_DWNLD" = "NO" ]; then
     if   [ "$SYMBL_LINK" = "YES" ]; then
         ln -sf ../opensim.helper/currency.php helper/currency.php
-        ln -sf ../opensim.helper/landtool.php helper/landtool.php
         ln -sf ../opensim.helper/helpers.php helper/helpers.php
+        ln -sf ../opensim.helper/landtool.php helper/landtool.php
         ln -sf ../opensim.helper/offline.php helper/offline.php
         ln -sf ../../opensim.helper/sql/offline.sql helper/sql/offline.sql
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.helper/currency.php helper/currency.php
-        cp -puf opensim.helper/landtool.php helper/landtool.php
         cp -puf opensim.helper/helpers.php helper/helpers.php
+        cp -puf opensim.helper/landtool.php helper/landtool.php
         cp -puf opensim.helper/offline.php helper/offline.php
         cp -puf opensim.helper/sql/offline.sql helper/sql/offline.sql
     fi
@@ -127,14 +147,12 @@ fi
 if [ "$ONLY_DWNLD" = "NO" ]; then
     if   [ "$SYMBL_LINK" = "YES" ]; then
         ln -sf ../opensim.phplib/env.mysql.php include/env.mysql.php
-        ln -sf ../opensim.phplib/opensim.mysql.php include/opensim.mysql.php
-        ln -sf ../opensim.phplib/tools.func.php include/tools.func.php
         ln -sf ../opensim.phplib/mysql.func.php include/mysql.func.php
+        ln -sf ../opensim.phplib/opensim.mysql.php include/opensim.mysql.php
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.phplib/env.mysql.php include/env.mysql.php
-        cp -puf opensim.phplib/opensim.mysql.php include/opensim.mysql.php
-        cp -puf opensim.phplib/tools.func.php include/tools.func.php
         cp -puf opensim.phplib/mysql.func.php include/mysql.func.php
+        cp -puf opensim.phplib/opensim.mysql.php include/opensim.mysql.php
     fi
 fi
 
@@ -177,47 +195,6 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         cp -puf opensim.modules/Search/sql/ossearch.sql  helper/sql/ossearch.sql
     fi
 fi
-
-
-# download osprofile
-#if [ -d osprofile ]; then
-#    svn update osprofile
-#else
-#    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.osprofile/trunk osprofile
-#fi
-#
-#if [ "$ONLY_DWNLD" = "NO" ]; then
-#    if   [ "$SYMBL_LINK" = "YES" ]; then
-#        ln -sf ../osprofile/webroot/profile.php  helper/profile.php
-#        ln -sf ../osprofile/webroot/profile_config.php helper/profile_config.php
-#    elif [ "$SYMBL_LINK" = "NO" ]; then
-#        cp -puf osprofile/webroot/profile.php  helper/profile.php
-#        cp -puf osprofile/webroot/profile_config.php helper/profile_config.php
-#    fi
-#fi
-
-
-# download ossearch
-#if [ -d ossearch ]; then
-#    svn update ossearch
-#else
-#    svn co http://www.nsl.tuis.ac.jp/svn/opensim/opensim.ossearch/trunk ossearch
-#fi
-#
-#if [ "$ONLY_DWNLD" = "NO" ]; then
-#    if   [ "$SYMBL_LINK" = "YES" ]; then
-#        ln -sf ../ossearch/webroot/parser.php helper/parser.php
-#        ln -sf ../ossearch/webroot/query.php  helper/query.php
-#        ln -sf ../ossearch/webroot/register.php helper/register.php
-#        ln -sf ../ossearch/webroot/search_config.php helper/search_config.php
-#    elif [ "$SYMBL_LINK" = "NO" ]; then
-#        cp -puf ossearch/webroot/parser.php helper/parser.php
-#        cp -puf ossearch/webroot/query.php  helper/query.php
-#        cp -puf ossearch/webroot/register.php helper/register.php
-#        cp -puf ossearch/webroot/search_config.php helper/search_config.php
-#    fi
-#fi
-
 
 fi  # ALL_SCRIPT
 
