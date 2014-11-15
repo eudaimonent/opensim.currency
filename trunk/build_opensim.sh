@@ -15,6 +15,10 @@ function xbuild_opensim()
 	xbuild /target:CLean
 	xbuild || return 1
 
+	cd opensim.currency
+	./build.sh
+    cd ..
+
 	if [ -d opensim.modules ]; then
     	cd opensim.modules 
 		./build.sh || return 1
