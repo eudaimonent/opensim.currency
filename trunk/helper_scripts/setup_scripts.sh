@@ -63,9 +63,9 @@ fi
 #
 if [ "$ONLY_DWNLD" = "NO" ]; then
     if   [ "$SYMBL_LINK" = "YES" ]; then
-        ln -sf ../image helper/image
+        ln -sf ../images helper/images
     elif [ "$SYMBL_LINK" = "NO" ]; then
-        cp -Rpdf image helper/image
+        cp -Rpdf images helper/images
     fi
 fi
 
