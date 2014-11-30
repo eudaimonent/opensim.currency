@@ -42,8 +42,6 @@ if [ "$SHOW_HELP" = "YES" ]; then
 fi
 
 
-
-
 if [ "$SYMBL_LINK" = "NO" ]; then
     if [ -f include/config.php -a ! -L include/config.php ]; then 
         mv -f include/config.php 'config.php.temp.$$$'
@@ -126,13 +124,20 @@ if [ "$ONLY_DWNLD" = "NO" ]; then
         ln -sf ../opensim.helper/helpers.php helper/helpers.php
         ln -sf ../opensim.helper/landtool.php helper/landtool.php
         ln -sf ../opensim.helper/offline.php helper/offline.php
+        ln -sf ../opensim.helper/sql/offline.sql helper/sql/offline.sql
+        ln -sf ../opensim.helper/loginpage.php helper/loginpage.php
+        ln -sf ../opensim.helper/loginscreen.php helper/loginscreen.php
         ln -sf ../../opensim.helper/sql/offline.sql helper/sql/offline.sql
+        ln -sf ../opensim.helper/loginscreen helper/loginscreen
     elif [ "$SYMBL_LINK" = "NO" ]; then
         cp -puf opensim.helper/currency.php helper/currency.php
         cp -puf opensim.helper/helpers.php helper/helpers.php
         cp -puf opensim.helper/landtool.php helper/landtool.php
         cp -puf opensim.helper/offline.php helper/offline.php
+        cp -puf opensim.helper/loginpage.php helper/loginpage.php
+        cp -puf opensim.helper/loginscreen.php helper/loginscreen.php
         cp -puf opensim.helper/sql/offline.sql helper/sql/offline.sql
+        cp -Rpdf opensim.helper/loginscreen helper/loginscreen
     fi
 fi
 
