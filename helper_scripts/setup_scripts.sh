@@ -60,6 +60,16 @@ if [ "$SYMBL_LINK" = "NO" ]; then
 fi
 
 
+#
+if [ "$ONLY_DWNLD" = "NO" ]; then
+    if   [ "$SYMBL_LINK" = "YES" ]; then
+        ln -sf ../image helper/image
+    elif [ "$SYMBL_LINK" = "NO" ]; then
+        cp -Rpdf image helper/image
+    fi
+fi
+
+
 
 ########################################################################
 # Basic Scripts
