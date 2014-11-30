@@ -1,7 +1,7 @@
 <?php
 //
 // Environment Interface for non Web Interface
-//												by Fumi.Iseki
+//								by Fumi.Iseki
 //
 //
 
@@ -13,7 +13,7 @@ require_once(ENV_HELPER_PATH.'/../include/env.mysql.php');
 require_once(ENV_HELPER_PATH.'/../include/opensim.mysql.php');
 
 
-// 
+// for Login Page
 $LOGIN_SCREEN_CONTENT = "Welcome to My Grid";
 
 $BOX_TITLE        = "Attention";
@@ -31,7 +31,9 @@ $TOTAL_REGION_TTL = "Total Regions";
 $LAST_USERS_TTL   = "Visitors last 30 days";
 $ONLINE_TTL       = "OnLine Now";
 
-//
+
+
+/////////////////////////////////////////////////////////////////////////////////
 //
 //
 function  env_get_user_email($uid)
