@@ -21,7 +21,7 @@ $BOX_COLOR        = "red";
 $BOX_INFOTEXT     = "please rewrite env_interface.php";
 
 $GRID_NAME        = "My Grid";
-$REGION_TTL       = "MGrid";
+$REGION_TTL       = "My Regions";
 
 $DB_STATUS_TTL    = "DB Status";
 $ONLINE           = " ONLINE ";
