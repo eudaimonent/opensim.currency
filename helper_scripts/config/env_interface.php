@@ -14,23 +14,24 @@ require_once(ENV_HELPER_PATH.'/../include/opensim.mysql.php');
 
 
 // for Login Page
-$LOGIN_SCREEN_CONTENT = "Welcome to My Grid";
+if ($LOGINPAGE) {
+	$LOGIN_SCREEN_CONTENT = "Welcome to My Grid";
 
-$BOX_TITLE        = "Attention";
-$BOX_COLOR        = "red";
-$BOX_INFOTEXT     = "please rewrite env_interface.php";
+	$BOX_TITLE        = "Attention";
+	$BOX_COLOR        = "red";
+	$BOX_INFOTEXT     = "please rewrite env_interface.php";
 
-$GRID_NAME        = "My Grid";
-$REGION_TTL       = "My Regions";
+	$GRID_NAME        = "My Grid";
+	$REGION_TTL       = "My Regions";
 
-$DB_STATUS_TTL    = "DB Status";
-$ONLINE           = " ONLINE ";
-$OFFLINE          = " OFFLINE ";
-$TOTAL_USER_TTL   = "Total Users";
-$TOTAL_REGION_TTL = "Total Regions";
-$LAST_USERS_TTL   = "Visitors last 30 days";
-$ONLINE_TTL       = "OnLine Now";
-
+	$DB_STATUS_TTL    = "DB Status";
+	$ONLINE           = " ONLINE ";
+	$OFFLINE          = " OFFLINE ";
+	$TOTAL_USER_TTL   = "Total Users";
+	$TOTAL_REGION_TTL = "Total Regions";
+	$LAST_USERS_TTL   = "Visitors last 30 days";
+	$ONLINE_TTL       = "OnLine Now";
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////
