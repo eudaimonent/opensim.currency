@@ -13,7 +13,7 @@ if (!defined('ENV_HELPER_PATH')) define('ENV_HELPER_PATH', '/home/apache/htdocs/
 // Valiables for OpenSim
 
 // Please set MySQL DB access information
-define('OPENSIM_DB_HOST', '202.26.148.241');
+define('OPENSIM_DB_HOST', 'localhost');
 define('OPENSIM_DB_NAME', 'opensim');
 define('OPENSIM_DB_USER', 'OpensimUser');
 define('OPENSIM_DB_PASS', 'OpensimPass');
