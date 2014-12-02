@@ -14,7 +14,7 @@ require_once(ENV_HELPER_PATH.'/../include/opensim.mysql.php');
 
 
 // for Login Page
-if ($LOGINPAGE) {
+if (isset($LOGINPAGE) and $LOGINPAGE) {
 	$LOGIN_SCREEN_CONTENT = "Welcome to My Grid";
 
 	$BOX_TITLE        = "Attention";
