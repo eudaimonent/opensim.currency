@@ -111,9 +111,9 @@ namespace NSL.Certificate.Tools
 
 		/*
 		SslPolicyErrors:
-			RemoteCertificateNotAvailable = 1, // 証明書が利用できません。
-			RemoteCertificateNameMismatch = 2, // 証明書名が不一致です。
-			RemoteCertificateChainErrors  = 4, // ChainStatus が空でない配列を返しました。
+			RemoteCertificateNotAvailable = 1, // 証明書が利用できません．
+			RemoteCertificateNameMismatch = 2, // 証明書名が不一致です．
+			RemoteCertificateChainErrors  = 4, // ChainStatus が空でない配列を返しました．
 		*/
 
 		//
@@ -211,6 +211,5 @@ namespace NSL.Certificate.Tools
 			}
 		}
 	}
-
 
 }
